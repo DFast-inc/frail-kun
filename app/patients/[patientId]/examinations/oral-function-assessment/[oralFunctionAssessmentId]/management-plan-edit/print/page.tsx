@@ -60,7 +60,36 @@ export default function ExaminationPrintPage({ params }: { params: { patientId: 
         .select("*")
         .eq("id", params.oralFunctionAssessmentId)
         .single();
-      if (!error) setExam(data);
+      if (!error && data) {
+        // スネークケース→キャメルケース変換
+        const camelExam = {
+          ...data,
+          hygieneValue: data.oral_hygiene_value ?? data.mucus_value ?? "",
+          hygieneStatus: data.oral_hygiene_status ?? "",
+          drynessValue: data.mucus_value ?? "",
+          drynessStandard: "", // 必要に応じてdataから取得
+          drynessStatus: "",
+          bitingValue: data.occlusion_force ?? "",
+          bitingStandard: "", // 必要に応じてdataから取得
+          bitingStatus: "",
+          odkPa: data.pa_sound ?? "",
+          odkPaStatus: "",
+          odkTa: data.ta_sound ?? "",
+          odkTaStatus: "",
+          odkKa: data.ka_sound ?? "",
+          odkKaStatus: "",
+          tonguePressure: data.tongue_pressure_value ?? "",
+          tonguePressureStatus: "",
+          chewingValue: data.chewing_function_value ?? "",
+          chewingStandard: "",
+          chewingStatus: "",
+          swallowingValue: data.swallowing_function_value ?? "",
+          swallowingStandard: "",
+          swallowingStatus: "",
+          oralStatus: data.oral_status ?? "",
+        };
+        setExam(camelExam);
+      }
       setLoading(false);
     }
     fetchExam();
@@ -85,6 +114,8 @@ export default function ExaminationPrintPage({ params }: { params: { patientId: 
       </div>
     );
   }
+
+  console.log("exam", exam);
 
   // localPlanがあればそちらを優先
   const getValue = (key: string) => {

@@ -1,12 +1,13 @@
 import { createSupabaseClient } from "@/lib/supabaseClient"
 import ExaminationDetailClient from "@/components/ExaminationDetailClient"
 
-export default async function ExaminationDetailPage({ params }: { params: { patientId: string; oralFunctionAssessmentId: string } }) {
+export default async function ExaminationDetailPage({ params }: { params: Promise<{ patientId: string; oralFunctionAssessmentId: string }> }) {
+  const { patientId, oralFunctionAssessmentId } = await params;
   const supabase = createSupabaseClient()
   const { data: exam, error } = await supabase
     .from("oral_function_exam")
     .select("*")
-    .eq("id", params.oralFunctionAssessmentId)
+    .eq("id", oralFunctionAssessmentId)
     .single()
 
 

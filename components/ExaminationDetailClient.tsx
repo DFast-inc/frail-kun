@@ -92,7 +92,6 @@ function toResultStruct(exam: any) {
 export default function ExaminationDetailClient({ exam }: ExaminationDetailClientProps) {
   const results = toResultStruct(exam);
 
-  console.log("Exam Data:", exam);
 
   // レーダーチャート用のデータ
   const radarData = [
