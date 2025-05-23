@@ -9,6 +9,7 @@ import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Responsi
 
 type ExaminationDetailClientProps = {
   exam: any;
+  patient: any;
 };
 
 function toResultStruct(exam: any) {
@@ -89,7 +90,19 @@ function toResultStruct(exam: any) {
   };
 }
 
-export default function ExaminationDetailClient({ exam }: ExaminationDetailClientProps) {
+function calcAge(birthday: string | null | undefined): string {
+  if (!birthday) return "-";
+  const birth = new Date(birthday);
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age.toString();
+}
+
+export default function ExaminationDetailClient({ exam, patient }: ExaminationDetailClientProps) {
   const results = toResultStruct(exam);
 
 
@@ -141,16 +154,16 @@ export default function ExaminationDetailClient({ exam }: ExaminationDetailClien
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <p className="text-sm text-gray-600">患者ID</p>
-              <p className="font-semibold">{exam.patientId}</p>
+              <p className="font-semibold">{patient?.id ?? ""}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">患者名</p>
-              <p className="font-semibold">{exam.patientName}</p>
+              <p className="font-semibold">{patient?.name ?? ""}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">年齢・性別</p>
               <p className="font-semibold">
-                {exam.age}歳 {exam.gender}
+                {calcAge(patient?.birthday)}歳 {patient?.gender ?? ""}
               </p>
             </div>
             <div>

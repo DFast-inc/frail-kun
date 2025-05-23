@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import * as React from "react";
+const { useEffect, useState } = React;
 import OralFunctionManagementPlanPrint from "@/components/OralFunctionManagementPlanPrint";
 import { createSupabaseClient } from "@/lib/supabaseClient";
 
@@ -47,10 +48,25 @@ type Exam = {
   oralStatus?: string;
 };
 
-export default function ExaminationPrintPage({ params }: { params: { patientId: string, oralFunctionAssessmentId: string } }) {
+import type { Usable } from "react";
+// 年齢計算ユーティリティ
+function calcAge(birthday: string | null | undefined): string {
+  if (!birthday) return "-";
+  const birth = new Date(birthday);
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age.toString();
+}
+export default function ExaminationPrintPage({ params }: { params: Usable<{ patientId: string; oralFunctionAssessmentId: string }> }) {
+  const { patientId, oralFunctionAssessmentId } = React.use(params);
   const [exam, setExam] = useState<Exam | null>(null);
   const [loading, setLoading] = useState(true);
   const [localPlan, setLocalPlan] = useState<any>(null);
+  const [patient, setPatient] = useState<any>(null);
 
   useEffect(() => {
     async function fetchExam() {
@@ -58,7 +74,7 @@ export default function ExaminationPrintPage({ params }: { params: { patientId: 
       const { data, error } = await supabase
         .from("oral_function_exam")
         .select("*")
-        .eq("id", params.oralFunctionAssessmentId)
+        .eq("id", oralFunctionAssessmentId)
         .single();
       if (!error && data) {
         // スネークケース→キャメルケース変換
@@ -96,12 +112,26 @@ export default function ExaminationPrintPage({ params }: { params: { patientId: 
 
     // localStorageから全身の状態も含めた値を取得
     if (typeof window !== "undefined") {
-      const data = localStorage.getItem(`oralFunctionManagementPlan_${params.oralFunctionAssessmentId}`);
+      const data = localStorage.getItem(`oralFunctionManagementPlan_${oralFunctionAssessmentId}`);
       if (data) {
         setLocalPlan(JSON.parse(data));
       }
     }
-  }, [params.oralFunctionAssessmentId]);
+  }, [oralFunctionAssessmentId]);
+
+  React.useEffect(() => {
+    async function fetchPatient() {
+      if (!patientId) return;
+      const supabase = createSupabaseClient();
+      const { data, error } = await supabase
+        .from("patients")
+        .select("*")
+        .eq("id", patientId)
+        .single();
+      if (!error) setPatient(data);
+    }
+    fetchPatient();
+  }, [patientId]);
 
   if (loading) {
     return <div style={{ padding: "2rem", textAlign: "center" }}>読み込み中...</div>;
@@ -114,9 +144,6 @@ export default function ExaminationPrintPage({ params }: { params: { patientId: 
       </div>
     );
   }
-
-  console.log("exam", exam);
-
   // localPlanがあればそちらを優先
   const getValue = (key: string) => {
     if (localPlan && localPlan[key] !== undefined && localPlan[key] !== "") {
@@ -128,7 +155,7 @@ export default function ExaminationPrintPage({ params }: { params: { patientId: 
   return (
     <div>
       <div className="no-print" style={{ marginBottom: "16px" }}>
-<Link href={`/patients/${params.patientId}/examinations/oral-function-assessment/${params.oralFunctionAssessmentId}/management-plan-edit`}>
+<Link href={`/patients/${patientId}/examinations/oral-function-assessment/${oralFunctionAssessmentId}/management-plan-edit`}>
           <button
             type="button"
             className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition"
@@ -167,15 +194,15 @@ export default function ExaminationPrintPage({ params }: { params: { patientId: 
             <tr>
               <th>患者氏名</th>
               <td>
-                <span id="printPatientName">{exam.patientName ?? ""}</span>
+                <span id="printPatientName">{patient?.name ?? ""}</span>
               </td>
               <th>年齢</th>
               <td>
-                <span id="printPatientAge">{exam.age ?? ""}</span>歳
+                <span id="printPatientAge">{calcAge(patient?.birthday)}</span>歳
               </td>
               <th>性別</th>
               <td>
-                <span id="printPatientGender">{exam.gender ?? ""}</span>
+                <span id="printPatientGender">{patient?.gender ?? ""}</span>
               </td>
               <th>日付</th>
               <td>
@@ -357,7 +384,7 @@ export default function ExaminationPrintPage({ params }: { params: { patientId: 
         </div>
 
         {/* 管理計画書部分 */}
-        <OralFunctionManagementPlanPrint examinationId={params.oralFunctionAssessmentId} />
+        <OralFunctionManagementPlanPrint examinationId={oralFunctionAssessmentId} />
       </div>
     </div>
   );

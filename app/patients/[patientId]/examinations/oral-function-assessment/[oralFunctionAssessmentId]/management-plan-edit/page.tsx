@@ -5,9 +5,23 @@ import Link from "next/link";
 import { createSupabaseClient } from "@/lib/supabaseClient";
 import OralFunctionManagementPlanForm from "@/components/OralFunctionManagementPlanForm";
 
+// 年齢計算ユーティリティ
+function calcAge(birthday: string | null | undefined): string {
+  if (!birthday) return "-";
+  const birth = new Date(birthday);
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age.toString();
+}
+
 export default function ManagementPlanEditPage() {
   const params = useParams();
   const [exam, setExam] = useState<any>(null);
+  const [patient, setPatient] = useState<any>(null);
 
   useEffect(() => {
     async function fetchExam() {
@@ -21,6 +35,20 @@ export default function ManagementPlanEditPage() {
     }
     fetchExam();
   }, [params.oralFunctionAssessmentId]);
+
+  useEffect(() => {
+    async function fetchPatient() {
+      if (!params.patientId) return;
+      const supabase = createSupabaseClient();
+      const { data, error } = await supabase
+        .from("patients")
+        .select("*")
+        .eq("id", params.patientId)
+        .single();
+      if (!error) setPatient(data);
+    }
+    fetchPatient();
+  }, [params.patientId]);
 
   return (
     <div style={{ maxWidth: "900px", margin: "0 auto", background: "#fff", padding: "32px", fontFamily: "serif", color: "#222", border: "1px solid #ccc" }}>
@@ -46,19 +74,18 @@ export default function ManagementPlanEditPage() {
       <div className="mb-8">
         <div className="flex flex-wrap gap-6 items-center bg-gray-50 rounded-lg p-4 border mb-6">
           <div>
-            <span className="font-semibold text-gray-700">患者名:</span> <span>{exam?.patientName ?? ""}</span>
+            <span className="font-semibold text-gray-700">患者名:</span> <span>{patient?.name ?? ""}</span>
           </div>
           <div>
-            <span className="font-semibold text-gray-700">年齢:</span> <span>{exam?.age ?? ""}</span>
+            <span className="font-semibold text-gray-700">年齢:</span> <span>{calcAge(patient?.birthday)}</span>
           </div>
           <div>
-            <span className="font-semibold text-gray-700">性別:</span> <span>{exam?.gender ?? ""}</span>
+            <span className="font-semibold text-gray-700">性別:</span> <span>{patient?.gender ?? ""}</span>
           </div>
           <div>
             <span className="font-semibold text-gray-700">検査日:</span> <span>{exam?.exam_date ?? ""}</span>
           </div>
         </div>
-
       </div>
       <OralFunctionManagementPlanForm />
       {/* ...（プレビュー・印刷用管理計画書部分も同様に移植可能）... */}
