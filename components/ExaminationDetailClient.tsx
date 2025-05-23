@@ -92,6 +92,8 @@ function toResultStruct(exam: any) {
 export default function ExaminationDetailClient({ exam }: ExaminationDetailClientProps) {
   const results = toResultStruct(exam);
 
+  console.log("Exam Data:", exam);
+
   // レーダーチャート用のデータ
   const radarData = [
     { subject: "口腔衛生", score: results.oralHygiene.score === 0 ? 5 : 1 },
@@ -108,7 +110,7 @@ export default function ExaminationDetailClient({ exam }: ExaminationDetailClien
       {/* ヘッダー */}
       <div className="flex justify-between items-start">
         <div className="flex items-center gap-4">
-          <Link href={`/patients/${exam.patientId}`}>
+          <Link href={`/patients/${exam.patient_id}`}>
             <Button variant="outline" size="sm">
               <ArrowLeft className="w-4 h-4 mr-2" />
               戻る
@@ -120,11 +122,11 @@ export default function ExaminationDetailClient({ exam }: ExaminationDetailClien
           </div>
         </div>
         <div>
-          <Link href={`/examinations/detail/${exam.id}/management-plan-edit`}>
-            <Button variant="default" size="sm" className="ml-2">
-              管理計画書作成
-            </Button>
-          </Link>
+<Link href={`/patients/${exam.patient_id}/examinations/oral-function-assessment/${exam.id}/management-plan-edit`}>
+  <Button variant="default" size="sm" className="ml-2">
+    管理計画書作成
+  </Button>
+</Link>
         </div>
       </div>
 

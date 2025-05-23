@@ -15,12 +15,12 @@ export default function ManagementPlanEditPage() {
       const { data, error } = await supabase
         .from("oral_function_exam")
         .select("*")
-        .eq("id", params.id)
+        .eq("id", params.oralFunctionAssessmentId)
         .single();
       if (!error) setExam(data);
     }
     fetchExam();
-  }, [params.id]);
+  }, [params.oralFunctionAssessmentId]);
 
   return (
     <div style={{ maxWidth: "900px", margin: "0 auto", background: "#fff", padding: "32px", fontFamily: "serif", color: "#222", border: "1px solid #ccc" }}>
@@ -33,7 +33,7 @@ export default function ManagementPlanEditPage() {
       `}</style>
       <h2 className="text-2xl font-bold mb-6">口腔機能管理計画書作成</h2>
       <div className="mb-4">
-        <Link href={`/examinations/detail/${params.id}/management-plan-edit/print`}>
+        <Link href={`/patients/${params.patientId}/examinations/oral-function-assessment/${params.oralFunctionAssessmentId}/management-plan-edit/print`}>
           <button
             type="button"
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"

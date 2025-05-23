@@ -2,9 +2,8 @@ import { useState } from "react";
 import { createSupabaseClient } from "../lib/supabaseClient";
 
 type PatientFormData = {
-
   name: string;
-  age: string;
+  birthday: string;
   gender: string;
   address: string;
   phone: string;
@@ -23,7 +22,7 @@ export function useCreatePatient() {
     const { error } = await supabase.from("patients").insert([
       {
         name: formData.name,
-        // ageは送信しない
+        birthday: formData.birthday ? formData.birthday : null,
         gender: formData.gender,
         address: formData.address,
         phone: formData.phone,

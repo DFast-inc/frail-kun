@@ -8,8 +8,8 @@ import { ClipboardList, Edit, Dumbbell, Plus, ArrowLeft, ChevronDown, ChevronUp,
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
-export default async function PatientDetailPage({ params }: { params: { id: string } }) {
-  const patientId = params.id;
+export default async function PatientDetailPage({ params }: { params: { patientId: string } }) {
+  const patientId = params.patientId;
 
   // サーバー側で患者データ取得
   const supabase = createSupabaseClient();
@@ -128,16 +128,16 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuItem asChild>
-                <Link href={`/examinations/new?patientId=${patientId}`}>
-                  <ClipboardList className="mr-2 h-5 w-5" />
-                  <span>口腔機能検査</span>
-                </Link>
+<Link href={`/patients/${patientId}/examinations/oral-function-assessment/new`}>
+  <ClipboardList className="mr-2 h-5 w-5" />
+  <span>口腔機能検査</span>
+</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href={`/physical-assessment/new?patientId=${patientId}`}>
-                  <Dumbbell className="mr-2 h-5 w-5" />
-                  <span>全身機能検査</span>
-                </Link>
+<Link href={`/patients/${patientId}/examinations/physical-assessment/new`}>
+  <Dumbbell className="mr-2 h-5 w-5" />
+  <span>全身機能検査</span>
+</Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -167,7 +167,19 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
               <div>
                 <h3 className="text-lg font-medium text-muted-foreground">生年月日</h3>
                 <p className="text-xl">
-                  {patientData.birthdate ? `${patientData.birthdate} (${patientData.age ?? ""}歳)` : ""}
+                  {patientData.birthday
+                    ? `${patientData.birthday} (${(() => {
+                        if (!patientData.birthday) return "";
+                        const today = new Date();
+                        const birth = new Date(patientData.birthday);
+                        let age = today.getFullYear() - birth.getFullYear();
+                        const m = today.getMonth() - birth.getMonth();
+                        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+                          age--;
+                        }
+                        return isNaN(age) ? "" : `${age}歳`;
+                      })()})`
+                    : ""}
                 </p>
               </div>
               <div>
@@ -241,24 +253,24 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
                   </TableHeader>
                   <TableBody>
                     {examinationData.map((exam) => (
-                      <Link href={`/examinations/detail/${exam.id}`} key={exam.id} passHref legacyBehavior>
-                        <TableRow className="cursor-pointer hover:bg-blue-50">
-                          <TableCell className="text-lg font-medium">{exam.date}</TableCell>
-                          <TableCell className="text-lg">{exam.diagnosis}</TableCell>
-                        </TableRow>
-                      </Link>
+<Link href={`/patients/${patientId}/examinations/oral-function-assessment/${exam.id}`} key={exam.id} passHref legacyBehavior>
+  <TableRow className="cursor-pointer hover:bg-blue-50">
+    <TableCell className="text-lg font-medium">{exam.date}</TableCell>
+    <TableCell className="text-lg">{exam.diagnosis}</TableCell>
+  </TableRow>
+</Link>
                     ))}
                   </TableBody>
                 </Table>
               ) : (
                 <div className="text-center py-8">
                   <p className="text-lg text-muted-foreground">検査記録がありません</p>
-                  <Link href={`/examinations/new?patientId=${patientId}`} className="mt-4 inline-block">
-                    <Button size="lg" className="text-lg">
-                      <ClipboardList className="mr-2 h-5 w-5" />
-                      新規検査を実施
-                    </Button>
-                  </Link>
+<Link href={`/patients/${patientId}/examinations/oral-function-assessment/new`} className="mt-4 inline-block">
+  <Button size="lg" className="text-lg">
+    <ClipboardList className="mr-2 h-5 w-5" />
+    新規検査を実施
+  </Button>
+</Link>
                 </div>
               )}
             </TabsContent>
@@ -275,28 +287,30 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {physicalAssessmentData.map((assessment) => (
-                      <TableRow key={assessment.id}>
-                        <TableCell className="text-lg font-medium">{assessment.date}</TableCell>
-                        <TableCell className="text-lg">
-                          {assessment.height}cm / {assessment.weight}kg / BMI: {assessment.bmi}
-                        </TableCell>
-                        <TableCell className="text-lg">{assessment.gripStrength}</TableCell>
-                        <TableCell className="text-lg">{assessment.walkingSpeed} m/秒</TableCell>
-                        <TableCell className="text-lg">{assessment.frailtyStatus}</TableCell>
-                      </TableRow>
-                    ))}
+{physicalAssessmentData.map((assessment) => (
+  <Link href={`/patients/${patientId}/examinations/physical-assessment/${assessment.id}`} key={assessment.id} passHref legacyBehavior>
+    <TableRow className="cursor-pointer hover:bg-blue-50">
+      <TableCell className="text-lg font-medium">{assessment.date}</TableCell>
+      <TableCell className="text-lg">
+        {assessment.height}cm / {assessment.weight}kg / BMI: {assessment.bmi}
+      </TableCell>
+      <TableCell className="text-lg">{assessment.gripStrength}</TableCell>
+      <TableCell className="text-lg">{assessment.walkingSpeed} m/秒</TableCell>
+      <TableCell className="text-lg">{assessment.frailtyStatus}</TableCell>
+    </TableRow>
+  </Link>
+))}
                   </TableBody>
                 </Table>
               ) : (
                 <div className="text-center py-8">
                   <p className="text-lg text-muted-foreground">全身機能評価の記録がありません</p>
-                  <Link href={`/physical-assessment/new?patientId=${patientId}`} className="mt-4 inline-block">
-                    <Button size="lg" className="text-lg">
-                      <Dumbbell className="mr-2 h-5 w-5" />
-                      新規評価を実施
-                    </Button>
-                  </Link>
+<Link href={`/patients/${patientId}/examinations/physical-assessment/new`} className="mt-4 inline-block">
+  <Button size="lg" className="text-lg">
+    <Dumbbell className="mr-2 h-5 w-5" />
+    新規評価を実施
+  </Button>
+</Link>
                 </div>
               )}
             </TabsContent>

@@ -101,17 +101,19 @@ export default function OralFunctionManagementPlanForm() {
 
   const router = useRouter();
   const params = useParams();
-  const examinationId = params?.id ?? "unknown";
+  console.log("useParams() in OralFunctionManagementPlanForm:", params);
+  const patientId = params?.patientId ?? "unknown";
+  const oralFunctionAssessmentId = params?.oralFunctionAssessmentId ?? "unknown";
 
   // localStorage保存
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem(
-        `oralFunctionManagementPlan_${examinationId}`,
+        `oralFunctionManagementPlan_${oralFunctionAssessmentId}`,
         JSON.stringify(form)
       );
     }
-  }, [form, examinationId]);
+  }, [form, oralFunctionAssessmentId]);
 
   const handleRadioChange = (name: string, value: string) => {
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -127,14 +129,13 @@ export default function OralFunctionManagementPlanForm() {
     setForm((prev) => ({ ...prev, [name]: Number(value) }));
   };
 
-  // 仮のsubmit/戻るハンドラ
+  // submit/戻るハンドラ
   const handleBack = () => {
-    // 実装時にrouter.push等で遷移
-    alert("診断結果に戻る（実装時に遷移処理）");
+    router.push(`/patients/${patientId}/examinations/oral-function-assessment/${oralFunctionAssessmentId}`);
   };
   const handleGenerate = () => {
     // localStorage保存はuseEffectで自動
-    router.push(`/examinations/detail/${examinationId}/management-plan-edit/print`);
+    router.push(`/patients/${patientId}/examinations/oral-function-assessment/${oralFunctionAssessmentId}/management-plan-edit/print`);
   };
 
   return (

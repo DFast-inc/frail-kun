@@ -1,17 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { UserPlus, Search, Edit, ClipboardList, FileText } from "lucide-react";
+import { UserPlus, Search } from "lucide-react";
 import type React from "react";
 
 type Patient = {
   id: number;
   name: string;
-  age: number;
+  age: number | null;
   gender: string;
   lastVisit: string;
   status: string;
@@ -32,6 +33,7 @@ export default function PatientsList({
   const filteredPatients = patients.filter((patient) =>
     patient.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+  const router = useRouter();
 
   return (
     <div className="space-y-6">
@@ -81,22 +83,30 @@ export default function PatientsList({
                 <TableHead className="text-lg">性別</TableHead>
                 <TableHead className="text-lg">最終来院日</TableHead>
                 <TableHead className="text-lg">状態</TableHead>
-                <TableHead className="text-lg">操作</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-lg">
+                  <TableCell colSpan={6} className="text-center text-lg">
                     読み込み中...
                   </TableCell>
                 </TableRow>
               ) : (
                 filteredPatients.map((patient) => (
-                  <TableRow key={patient.id}>
+                  <TableRow
+                    key={patient.id}
+                    className="cursor-pointer hover:bg-accent transition"
+                    onClick={() => router.push(`/patients/${patient.id}`)}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`患者 ${patient.name} の詳細ページへ`}
+                  >
                     <TableCell className="text-lg font-medium">{patient.id}</TableCell>
                     <TableCell className="text-lg">{patient.name}</TableCell>
-                    <TableCell className="text-lg">{patient.age}歳</TableCell>
+                    <TableCell className="text-lg">
+                      {patient.age !== null ? `${patient.age}歳` : "-"}
+                    </TableCell>
                     <TableCell className="text-lg">{patient.gender}</TableCell>
                     <TableCell className="text-lg">{patient.lastVisit}</TableCell>
                     <TableCell className="text-lg">
@@ -111,28 +121,6 @@ export default function PatientsList({
                       >
                         {patient.status}
                       </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-2">
-                        <Link href={`/patients/${patient.id}`}>
-                          <Button variant="outline" size="sm" className="text-base">
-                            <Edit className="mr-1 h-4 w-4" />
-                            詳細
-                          </Button>
-                        </Link>
-                        <Link href={`/examinations/new?patientId=${patient.id}`}>
-                          <Button variant="outline" size="sm" className="text-base">
-                            <ClipboardList className="mr-1 h-4 w-4" />
-                            検査
-                          </Button>
-                        </Link>
-                        <Link href={`/management-plans/${patient.id}`}>
-                          <Button variant="outline" size="sm" className="text-base">
-                            <FileText className="mr-1 h-4 w-4" />
-                            計画
-                          </Button>
-                        </Link>
-                      </div>
                     </TableCell>
                   </TableRow>
                 ))

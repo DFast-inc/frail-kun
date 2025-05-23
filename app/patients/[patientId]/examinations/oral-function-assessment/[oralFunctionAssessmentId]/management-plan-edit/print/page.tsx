@@ -47,7 +47,7 @@ type Exam = {
   oralStatus?: string;
 };
 
-export default function ExaminationPrintPage({ params }: { params: { id: string } }) {
+export default function ExaminationPrintPage({ params }: { params: { patientId: string, oralFunctionAssessmentId: string } }) {
   const [exam, setExam] = useState<Exam | null>(null);
   const [loading, setLoading] = useState(true);
   const [localPlan, setLocalPlan] = useState<any>(null);
@@ -58,7 +58,7 @@ export default function ExaminationPrintPage({ params }: { params: { id: string 
       const { data, error } = await supabase
         .from("oral_function_exam")
         .select("*")
-        .eq("id", params.id)
+        .eq("id", params.oralFunctionAssessmentId)
         .single();
       if (!error) setExam(data);
       setLoading(false);
@@ -67,12 +67,12 @@ export default function ExaminationPrintPage({ params }: { params: { id: string 
 
     // localStorageから全身の状態も含めた値を取得
     if (typeof window !== "undefined") {
-      const data = localStorage.getItem(`oralFunctionManagementPlan_${params.id}`);
+      const data = localStorage.getItem(`oralFunctionManagementPlan_${params.oralFunctionAssessmentId}`);
       if (data) {
         setLocalPlan(JSON.parse(data));
       }
     }
-  }, [params.id]);
+  }, [params.oralFunctionAssessmentId]);
 
   if (loading) {
     return <div style={{ padding: "2rem", textAlign: "center" }}>読み込み中...</div>;
@@ -97,7 +97,7 @@ export default function ExaminationPrintPage({ params }: { params: { id: string 
   return (
     <div>
       <div className="no-print" style={{ marginBottom: "16px" }}>
-        <Link href={`/examinations/detail/${params.id}/management-plan-edit`}>
+<Link href={`/patients/${params.patientId}/examinations/oral-function-assessment/${params.oralFunctionAssessmentId}/management-plan-edit`}>
           <button
             type="button"
             className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition"
@@ -326,7 +326,7 @@ export default function ExaminationPrintPage({ params }: { params: { id: string 
         </div>
 
         {/* 管理計画書部分 */}
-        <OralFunctionManagementPlanPrint examinationId={params.id} />
+        <OralFunctionManagementPlanPrint examinationId={params.oralFunctionAssessmentId} />
       </div>
     </div>
   );

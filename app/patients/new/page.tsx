@@ -16,7 +16,7 @@ export default function NewPatientPage() {
   const router = useRouter()
   const [formData, setFormData] = useState({
     name: "",
-    age: "",
+    birthday: "",
     gender: "",
     address: "",
     phone: "",
@@ -98,16 +98,16 @@ export default function NewPatientPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="age">
-                  年齢
+                <Label htmlFor="birthday">
+                  生年月日
                 </Label>
                 <Input
-                  id="age"
-                  name="age"
-                  type="number"
-                  value={formData.age}
+                  id="birthday"
+                  name="birthday"
+                  type="date"
+                  value={formData.birthday}
                   onChange={handleChange}
-                  placeholder="例: 65"
+                  placeholder="例: 1958-04-01"
                   className="text-sm sm:text-base"
                 />
               </div>
