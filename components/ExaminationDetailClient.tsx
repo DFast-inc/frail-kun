@@ -6,82 +6,137 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, User, Calendar, FileText, AlertTriangle, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts";
+import {
+  judgeOralHygiene,
+  judgeOralDryness,
+  judgeBitingForce,
+  judgeTongueMovement,
+  judgeTonguePressure,
+  judgeChewingFunction,
+  judgeSwallowingFunction,
+  judgeOverall,
+  OralFunctionExamData,
+} from "@/lib/oralFunctionAssessmentJudge";
 
 type ExaminationDetailClientProps = {
   exam: any;
   patient: any;
 };
 
-function toResultStruct(exam: any) {
-  // サンプルUIのresults構造に変換
+// DB値→OralFunctionExamData型へ変換
+function toOralFunctionExamData(exam: any): OralFunctionExamData {
   return {
     oralHygiene: {
-      score: (Number(exam.tongue_front_left) + Number(exam.tongue_front_center) + Number(exam.tongue_front_right) +
-        Number(exam.tongue_middle_left) + Number(exam.tongue_middle_center) + Number(exam.tongue_middle_right) +
-        Number(exam.tongue_back_left) + Number(exam.tongue_back_center) + Number(exam.tongue_back_right)) >= 3 ? 1 : 0,
+      tongueFrontLeft: String(exam.tongue_front_left ?? ""),
+      tongueFrontCenter: String(exam.tongue_front_center ?? ""),
+      tongueFrontRight: String(exam.tongue_front_right ?? ""),
+      tongueMiddleLeft: String(exam.tongue_middle_left ?? ""),
+      tongueMiddleCenter: String(exam.tongue_middle_center ?? ""),
+      tongueMiddleRight: String(exam.tongue_middle_right ?? ""),
+      tongueBackLeft: String(exam.tongue_back_left ?? ""),
+      tongueBackCenter: String(exam.tongue_back_center ?? ""),
+      tongueBackRight: String(exam.tongue_back_right ?? ""),
+    },
+    oralDryness: {
+      evaluationMethod: exam.oral_dryness_method ?? "method1",
+      mucusValue: String(exam.mucus_value ?? ""),
+      gauzeWeight: String(exam.gauze_weight ?? ""),
+    },
+    bitingForce: {
+      evaluationMethod: exam.biting_force_method ?? "method1",
+      pressureScaleType: exam.pressure_scale_type ?? "pressScale2",
+      useFilter: exam.use_filter ?? "noFilter",
+      occlusionForce: String(exam.occlusion_force ?? ""),
+      remainingTeeth: String(exam.remaining_teeth ?? ""),
+    },
+    tongueMovement: {
+      paSound: String(exam.pa_sound ?? ""),
+      taSound: String(exam.ta_sound ?? ""),
+      kaSound: String(exam.ka_sound ?? ""),
+    },
+    tonguePressure: {
+      value: String(exam.tongue_pressure_value ?? ""),
+    },
+    chewingFunction: {
+      evaluationMethod: exam.chewing_function_method ?? "method1",
+      glucoseConcentration: String(exam.glucose_concentration ?? ""),
+      masticatoryScore: String(exam.masticatory_score ?? ""),
+    },
+    swallowingFunction: {
+      evaluationMethod: exam.swallowing_function_method ?? "eat10",
+      eat10Score: String(exam.eat10_score ?? ""),
+      seireiScore: String(exam.seirei_score ?? ""),
+    },
+  };
+}
+
+// 判定・スコア・statusを共通ロジックで生成
+function toResultStruct(exam: any) {
+  const data = toOralFunctionExamData(exam);
+  return {
+    oralHygiene: {
+      score: judgeOralHygiene(data.oralHygiene) ? 0 : 1,
       value: [
-        `前方: 左${exam.tongue_front_left}, 中央${exam.tongue_front_center}, 右${exam.tongue_front_right}`,
-        `中央: 左${exam.tongue_middle_left}, 中央${exam.tongue_middle_center}, 右${exam.tongue_middle_right}`,
-        `後方: 左${exam.tongue_back_left}, 中央${exam.tongue_back_center}, 右${exam.tongue_back_right}`,
-        `プラークコントロール: ${exam.plaque_control ?? "-"}`,
+        `前方: 左${data.oralHygiene.tongueFrontLeft}, 中央${data.oralHygiene.tongueFrontCenter}, 右${data.oralHygiene.tongueFrontRight}`,
+        `中央: 左${data.oralHygiene.tongueMiddleLeft}, 中央${data.oralHygiene.tongueMiddleCenter}, 右${data.oralHygiene.tongueMiddleRight}`,
+        `後方: 左${data.oralHygiene.tongueBackLeft}, 中央${data.oralHygiene.tongueBackCenter}, 右${data.oralHygiene.tongueBackRight}`,
+        `プラークコントロール: ${exam.plaque_control ?? "-"}`
       ].join(" / "),
-      status: (Number(exam.tongue_front_left) + Number(exam.tongue_front_center) + Number(exam.tongue_front_right) +
-        Number(exam.tongue_middle_left) + Number(exam.tongue_middle_center) + Number(exam.tongue_middle_right) +
-        Number(exam.tongue_back_left) + Number(exam.tongue_back_center) + Number(exam.tongue_back_right)) >= 3 ? "該当" : "正常",
+      status: judgeOralHygiene(data.oralHygiene) ? "正常" : "該当",
       name: "口腔衛生状態",
       description: "舌苔指数・プラークコントロール",
       normalRange: "合計スコア3未満",
       notes: exam.oral_hygiene_notes,
     },
     oralDryness: {
-      score: exam.mucus_value && Number(exam.mucus_value) < 27.0 ? 1 : 0,
-      value: `湿潤度: ${exam.mucus_value ?? "-"} / ガーゼ重量: ${exam.gauze_weight ?? "-"}`,
-      status: exam.mucus_value && Number(exam.mucus_value) < 27.0 ? "該当" : "正常",
+      score: judgeOralDryness(data.oralDryness) ? 0 : 1,
+      value: `湿潤度: ${data.oralDryness.mucusValue ?? "-"} / ガーゼ重量: ${data.oralDryness.gauzeWeight ?? "-"}`,
+      status: judgeOralDryness(data.oralDryness) ? "正常" : "該当",
       name: "口腔乾燥",
       description: "口腔湿潤度測定値・サクソンテスト",
       normalRange: "湿潤度27.0以上, ガーゼ2g以上",
       notes: exam.oral_dryness_notes,
     },
     bitingForce: {
-      score: exam.occlusion_force && Number(exam.occlusion_force) < 200 ? 1 : 0,
-      value: `咬合力: ${exam.occlusion_force ?? "-"}N / 残存歯数: ${exam.remaining_teeth ?? "-"}本 / 器具: ${exam.pressure_scale_type ?? "-"} / フィルタ: ${exam.use_filter ?? "-"}`,
-      status: exam.occlusion_force && Number(exam.occlusion_force) < 200 ? "該当" : "正常",
+      score: judgeBitingForce(data.bitingForce) ? 0 : 1,
+      value: `咬合力: ${data.bitingForce.occlusionForce ?? "-"}N / 残存歯数: ${data.bitingForce.remainingTeeth ?? "-"}本 / 器具: ${data.bitingForce.pressureScaleType ?? "-"} / フィルタ: ${data.bitingForce.useFilter ?? "-"}`,
+      status: judgeBitingForce(data.bitingForce) ? "正常" : "該当",
       name: "咬合力",
       description: "最大咬合力・残存歯数",
       normalRange: "200N以上, 20本以上",
       notes: exam.biting_force_notes,
     },
     tongueMotor: {
-      score: exam.pa_sound && Number(exam.pa_sound) < 6.0 ? 1 : 0,
-      value: `pa: ${exam.pa_sound ?? "-"} / ta: ${exam.ta_sound ?? "-"} / ka: ${exam.ka_sound ?? "-"}`,
-      status: exam.pa_sound && Number(exam.pa_sound) < 6.0 ? "該当" : "正常",
+      score: judgeTongueMovement(data.tongueMovement) ? 0 : 1,
+      value: `pa: ${data.tongueMovement.paSound ?? "-"} / ta: ${data.tongueMovement.taSound ?? "-"} / ka: ${data.tongueMovement.kaSound ?? "-"}`,
+      status: judgeTongueMovement(data.tongueMovement) ? "正常" : "該当",
       name: "舌口唇運動機能",
       description: "オーラルディアドコキネシス",
       normalRange: "6.0回/秒以上",
       notes: exam.tongue_movement_notes,
     },
     tonguePressure: {
-      score: exam.tongue_pressure_value && Number(exam.tongue_pressure_value) < 30 ? 1 : 0,
-      value: `${exam.tongue_pressure_value ?? "-"} kPa`,
-      status: exam.tongue_pressure_value && Number(exam.tongue_pressure_value) < 30 ? "該当" : "正常",
+      score: judgeTonguePressure(data.tonguePressure) ? 0 : 1,
+      value: `${data.tonguePressure.value ?? "-"} kPa`,
+      status: judgeTonguePressure(data.tonguePressure) ? "正常" : "該当",
       name: "舌圧",
       description: "舌圧測定値",
       normalRange: "30kPa以上",
       notes: exam.tongue_pressure_notes,
     },
     chewingFunction: {
-      score: exam.glucose_concentration && Number(exam.glucose_concentration) < 100 ? 1 : 0,
-      value: `グルコース濃度: ${exam.glucose_concentration ?? "-"} / 咀嚼能率スコア: ${exam.masticatory_score ?? "-"}`,
-      status: exam.glucose_concentration && Number(exam.glucose_concentration) < 100 ? "該当" : "正常",
+      score: judgeChewingFunction(data.chewingFunction) ? 0 : 1,
+      value: `グルコース濃度: ${data.chewingFunction.glucoseConcentration ?? "-"} / 咀嚼能率スコア: ${data.chewingFunction.masticatoryScore ?? "-"}`,
+      status: judgeChewingFunction(data.chewingFunction) ? "正常" : "該当",
       name: "咀嚼機能",
       description: "グルコース含有ゼリー法・咀嚼能率スコア",
       normalRange: "100mg/dL以上, スコア3以上",
       notes: exam.chewing_function_notes,
     },
     swallowingFunction: {
-      score: exam.eat10_score && Number(exam.eat10_score) >= 3 ? 1 : 0,
-      value: `EAT-10: ${exam.eat10_score ?? "-"} / 聖隷式: ${exam.seirei_score ?? "-"}`,
-      status: exam.eat10_score && Number(exam.eat10_score) >= 3 ? "該当" : "正常",
+      score: judgeSwallowingFunction(data.swallowingFunction) ? 0 : 1,
+      value: `EAT-10: ${data.swallowingFunction.eat10Score ?? "-"} / 聖隷式: ${data.swallowingFunction.seireiScore ?? "-"}`,
+      status: judgeSwallowingFunction(data.swallowingFunction) ? "正常" : "該当",
       name: "嚥下機能",
       description: "EAT-10・聖隷式嚥下質問紙",
       normalRange: "EAT-10: 3点未満, 聖隷式: 2点未満",
@@ -188,17 +243,52 @@ export default function ExaminationDetailClient({ exam, patient }: ExaminationDe
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
-              <div className="text-4xl font-bold mb-2">{exam.totalScore}/7</div>
+              <div className="text-4xl font-bold mb-2">
+                {
+                  [
+                    results.oralHygiene.score,
+                    results.oralDryness.score,
+                    results.bitingForce.score,
+                    results.tongueMotor.score,
+                    results.tonguePressure.score,
+                    results.chewingFunction.score,
+                    results.swallowingFunction.score,
+                  ].reduce((a, b) => a + b, 0)
+                }
+                /7
+              </div>
               <p className="text-gray-600">該当項目数</p>
             </div>
             <div className="text-center">
               <Badge
-                variant={exam.totalScore >= 2 ? "destructive" : "secondary"}
+                variant={
+                  [
+                    results.oralHygiene.score,
+                    results.oralDryness.score,
+                    results.bitingForce.score,
+                    results.tongueMotor.score,
+                    results.tonguePressure.score,
+                    results.chewingFunction.score,
+                    results.swallowingFunction.score,
+                  ].reduce((a, b) => a + b, 0) >= 2
+                    ? "destructive"
+                    : "secondary"
+                }
                 className={`text-lg px-4 py-2 ${
-                  exam.totalScore >= 2 ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"
+                  [
+                    results.oralHygiene.score,
+                    results.oralDryness.score,
+                    results.bitingForce.score,
+                    results.tongueMotor.score,
+                    results.tonguePressure.score,
+                    results.chewingFunction.score,
+                    results.swallowingFunction.score,
+                  ].reduce((a, b) => a + b, 0) >= 2
+                    ? "bg-red-100 text-red-800"
+                    : "bg-green-100 text-green-800"
                 }`}
               >
-                {exam.status}
+                {judgeOverall(toOralFunctionExamData(exam)) ? "正常" : "要注意"}
               </Badge>
               <p className="text-gray-600 mt-2">診断結果</p>
             </div>
