@@ -4,6 +4,8 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { createSupabaseClient } from "@/lib/supabaseClient";
 import OralFunctionManagementPlanForm from "@/components/OralFunctionManagementPlanForm";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 // 年齢計算ユーティリティ
 function calcAge(birthday: string | null | undefined): string {
@@ -51,28 +53,17 @@ export default function ManagementPlanEditPage() {
   }, [params.patientId]);
 
   return (
-    <div style={{ maxWidth: "900px", margin: "0 auto", background: "#fff", padding: "32px", fontFamily: "serif", color: "#222", border: "1px solid #ccc" }}>
-      <style>{`
-        .section-title { font-size: 1.2rem; font-weight: bold; margin-top: 2rem; margin-bottom: 0.5rem; }
-        .form-group { margin-bottom: 1rem; }
-        .input-section { margin-bottom: 2rem; }
-        .radio-group, .checkbox-wrapper { display: flex; gap: 1.5em; flex-wrap: wrap; }
-        .checkbox-other { display: flex; align-items: center; gap: 0.5em; }
-      `}</style>
-      <h2 className="text-2xl font-bold mb-6">口腔機能管理計画書作成</h2>
-      <div className="mb-4">
-        <Link href={`/patients/${params.patientId}/examinations/oral-function-assessment/${params.oralFunctionAssessmentId}/management-plan-edit/print`}>
-          <button
-            type="button"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-            style={{ fontWeight: "bold" }}
-          >
-            印刷
-          </button>
-        </Link>
-      </div>
-      <div className="mb-8">
-        <div className="flex flex-wrap gap-6 items-center bg-gray-50 rounded-lg p-4 border mb-6">
+    <div className="max-w-3xl mx-auto py-8">
+      <Card className="p-8">
+        <h2 className="text-2xl font-bold mb-6">口腔機能管理計画書作成</h2>
+        <div className="mb-4">
+          <Link href={`/patients/${params.patientId}/examinations/oral-function-assessment/${params.oralFunctionAssessmentId}/management-plan-edit/print`}>
+            <Button variant="default" className="font-bold">
+              印刷
+            </Button>
+          </Link>
+        </div>
+        <Card className="mb-8 bg-gray-50 border flex flex-wrap gap-6 items-center p-4">
           <div>
             <span className="font-semibold text-gray-700">患者名:</span> <span>{patient?.name ?? ""}</span>
           </div>
@@ -85,10 +76,10 @@ export default function ManagementPlanEditPage() {
           <div>
             <span className="font-semibold text-gray-700">検査日:</span> <span>{exam?.exam_date ?? ""}</span>
           </div>
-        </div>
-      </div>
-      <OralFunctionManagementPlanForm />
-      {/* ...（プレビュー・印刷用管理計画書部分も同様に移植可能）... */}
+        </Card>
+        <OralFunctionManagementPlanForm />
+        {/* ...（プレビュー・印刷用管理計画書部分も同様に移植可能）... */}
+      </Card>
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { Textarea } from "./ui/textarea";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { Checkbox } from "./ui/checkbox";
 import { cn } from "../lib/utils";
 
 const items = [
@@ -148,16 +149,14 @@ export default function OralFunctionManagementPlanForm() {
           <div className="flex flex-wrap gap-4">
             {["心疾患", "肝炎", "糖尿病", "高血圧症", "脳血管疾患"].map((disease) => (
               <label key={disease} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  className="accent-blue-600"
+                <Checkbox
                   checked={form.basicDiseaseList?.includes(disease) || false}
-                  onChange={(e) => {
+                  onCheckedChange={(checked) => {
                     setForm((prev) => {
                       const list = prev.basicDiseaseList || [];
                       return {
                         ...prev,
-                        basicDiseaseList: e.target.checked
+                        basicDiseaseList: checked
                           ? [...list, disease]
                           : list.filter((item) => item !== disease),
                       };
@@ -168,15 +167,13 @@ export default function OralFunctionManagementPlanForm() {
               </label>
             ))}
             <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                className="accent-blue-600"
+              <Checkbox
                 checked={!!form.basicDiseaseOtherChecked}
-                onChange={(e) => {
+                onCheckedChange={(checked) => {
                   setForm((prev) => ({
                     ...prev,
-                    basicDiseaseOtherChecked: e.target.checked,
-                    basicDiseaseOther: e.target.checked ? prev.basicDiseaseOther : "",
+                    basicDiseaseOtherChecked: !!checked,
+                    basicDiseaseOther: !!checked ? prev.basicDiseaseOther : "",
                   }));
                 }}
               />
@@ -204,6 +201,7 @@ export default function OralFunctionManagementPlanForm() {
             id="medication"
             name="medication"
             className="border rounded px-2 py-1"
+            aria-label="服用薬剤"
             value={form.medicationSelect || "なし"}
             onChange={(e) =>
               setForm((prev) => ({
@@ -240,6 +238,7 @@ export default function OralFunctionManagementPlanForm() {
           <select
             id="pneumoniaHistory"
             className="border rounded px-2 py-1"
+            aria-label="肺炎の既往"
             value={form.pneumoniaHistory || "なし"}
             onChange={(e) =>
               setForm((prev) => ({
@@ -259,6 +258,7 @@ export default function OralFunctionManagementPlanForm() {
           <select
             id="bmiStatus"
             className="border rounded px-2 py-1"
+            aria-label="栄養状態 (BMI)"
             value={form.bmiStatus || "正常範囲内"}
             onChange={(e) =>
               setForm((prev) => ({
@@ -313,6 +313,7 @@ export default function OralFunctionManagementPlanForm() {
           <select
             id="weightChange"
             className="border rounded px-2 py-1"
+            aria-label="体重の変化"
             value={form.weightChange || "なし"}
             onChange={(e) =>
               setForm((prev) => ({
@@ -333,6 +334,7 @@ export default function OralFunctionManagementPlanForm() {
                 type="number"
                 id="weightChangePeriod"
                 min="1"
+                placeholder="期間"
                 value={form.weightChangePeriod || 3}
                 onChange={(e) =>
                   setForm((prev) => ({
@@ -349,6 +351,7 @@ export default function OralFunctionManagementPlanForm() {
                 type="number"
                 id="weightChangeAmount"
                 step="0.1"
+                placeholder="変化量"
                 value={form.weightChangeAmount || 0}
                 onChange={(e) =>
                   setForm((prev) => ({
@@ -361,6 +364,7 @@ export default function OralFunctionManagementPlanForm() {
               <select
                 id="weightChangeDirection"
                 className="border rounded px-2 py-1 ml-2"
+                aria-label="体重変化方向"
                 value={form.weightChangeDirection || "増"}
                 onChange={(e) =>
                   setForm((prev) => ({
@@ -381,6 +385,7 @@ export default function OralFunctionManagementPlanForm() {
           <select
             id="foodForm"
             className="border rounded px-2 py-1"
+            aria-label="食事形態"
             value={form.foodForm || "常食"}
             onChange={(e) =>
               setForm((prev) => ({
@@ -415,6 +420,7 @@ export default function OralFunctionManagementPlanForm() {
           <select
             id="appetite"
             className="border rounded px-2 py-1"
+            aria-label="食欲"
             value={form.appetite || "あり"}
             onChange={(e) =>
               setForm((prev) => ({
@@ -456,14 +462,17 @@ export default function OralFunctionManagementPlanForm() {
               className="flex flex-row gap-6"
             >
               {radioOptions.map((opt) => (
-                <RadioGroupItem
+                <label
                   key={opt.value}
-                  value={opt.value}
-                  id={`${item.name}-${opt.value}`}
-                  className="mr-2"
+                  className="radio-label flex items-center gap-2"
+                  htmlFor={`${item.name}-${opt.value}`}
                 >
+                  <RadioGroupItem
+                    value={opt.value}
+                    id={`${item.name}-${opt.value}`}
+                  />
                   {opt.label}
-                </RadioGroupItem>
+                </label>
               ))}
             </RadioGroup>
           </div>

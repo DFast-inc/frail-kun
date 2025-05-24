@@ -2,6 +2,11 @@
 - 口腔機能検査・全身機能評価・管理計画書作成のUI/UXリファイン
 - Next.js 15 + Supabase構成での本番運用を見据えたCRUD・UI・データ設計の安定化
 - 管理計画書作成ページ（/examinations/detail/[id]/management-plan-edit）の新規実装とUX改善
+- **患者新規登録・編集画面のUI/UX統一・フォーム共通化（PatientForm.tsx）・バリデーション強化**
+- **/patients/[patientId]/edit で既存患者データを初期値として編集できる機能の実装**
+- **hooks/useUpdatePatient.tsによるSupabase updateロジックの追加**
+- **管理計画書作成ページのshadcn/ui＋Tailwind CSSによるUI/UX統一・アクセシビリティ対応**
+- **口腔機能管理計画セクションのラジオボタン群をlabel＋input＋テキスト構造で明示的に記述し、UI上もテキストが横並びで分かりやすく表示されるように修正**
 - **患者基本情報登録画面のage入力欄廃止・birthday（生年月日）入力欄追加・年齢自動計算表示への移行**
 - **全身の状態セクションのUI刷新・重複排除・localStorage保存・プリント連携**
 - 管理計画書作成ページへの「印刷」ボタン追加、印刷ページへの「戻る」ボタン追加
@@ -11,28 +16,24 @@
 - **印刷ページでSupabaseデータのスネークケース→キャメルケース変換処理を追加し、数値が正しく表示されるよう修正**
 - **Next.js 15のparams Promise対応や、Supabaseデータの型変換パターンの確立**
 - **管理計画書作成ページ・印刷ページ・検査詳細ページで、患者情報（氏名・生年月日・性別・年齢）をSupabaseのpatientsテーブルから取得し、年齢は生年月日から自動計算して表示するよう統一**
+- **口腔機能検査詳細画面の判定ロジック共通化・グラフ反映の実装（lib/oralFunctionAssessmentJudge.tsの導入とExaminationDetailClient.tsxのリファクタリング）**
+- **患者登録→検査登録のid受け渡し・外部キー制約違反の解消・保存後の詳細画面遷移の実装**
+- **咬合力判定条件（フィルタ有無で基準値分岐）の修正・バグ解消**
 
 ## 最近の変更・進捗
-- 患者新規登録フォームからage（年齢）入力欄を削除し、birthday（生年月日）入力欄（type="date"、任意入力）を追加
-- APIロジックでageを廃止し、birthdayを送信するよう修正
-- 患者一覧・詳細画面でageカラムを廃止し、birthdayから年齢を自動計算して表示（未入力時は「-」表示）
-- 型定義・バリデーション・UI/UXを全てage廃止・birthday基準に統一
-- /examinations/detail/[id]/management-plan-edit ページに「印刷」ボタンを追加し、印刷ページ（/examinations/detail/[id]/management-plan-edit/print）へ遷移可能に
-- 印刷ページに「戻る」ボタンを追加し、作成ページへ遷移可能に
-- JSX構造・styleタグの不整合を修正し、エラーのない状態に
-- 患者情報・検査日などをSupabaseから取得し、UI上部にCardで見やすく表示
-- **全身の状態セクションを、ご指定のUI（チェックボックス・セレクト・数値入力・詳細テキスト＋身長体重BMI）で1箇所に統一。重複UIを排除し、state設計を刷新。**
-- **全身の状態の入力内容をlocalStorageに保存し、プリントページで正しく反映されるように連携。複数選択や詳細入力も正しく展開。**
-- 体組成測定・管理計画書印刷・詳細表示など、主要なUI/機能が段階的にリファイン・分離
-- コードは常に最新の状態で保存・反映
-- **患者一覧画面の統一（app/patients/page.tsxに集約）、トップページ（/）から/patientsへの自動リダイレクトを実装**
-- **PatientsList.tsxのUIを改善し、「操作」列を削除、行クリックで詳細ページ遷移に統一**
-- **印刷ページでoral_function_examテーブルのスネークケース→キャメルケース変換処理を追加し、pa_sound, ta_sound, ka_sound, mucus_value, occlusion_force等の数値が正しく表示されるよう修正**
-- **Next.js 15のparams Promise対応や、Supabaseデータの型変換パターンが確立**
-- **管理計画書作成ページ・印刷ページ・検査詳細ページで、患者情報（氏名・生年月日・性別・年齢）をSupabaseのpatientsテーブルから取得し、年齢は生年月日から自動計算して表示するよう統一**
-- **ExaminationDetailClient等のprops設計を拡張し、患者情報の一貫表示・型安全化を実現**
+- **口腔衛生状態（舌苔スコア/TCI）判定ロジック・UIパターンを刷新（6ブロック・TCI計算・50%以上で異常）し、他検査と同様にリアルタイム判定・表示を実装（lib/oralFunctionAssessmentJudge.ts, components/ExaminationDetailClient.tsx）**
+- **患者新規登録時、patients.idを取得し、検査登録画面へidをパスパラメータで遷移するよう修正**
+- **oral_function_examのinsert時、必ずpatients.id（パスパラメータ）をpatient_idとして保存し、外部キー制約違反を解消**
+- **検査データ保存後、Supabaseのinsert直後に.select().single()で新規idを取得し、検査結果詳細画面へ遷移するよう修正**
+- **lib/oralFunctionAssessmentJudge.tsのjudgeBitingForce関数で、フィルタ無し:500N以上、フィルタあり:350N以上で正常判定となるよう修正。不等号バグも解消**
+- components/PatientForm.tsxを新規作成し、患者新規登録・編集フォームのUI/UX・バリデーション・アクセシビリティを完全共通化
+- app/patients/new/page.tsxをPatientForm利用にリファクタリング
+- app/patients/[patientId]/edit/page.tsxを新規作成し、Supabaseから患者データを取得して初期値に反映、編集・保存（update）が可能に
+- hooks/useUpdatePatient.tsを新規作成し、Supabaseのpatientsテーブルをupdateするロジックを共通化
+- ...（省略：従来の進捗も維持）
 
 ## 次のステップ
+- **患者編集画面の更なるUX改善・バリデーション強化・エラーハンドリングの拡充**
 - 管理計画書作成ページのさらなるUX改善・バリデーション・保存/プレビュー連携
 - 口腔機能管理計画セクションのUIリファイン・保存機能
 - 必要に応じてAPI連携・保存・印刷連携の強化
@@ -40,26 +41,16 @@
 - 実装進捗・課題・学びを随時activeContext.mdに記録
 
 ## アクティブな意思決定・考慮事項
-- UI/UXは現場運用・可読性・操作性重視
-- shadcn/ui, Tailwind CSS, Next.js 15 App Router構成を積極活用
-- Supabaseからのデータ取得はServer/Client両対応
-- コード・ドキュメントは常に最新状態を維持
-- **患者基本情報の年齢は入力させず、birthday（生年月日）から自動計算して表示する方針に統一**
-- **フォームのstate設計は型安全・拡張性重視で刷新。localStorage連携も型を明示して管理。**
-- **患者一覧画面はapp/patients/page.tsxに統一し、トップページ（/）は/patientsへリダイレクトする構成に決定**
-- **PatientsList.tsxは行クリックで詳細遷移、操作列廃止のUI/UXに統一**
-- **Supabaseデータのスネークケース→キャメルケース変換パターンを今後のデータ表示にも適用する方針**
-- **管理計画書作成・印刷・検査詳細ページで、患者情報は必ずpatientsテーブルから取得し、年齢は生年月日から自動計算する設計を徹底**
-- **ExaminationDetailClient等のprops設計を拡張し、患者情報の一貫表示・型安全化を重視**
+- **口腔衛生状態（TCI）判定は6ブロック・TCI計算・50%以上で異常とし、lib/oralFunctionAssessmentJudge.tsのjudgeOralHygieneStatusで一元化。他検査と同様のUI/UX・判定パターンを徹底**
+- **患者新規登録・編集フォームはcomponents/PatientForm.tsxで完全共通化し、UI/UX・バリデーション・アクセシビリティを統一**
+- **患者編集は/patients/[patientId]/editで実装し、初期値はSupabaseから取得したデータを反映**
+- **updateロジックはhooks/useUpdatePatient.tsで共通化し、APIエラー時はtoastで通知**
+- **患者登録→検査登録のid受け渡し・外部キー制約違反の解消・保存後の詳細画面遷移は、全体のデータ整合性・運用性向上のため必須パターンとして確立**
+- **咬合力判定条件（フィルタ有無で基準値分岐）は現場運用・エビデンスに基づき明示的に実装**
+- ...（従来の意思決定も維持）
 
 ## 重要なパターン・知見
-- hooks/でロジック分離、components/でUI分割、lib/でユーティリティ管理
-- shadcn/ui, Tailwind CSSによるUI/UX最適化
-- Supabase公式SDK・Next.js App Routerの活用
-- paramsのPromise対応・"use client"ディレクティブの適用による最新Next.js仕様への追従
-- MCPツールによるDBマイグレーション・テストデータ投入の自動化
-- **localStorageを用いた一時保存・プリント連携のパターンを確立**
-- **画面統一・リダイレクト・UI/UX一貫性のためのルーティング/コンポーネント設計パターンを確立**
-- **Supabaseから取得したデータのスネークケース→キャメルケース変換パターンを確立し、データ表示の一貫性・保守性を向上**
-- **管理計画書作成・印刷・検査詳細ページで、患者情報はpatientsテーブルから取得し、年齢は生年月日から自動計算するパターンを確立**
-- **サーバー/クライアント両対応で型安全にデータを受け渡すprops設計・UIパターンを確立**
+- **口腔衛生状態（TCI）判定の新パターン（6ブロック・TCI計算・50%以上で異常）を確立。他検査と同様のリアルタイム判定・UI/UXパターンを再利用可能**
+- **患者登録→検査登録のid受け渡し・外部キー制約違反の解消・保存後の詳細画面遷移のパターンを確立**
+- **咬合力判定条件（フィルタ有無で基準値分岐）のバグ解消・仕様明示**
+- ...（従来のパターンも維持）

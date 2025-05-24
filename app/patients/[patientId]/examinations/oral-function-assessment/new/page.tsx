@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -16,12 +16,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 export default function NewExaminationPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const patientId = searchParams.get("patientId") || ""
+  const params = useParams()
+  const patientId = params?.patientId || ""
 
   // サンプル患者データ（実際はAPIから取得）
   const patientData = {
-    id: patientId || "1",
+    id: patientId,
     name: patientId ? `患者ID: ${patientId}の患者` : "山田 太郎",
     age: 75,
     gender: "男性",
@@ -115,54 +115,58 @@ export default function NewExaminationPage() {
     const supabase = (await import("@/lib/supabaseClient")).createSupabaseClient();
 
     // oral_function_examテーブルにinsert
-    const { error } = await supabase.from("oral_function_exam").insert({
-      patient_id: patientData.id,
-      exam_date: new Date().toISOString().slice(0, 10),
-      // 口腔衛生状態
-      tongue_front_left: Number(formData.oralHygiene.tongueFrontLeft),
-      tongue_front_center: Number(formData.oralHygiene.tongueFrontCenter),
-      tongue_front_right: Number(formData.oralHygiene.tongueFrontRight),
-      tongue_middle_left: Number(formData.oralHygiene.tongueMiddleLeft),
-      tongue_middle_center: Number(formData.oralHygiene.tongueMiddleCenter),
-      tongue_middle_right: Number(formData.oralHygiene.tongueMiddleRight),
-      tongue_back_left: Number(formData.oralHygiene.tongueBackLeft),
-      tongue_back_center: Number(formData.oralHygiene.tongueBackCenter),
-      tongue_back_right: Number(formData.oralHygiene.tongueBackRight),
-      plaque_control: formData.oralHygiene.plaqueControl,
-      oral_hygiene_notes: formData.oralHygiene.notes,
-      // 口腔乾燥
-      oral_dryness_method: formData.oralDryness.evaluationMethod,
-      mucus_value: formData.oralDryness.mucusValue ? Number(formData.oralDryness.mucusValue) : null,
-      gauze_weight: formData.oralDryness.gauzeWeight ? Number(formData.oralDryness.gauzeWeight) : null,
-      oral_dryness_notes: formData.oralDryness.notes,
-      // 咬合力
-      biting_force_method: formData.bitingForce.evaluationMethod,
-      pressure_scale_type: formData.bitingForce.pressureScaleType,
-      use_filter: formData.bitingForce.useFilter,
-      occlusion_force: formData.bitingForce.occlusionForce ? Number(formData.bitingForce.occlusionForce) : null,
-      remaining_teeth: formData.bitingForce.remainingTeeth ? Number(formData.bitingForce.remainingTeeth) : null,
-      biting_force_notes: formData.bitingForce.notes,
-      // 舌口唇運動
-      pa_sound: formData.tongueMovement.paSound ? Number(formData.tongueMovement.paSound) : null,
-      ta_sound: formData.tongueMovement.taSound ? Number(formData.tongueMovement.taSound) : null,
-      ka_sound: formData.tongueMovement.kaSound ? Number(formData.tongueMovement.kaSound) : null,
-      tongue_movement_notes: formData.tongueMovement.notes,
-      // 舌圧
-      tongue_pressure_value: formData.tonguePressure.value ? Number(formData.tonguePressure.value) : null,
-      tongue_pressure_notes: formData.tonguePressure.notes,
-      // 咀嚼機能
-      chewing_function_method: formData.chewingFunction.evaluationMethod,
-      glucose_concentration: formData.chewingFunction.glucoseConcentration ? Number(formData.chewingFunction.glucoseConcentration) : null,
-      masticatory_score: formData.chewingFunction.masticatoryScore ? Number(formData.chewingFunction.masticatoryScore) : null,
-      chewing_function_notes: formData.chewingFunction.notes,
-      // 嚥下機能
-      swallowing_function_method: formData.swallowingFunction.evaluationMethod,
-      eat10_score: formData.swallowingFunction.eat10Score ? Number(formData.swallowingFunction.eat10Score) : null,
-      seirei_score: formData.swallowingFunction.seireiScore ? Number(formData.swallowingFunction.seireiScore) : null,
-      swallowing_function_notes: formData.swallowingFunction.notes,
-    });
+    const { data, error } = await supabase
+      .from("oral_function_exam")
+      .insert({
+        patient_id: patientId,
+        exam_date: new Date().toISOString().slice(0, 10),
+        // 口腔衛生状態
+        tongue_front_left: Number(formData.oralHygiene.tongueFrontLeft),
+        tongue_front_center: Number(formData.oralHygiene.tongueFrontCenter),
+        tongue_front_right: Number(formData.oralHygiene.tongueFrontRight),
+        tongue_middle_left: Number(formData.oralHygiene.tongueMiddleLeft),
+        tongue_middle_center: Number(formData.oralHygiene.tongueMiddleCenter),
+        tongue_middle_right: Number(formData.oralHygiene.tongueMiddleRight),
+        tongue_back_left: Number(formData.oralHygiene.tongueBackLeft),
+        tongue_back_center: Number(formData.oralHygiene.tongueBackCenter),
+        tongue_back_right: Number(formData.oralHygiene.tongueBackRight),
+        plaque_control: formData.oralHygiene.plaqueControl,
+        oral_hygiene_notes: formData.oralHygiene.notes,
+        // 口腔乾燥
+        oral_dryness_method: formData.oralDryness.evaluationMethod,
+        mucus_value: formData.oralDryness.mucusValue ? Number(formData.oralDryness.mucusValue) : null,
+        gauze_weight: formData.oralDryness.gauzeWeight ? Number(formData.oralDryness.gauzeWeight) : null,
+        oral_dryness_notes: formData.oralDryness.notes,
+        // 咬合力
+        biting_force_method: formData.bitingForce.evaluationMethod,
+        pressure_scale_type: formData.bitingForce.pressureScaleType,
+        use_filter: formData.bitingForce.useFilter,
+        occlusion_force: formData.bitingForce.occlusionForce ? Number(formData.bitingForce.occlusionForce) : null,
+        remaining_teeth: formData.bitingForce.remainingTeeth ? Number(formData.bitingForce.remainingTeeth) : null,
+        biting_force_notes: formData.bitingForce.notes,
+        // 舌口唇運動
+        pa_sound: formData.tongueMovement.paSound ? Number(formData.tongueMovement.paSound) : null,
+        ta_sound: formData.tongueMovement.taSound ? Number(formData.tongueMovement.taSound) : null,
+        ka_sound: formData.tongueMovement.kaSound ? Number(formData.tongueMovement.kaSound) : null,
+        tongue_movement_notes: formData.tongueMovement.notes,
+        // 舌圧
+        tongue_pressure_value: formData.tonguePressure.value ? Number(formData.tonguePressure.value) : null,
+        tongue_pressure_notes: formData.tonguePressure.notes,
+        // 咀嚼機能
+        chewing_function_method: formData.chewingFunction.evaluationMethod,
+        glucose_concentration: formData.chewingFunction.glucoseConcentration ? Number(formData.chewingFunction.glucoseConcentration) : null,
+        masticatory_score: formData.chewingFunction.masticatoryScore ? Number(formData.chewingFunction.masticatoryScore) : null,
+        chewing_function_notes: formData.chewingFunction.notes,
+        // 嚥下機能
+        swallowing_function_method: formData.swallowingFunction.evaluationMethod,
+        eat10_score: formData.swallowingFunction.eat10Score ? Number(formData.swallowingFunction.eat10Score) : null,
+        seirei_score: formData.swallowingFunction.seireiScore ? Number(formData.swallowingFunction.seireiScore) : null,
+        swallowing_function_notes: formData.swallowingFunction.notes,
+      })
+      .select()
+      .single();
 
-    if (error) {
+    if (error || !data) {
       toast({
         title: "保存エラー",
         description: "Supabaseへの保存に失敗しました",
@@ -176,8 +180,8 @@ export default function NewExaminationPage() {
       description: `${patientData.name}さんの検査データがSupabaseに保存されました`,
     });
 
-    // 患者詳細ページへリダイレクト
-    router.push(`/patients/${patientData.id}`);
+    // 検査結果詳細ページへリダイレクト
+    router.push(`/patients/${patientId}/examinations/oral-function-assessment/${data.id}`);
   }
 
   return (
@@ -654,7 +658,7 @@ export default function NewExaminationPage() {
                         </div>
                       </div>
 
-                      <div className="mt-6 p-4 border rounded-lg bg-gray-50" style={{ display: "none" }}>
+                      <div className="mt-6 p-4 border rounded-lg bg-gray-50">
                         <div className="flex justify-between items-center">
                           <div>
                             <p className="text-lg font-medium">
@@ -1239,8 +1243,8 @@ export default function NewExaminationPage() {
                                 ? "375N以上が正常"
                                 : formData.bitingForce.pressureScaleType === "pressScale2"
                                   ? formData.bitingForce.useFilter === "withFilter"
-                                    ? "500N以上が正常"
-                                    : "350N以上が正常"
+                                    ? "350N以上が正常"
+                                    : "500N以上が正常"
                                   : "200N以上が正常"}
                             </p>
                             </div>

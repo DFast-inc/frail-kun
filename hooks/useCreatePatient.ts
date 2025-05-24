@@ -19,24 +19,28 @@ export function useCreatePatient() {
     setLoading(true);
     setError(null);
     const supabase = createSupabaseClient();
-    const { error } = await supabase.from("patients").insert([
-      {
-        name: formData.name,
-        birthday: formData.birthday ? formData.birthday : null,
-        gender: formData.gender,
-        address: formData.address,
-        phone: formData.phone,
-        email: formData.email,
-        notes: formData.notes,
-        clinic_id: 1, // テスト用クリニックID
-      },
-    ]);
+    const { data, error } = await supabase
+      .from("patients")
+      .insert([
+        {
+          name: formData.name,
+          birthday: formData.birthday ? formData.birthday : null,
+          gender: formData.gender,
+          address: formData.address,
+          phone: formData.phone,
+          email: formData.email,
+          notes: formData.notes,
+          clinic_id: 1, // テスト用クリニックID
+        },
+      ])
+      .select()
+      .single();
     setLoading(false);
-    if (error) {
-      setError(error.message);
-      return false;
+    if (error || !data) {
+      setError(error ? error.message : "患者登録に失敗しました");
+      return null;
     }
-    return true;
+    return data;
   };
 
   return { createPatient, loading, error };

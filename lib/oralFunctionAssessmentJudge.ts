@@ -83,12 +83,14 @@ export function judgeOralDryness(data: OralFunctionExamData["oralDryness"]): boo
 export function judgeBitingForce(data: OralFunctionExamData["bitingForce"]): boolean {
   if (data.evaluationMethod === "method1") {
     const value = Number(data.occlusionForce)
-    if (data.pressureScaleType === "oramo") {
-      return value >= 375
-    } else if (data.pressureScaleType === "pressScale2") {
-      return data.useFilter === "withFilter" ? value >= 500 : value >= 350
+    // フィルタ有無で基準値を分岐
+    if (data.useFilter === "noFilter") {
+      return value >= 500
+    } else if (data.useFilter === "withFilter") {
+      return value >= 350
     } else {
-      return value >= 200
+      // 万一useFilterが未設定の場合は従来通り
+      return value >= 500
     }
   } else {
     // 残存歯数 20本以上が正常
@@ -132,6 +134,17 @@ export function judgeSwallowingFunction(data: OralFunctionExamData["swallowingFu
     // 聖隷式スコア 2点未満が正常
     return Number(data.seireiScore) < 2
   }
+}
+
+export function judgeOralHygieneStatus(scores: number[]) {
+  // 6ブロック分のスコア配列（各0,1,2）
+  if (scores.length !== 6) throw new Error('スコア配列は6要素必要です');
+  const total = scores.reduce((a, b) => a + b, 0);
+  const tci = (total / 12) * 100;
+  return {
+    tci,
+    isAbnormal: tci >= 50
+  };
 }
 
 // 総合評価（全て正常ならtrue, 1つでも低下ならfalse）
