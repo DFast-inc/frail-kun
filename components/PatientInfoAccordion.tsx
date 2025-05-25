@@ -17,6 +17,7 @@ type PatientData = {
   medications?: string;
   allergies?: string;
   notes?: string;
+  karte_no?: string | number;
 };
 
 export default function PatientInfoAccordion({
@@ -77,6 +78,10 @@ export default function PatientInfoAccordion({
                 <h3 className="text-lg font-medium text-muted-foreground">性別</h3>
                 <p className="text-xl">{patientData.gender ?? ""}</p>
               </div>
+              <div>
+                <h3 className="text-lg font-medium text-muted-foreground">カルテ番号</h3>
+                <p className="text-xl">{patientData.karte_no ?? "-"}</p>
+              </div>
             </div>
             <div className="space-y-4">
               <div>
@@ -119,6 +124,10 @@ export default function PatientInfoAccordion({
       ) : (
         <CardContent className="py-4">
           <div className="flex flex-wrap gap-4">
+            <div className="flex items-center">
+              <span className="text-sm font-medium text-gray-500 mr-2">カルテ番号:</span>
+              <span className="text-lg">{patientData.karte_no ?? "-"}</span>
+            </div>
             <div className="flex items-center">
               <span className="text-sm font-medium text-gray-500 mr-2">年齢:</span>
               <span className="text-lg">{getAge(patientData.birthday)}</span>
