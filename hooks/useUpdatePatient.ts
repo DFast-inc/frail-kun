@@ -9,6 +9,7 @@ type PatientFormData = {
   phone: string;
   email: string;
   notes: string;
+  karte_no: string;
 };
 
 export function useUpdatePatient() {
@@ -29,6 +30,7 @@ export function useUpdatePatient() {
         phone: formData.phone,
         email: formData.email,
         notes: formData.notes,
+        karte_no: formData.karte_no ? Number(formData.karte_no) : null,
         clinic_id: 1, // テスト用クリニックID（必要に応じて修正）
       })
       .eq("id", id);

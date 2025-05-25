@@ -18,6 +18,7 @@ export type PatientFormData = {
   phone: string
   email: string
   notes: string
+  karte_no: string
 }
 
 type PatientFormProps = {
@@ -36,6 +37,7 @@ export function PatientForm({
     phone: "",
     email: "",
     notes: "",
+    karte_no: "",
   },
   onSubmit,
   onCancel,
@@ -100,6 +102,21 @@ export function PatientForm({
                 placeholder="例: 山田 太郎"
                 required
                 className="text-sm sm:text-base"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="karte_no">
+                カルテ番号
+              </Label>
+              <Input
+                id="karte_no"
+                name="karte_no"
+                value={formData.karte_no}
+                onChange={handleChange}
+                placeholder="例: 12345"
+                className="text-sm sm:text-base"
+                inputMode="numeric"
+                pattern="[0-9]*"
               />
             </div>
           </div>

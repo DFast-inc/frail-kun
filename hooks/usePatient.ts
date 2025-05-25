@@ -14,6 +14,8 @@ type Patient = {
   medications?: string;
   allergies?: string;
   notes?: string;
+  email?: string | null;
+  karte_no?: string | number | null;
 };
 
 export function usePatient(id: string) {

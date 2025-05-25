@@ -9,6 +9,7 @@ type PatientFormData = {
   phone: string;
   email: string;
   notes: string;
+  karte_no: string;
 };
 
 export function useCreatePatient() {
@@ -30,6 +31,7 @@ export function useCreatePatient() {
           phone: formData.phone,
           email: formData.email,
           notes: formData.notes,
+          karte_no: formData.karte_no ? Number(formData.karte_no) : null,
           clinic_id: 1, // テスト用クリニックID
         },
       ])

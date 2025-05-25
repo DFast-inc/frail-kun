@@ -24,8 +24,9 @@ export default function EditPatientPage() {
         gender: patient.gender || "",
         address: patient.address || "",
         phone: patient.phone || "",
-        email: "", // DBにemailがなければ空
+        email: patient.email || "",
         notes: patient.notes || "",
+        karte_no: patient.karte_no !== undefined && patient.karte_no !== null ? String(patient.karte_no) : "",
       })
     }
   }, [patient])
