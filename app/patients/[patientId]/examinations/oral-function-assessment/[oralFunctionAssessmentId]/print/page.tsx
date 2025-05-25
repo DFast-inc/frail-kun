@@ -169,7 +169,7 @@ export default async function OralFunctionAssessmentPrintPage({
                 <th>年齢</th>
                 <td>{age !== '' ? `${age}歳` : ''}</td>
                 <th>性別</th>
-                <td>{patient.gender === 'male' ? '男' : patient.gender === 'female' ? '女' : ''}</td>
+                <td>{patient.gender === 'male' ? '男性' : patient.gender === 'female' ? '女性' : ''}</td>
               </tr>
               <tr>
                 <th>計測日</th>

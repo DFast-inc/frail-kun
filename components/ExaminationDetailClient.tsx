@@ -253,9 +253,14 @@ export default function ExaminationDetailClient({ exam, patient }: ExaminationDe
             </div>
             <div>
               <p className="text-sm text-gray-600">年齢・性別</p>
-              <p className="font-semibold">
-                {calcAge(patient?.birthday)}歳 {patient?.gender ?? ""}
-              </p>
+<p className="font-semibold">
+  {calcAge(patient?.birthday)}歳
+  {patient?.gender === "male"
+    ? "男性"
+    : patient?.gender === "female"
+      ? "女性"
+      : patient?.gender ?? ""}
+</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">検査日</p>

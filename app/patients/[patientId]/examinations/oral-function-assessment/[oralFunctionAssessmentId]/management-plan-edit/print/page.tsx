@@ -5,6 +5,7 @@ import * as React from "react";
 const { useEffect, useState } = React;
 import OralFunctionManagementPlanPrint from "@/components/OralFunctionManagementPlanPrint";
 import { createSupabaseClient } from "@/lib/supabaseClient";
+import { toResultStruct } from "@/lib/oralFunctionAssessmentJudge";
 
 type Exam = {
   patientName?: string;
@@ -152,6 +153,9 @@ export default function ExaminationPrintPage({ params }: { params: Usable<{ pati
     return exam[key as keyof Exam] ?? "";
   };
 
+  // 口腔機能の状態 共通ロジック
+  const oralResult = toResultStruct(exam);
+
   return (
     <div>
       <div className="no-print" style={{ marginBottom: "16px" }}>
@@ -295,86 +299,68 @@ export default function ExaminationPrintPage({ params }: { params: Usable<{ pati
               <tr>
                 <th>1. 口腔内の衛生状態</th>
                 <td>
-                  検査結果 {exam.hygieneValue ?? ""}（基準値 2点以下）
+                  {oralResult.oralHygiene.value.tci}（{oralResult.oralHygiene.normalRange}）
                 </td>
                 <td>
-                  {exam.hygieneStatus ?? ""}
+                  {oralResult.oralHygiene.status}
                 </td>
               </tr>
               <tr>
                 <th>2. 口腔内の乾燥程度</th>
                 <td>
-                  検査結果 {exam.drynessValue ?? ""}（基準値 {exam.drynessStandard ?? ""}）
+                  {oralResult.oralDryness.value}（{oralResult.oralDryness.normalRange}）
                 </td>
                 <td>
-                  {exam.drynessStatus ?? ""}
+                  {oralResult.oralDryness.status}
                 </td>
               </tr>
               <tr>
                 <th>3. 咬む力の程度</th>
                 <td>
-                  検査結果 {exam.bitingValue ?? ""}（基準値 {exam.bitingStandard ?? ""}）
+                  {oralResult.bitingForce.value}（{oralResult.bitingForce.normalRange}）
                 </td>
                 <td>
-                  {exam.bitingStatus ?? ""}
+                  {oralResult.bitingForce.status}
                 </td>
               </tr>
               <tr>
-                <th>4. 口唇の動きの程度</th>
+                <th>4. 舌口唇運動機能</th>
                 <td>
-                  パ発音速度 {exam.odkPa ?? ""}回/秒（基準値 6.0回/秒以上）
+                  {oralResult.tongueMotor.value}（{oralResult.tongueMotor.normalRange}）
                 </td>
                 <td>
-                  {exam.odkPaStatus ?? ""}
-                </td>
-              </tr>
-              <tr>
-                <th>5. 舌尖の動きの程度</th>
-                <td>
-                  タ発音速度 {exam.odkTa ?? ""}回/秒（基準値 6.0回/秒以上）
-                </td>
-                <td>
-                  {exam.odkTaStatus ?? ""}
+                  {oralResult.tongueMotor.status}
                 </td>
               </tr>
               <tr>
-                <th>6. 奥舌の動きの程度</th>
+                <th>5. 舌圧</th>
                 <td>
-                  カ発音速度 {exam.odkKa ?? ""}回/秒（基準値 6.0回/秒以上）
+                  {oralResult.tonguePressure.value}（{oralResult.tonguePressure.normalRange}）
                 </td>
                 <td>
-                  {exam.odkKaStatus ?? ""}
-                </td>
-              </tr>
-              <tr>
-                <th>7. 舌の力の程度</th>
-                <td>
-                  舌圧 {exam.tonguePressure ?? ""}kPa（基準値 30kPa以上）
-                </td>
-                <td>
-                  {exam.tonguePressureStatus ?? ""}
+                  {oralResult.tonguePressure.status}
                 </td>
               </tr>
               <tr>
-                <th>8. 咀嚼の機能の程度</th>
+                <th>6. 咀嚼機能</th>
                 <td>
-                  検査結果 {exam.chewingValue ?? ""}（基準値 {exam.chewingStandard ?? ""}）
+                  {oralResult.chewingFunction.value}（{oralResult.chewingFunction.normalRange}）
                 </td>
                 <td>
-                  {exam.chewingStatus ?? ""}
-                </td>
-              </tr>
-              <tr>
-                <th>9. 嚥下の機能の程度</th>
-                <td>
-                  検査結果 {exam.swallowingValue ?? ""}（基準値 {exam.swallowingStandard ?? ""}）
-                </td>
-                <td>
-                  {exam.swallowingStatus ?? ""}
+                  {oralResult.chewingFunction.status}
                 </td>
               </tr>
               <tr>
-                <th>10. 口腔内・義歯の状態</th>
+                <th>7. 嚥下機能</th>
+                <td>
+                  {oralResult.swallowingFunction.value}（{oralResult.swallowingFunction.normalRange}）
+                </td>
+                <td>
+                  {oralResult.swallowingFunction.status}
+                </td>
+              </tr>
+              <tr>
+                <th>8. 口腔内・義歯の状態</th>
                 <td colSpan={2}>
                   {exam.oralStatus ?? ""}
                 </td>

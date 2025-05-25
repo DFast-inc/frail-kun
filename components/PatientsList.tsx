@@ -127,7 +127,13 @@ export default function PatientsList({
                     <TableCell className="text-lg">
                       {calcAge(patient.birthday) !== null ? `${calcAge(patient.birthday)}歳` : "-"}
                     </TableCell>
-                    <TableCell className="text-lg">{patient.gender}</TableCell>
+                    <TableCell className="text-lg">
+  {patient.gender === "male"
+    ? "男性"
+    : patient.gender === "female"
+      ? "女性"
+      : patient.gender || "-"}
+</TableCell>
                     <TableCell className="text-lg">{patient.lastVisit}</TableCell>
                     <TableCell className="text-lg">
                       <span

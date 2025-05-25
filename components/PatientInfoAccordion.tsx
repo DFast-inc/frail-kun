@@ -76,7 +76,13 @@ export default function PatientInfoAccordion({
               </div>
               <div>
                 <h3 className="text-lg font-medium text-muted-foreground">性別</h3>
-                <p className="text-xl">{patientData.gender ?? ""}</p>
+                <p className="text-xl">
+  {patientData.gender === "male"
+    ? "男性"
+    : patientData.gender === "female"
+      ? "女性"
+      : patientData.gender ?? ""}
+</p>
               </div>
               <div>
                 <h3 className="text-lg font-medium text-muted-foreground">カルテ番号</h3>
@@ -134,7 +140,13 @@ export default function PatientInfoAccordion({
             </div>
             <div className="flex items-center">
               <span className="text-sm font-medium text-gray-500 mr-2">性別:</span>
-              <span className="text-lg">{patientData.gender ?? ""}</span>
+              <span className="text-lg">
+  {patientData.gender === "male"
+    ? "男性"
+    : patientData.gender === "female"
+      ? "女性"
+      : patientData.gender ?? ""}
+</span>
             </div>
             <div className="flex items-center">
               <span className="text-sm font-medium text-gray-500 mr-2">電話:</span>

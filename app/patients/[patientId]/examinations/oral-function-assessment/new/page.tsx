@@ -189,9 +189,14 @@ export default function NewExaminationPage() {
       <div className="flex flex-col md:flex-row justify-between items-start gap-4">
         <div>
           <h1 className="text-3xl font-bold">口腔機能低下症検査</h1>
-          <p className="text-xl text-muted-foreground mt-2">
-            患者: {patientData.name} ({patientData.age}歳・{patientData.gender})
-          </p>
+<p className="text-xl text-muted-foreground mt-2">
+  患者: {patientData.name} ({patientData.age}歳・
+  {patientData.gender === "male"
+    ? "男性"
+    : patientData.gender === "female"
+      ? "女性"
+      : patientData.gender})
+</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button

@@ -71,7 +71,14 @@ export default function ManagementPlanEditPage() {
             <span className="font-semibold text-gray-700">年齢:</span> <span>{calcAge(patient?.birthday)}</span>
           </div>
           <div>
-            <span className="font-semibold text-gray-700">性別:</span> <span>{patient?.gender ?? ""}</span>
+            <span className="font-semibold text-gray-700">性別:</span>
+<span>
+  {patient?.gender === "male"
+    ? "男性"
+    : patient?.gender === "female"
+      ? "女性"
+      : patient?.gender ?? ""}
+</span>
           </div>
           <div>
             <span className="font-semibold text-gray-700">検査日:</span> <span>{exam?.exam_date ?? ""}</span>
