@@ -13,6 +13,7 @@ type Patient = {
   id: number;
   karte_no: string | number;
   name: string;
+  birthday: string | null | undefined;
   age: number | null;
   gender: string;
   lastVisit: string;
@@ -35,6 +36,19 @@ export default function PatientsList({
   const filteredPatients = patients.filter((patient) =>
     patient.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+
+  // 年齢計算関数
+  function calcAge(birthday: string | null | undefined): number | null {
+    if (!birthday) return null;
+    const today = new Date();
+    const birth = new Date(birthday);
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
+  }
   const router = useRouter();
 
   return (
@@ -111,7 +125,7 @@ export default function PatientsList({
                     <TableCell className="text-lg font-medium">{patient.karte_no}</TableCell>
                     <TableCell className="text-lg">{patient.name}</TableCell>
                     <TableCell className="text-lg">
-                      {patient.age !== null ? `${patient.age}歳` : "-"}
+                      {calcAge(patient.birthday) !== null ? `${calcAge(patient.birthday)}歳` : "-"}
                     </TableCell>
                     <TableCell className="text-lg">{patient.gender}</TableCell>
                     <TableCell className="text-lg">{patient.lastVisit}</TableCell>

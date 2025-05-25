@@ -24,7 +24,7 @@ export function useUpdatePatient() {
       .from("patients")
       .update({
         name: formData.name,
-        birthdate: formData.birthday ? formData.birthday : null,
+        birthday: formData.birthday ? formData.birthday : null,
         gender: formData.gender,
         address: formData.address,
         phone: formData.phone,

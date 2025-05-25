@@ -20,7 +20,7 @@ export default function EditPatientPage() {
     if (patient) {
       setInitialValues({
         name: patient.name || "",
-        birthday: patient.birthdate || "",
+        birthday: patient.birthday || "",
         gender: patient.gender || "",
         address: patient.address || "",
         phone: patient.phone || "",

@@ -61,7 +61,7 @@ export default function PhysicalAssessmentDetailClient({ exam, patient }: Physic
             <div>
               <p className="text-sm text-gray-600">年齢・性別</p>
               <p className="font-semibold">
-                {calcAge(patient?.birthdate)}歳 {patient?.gender ?? ""}
+                {calcAge(patient?.birthday)}歳 {patient?.gender ?? ""}
               </p>
             </div>
             <div>

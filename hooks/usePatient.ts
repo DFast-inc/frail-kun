@@ -7,7 +7,7 @@ type Patient = {
   kana?: string;
   age: number;
   gender: string;
-  birthdate?: string;
+  birthday?: string;
   phone?: string;
   address?: string;
   medicalHistory?: string;
