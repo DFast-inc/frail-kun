@@ -19,6 +19,10 @@
 - **口腔機能検査詳細画面の判定ロジック共通化・グラフ反映の実装（lib/oralFunctionAssessmentJudge.tsの導入とExaminationDetailClient.tsxのリファクタリング）**
 - **患者登録→検査登録のid受け渡し・外部キー制約違反の解消・保存後の詳細画面遷移の実装**
 - **咬合力判定条件（フィルタ有無で基準値分岐）の修正・バグ解消**
+- **患者詳細ページ（app/patients/[patientId]/page.tsx）のデザイン寄せ・UI/UXリファイン（アコーディオン化・健康スコア/診断バッジ/プログレスバーの自動化・診断名自動生成）**
+- **口腔機能検査記録印刷ページ（/patients/[patientId]/examinations/oral-function-assessment/[oralFunctionAssessmentId]/print）の新規実装とA4印刷レイアウト対応**
+- **Supabaseデータ取得時のID整合性チェック・null時のデバッグパターンの確立**
+- **oral_function_examテーブルのカラム名に合わせてprint/page.tsxの検査値表示ロジックを修正。Supabaseの実データ構造（プリミティブ値）をMCP経由で調査し、items配列のkeyをDBカラム名に正規化。検査値が正しく反映されるようになった**
 
 ## 最近の変更・進捗
 - **口腔衛生状態（舌苔スコア/TCI）判定ロジック・UIパターンを刷新（6ブロック・TCI計算・50%以上で異常）し、他検査と同様にリアルタイム判定・表示を実装（lib/oralFunctionAssessmentJudge.ts, components/ExaminationDetailClient.tsx）**
@@ -30,7 +34,13 @@
 - app/patients/new/page.tsxをPatientForm利用にリファクタリング
 - app/patients/[patientId]/edit/page.tsxを新規作成し、Supabaseから患者データを取得して初期値に反映、編集・保存（update）が可能に
 - hooks/useUpdatePatient.tsを新規作成し、Supabaseのpatientsテーブルをupdateするロジックを共通化
-- ...（省略：従来の進捗も維持）
+- **components/PatientInfoAccordion.tsxを新規作成し、患者基本情報セクションをアコーディオン展開・サマリ/詳細切替・編集導線付きで統一**
+- **app/patients/[patientId]/page.tsxを大幅リファクタし、健康スコア・診断バッジ・プログレスバーを最新検査データから自動計算・色分け、診断名も自動生成するように改善**
+- **oral_function_examデータからスコア・診断名を自動計算するパターンを確立し、現場運用・拡張性・一貫性を高めた**
+- **口腔機能検査記録印刷ページ（print/page.tsx）を新規実装し、A4印刷レイアウト・paramsのPromise対応・ID整合性デバッグパターンを確立**
+- **printページのoralExamサブオブジェクトに空オブジェクト初期値（?? {}）を与え、undefinedアクセスエラー（Cannot read properties of undefined）を解消**
+- **oral_function_examテーブルのカラム名に合わせてprint/page.tsxの検査値表示ロジックを修正。Supabaseの実データ構造（プリミティブ値）をMCP経由で調査し、items配列のkeyをDBカラム名に正規化。検査値が正しく反映されるようになった**
+- ...（従来の進捗も維持）
 
 ## 次のステップ
 - **患者編集画面の更なるUX改善・バリデーション強化・エラーハンドリングの拡充**
@@ -47,10 +57,18 @@
 - **updateロジックはhooks/useUpdatePatient.tsで共通化し、APIエラー時はtoastで通知**
 - **患者登録→検査登録のid受け渡し・外部キー制約違反の解消・保存後の詳細画面遷移は、全体のデータ整合性・運用性向上のため必須パターンとして確立**
 - **咬合力判定条件（フィルタ有無で基準値分岐）は現場運用・エビデンスに基づき明示的に実装**
+- **患者詳細ページのUI/UXはshadcn/ui＋Tailwind CSSの思想に沿い、アコーディオン化・健康スコア/診断バッジ/プログレスバーの自動化・診断名自動生成を徹底**
+- **oral_function_examデータからスコア・診断名を自動計算するパターンを全体で再利用可能な形で確立**
+- **印刷ページのparamsはPromiseをawaitしてから利用する（Next.js 15 App Router仕様）**
+- **Supabaseデータ取得時はID整合性・null時のデバッグパターンを徹底し、ID不一致・データ欠損時のエラーを早期発見できるようにする**
+- **printページのoralExamサブオブジェクトに空オブジェクト初期値を与え、データ取得・初期値補完パターンを詳細画面と統一**
 - ...（従来の意思決定も維持）
 
 ## 重要なパターン・知見
 - **口腔衛生状態（TCI）判定の新パターン（6ブロック・TCI計算・50%以上で異常）を確立。他検査と同様のリアルタイム判定・UI/UXパターンを再利用可能**
 - **患者登録→検査登録のid受け渡し・外部キー制約違反の解消・保存後の詳細画面遷移のパターンを確立**
 - **咬合力判定条件（フィルタ有無で基準値分岐）のバグ解消・仕様明示**
+- **患者詳細ページの健康スコア・診断バッジ・診断名自動生成パターンを確立し、今後の他画面・他機能でも再利用可能な設計とした**
+- **A4印刷用の検査記録ページ設計・データ取得・判定ロジック・ID整合性チェック・null時のデバッグパターンを確立**
+- **printページのデータ取得・初期値補完パターンを詳細画面と統一し、undefinedアクセスエラーを根本解消**
 - ...（従来のパターンも維持）

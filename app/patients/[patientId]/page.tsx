@@ -7,9 +7,21 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ClipboardList, Edit, Dumbbell, Plus, ArrowLeft, ChevronDown, ChevronUp, User } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import PatientInfoAccordion from "@/components/PatientInfoAccordion";
+import {
+  OralFunctionExamData,
+  judgeOralHygiene,
+  judgeOralDryness,
+  judgeBitingForce,
+  judgeTongueMovement,
+  judgeTonguePressure,
+  judgeChewingFunction,
+  judgeSwallowingFunction,
+  judgeOverall,
+} from "@/lib/oralFunctionAssessmentJudge";
 
 export default async function PatientDetailPage({ params }: { params: { patientId: string } }) {
-  const patientId = params.patientId;
+  const patientId = await params.patientId;
 
   // サーバー側で患者データ取得
   const supabase = createSupabaseClient();
@@ -27,14 +39,140 @@ export default async function PatientDetailPage({ params }: { params: { patientI
     .eq("patient_id", patientId)
     .order("exam_date", { ascending: false });
 
-  // サンプルデータ形式に変換
-  const examinationData = (oralExams ?? []).map((exam: any) => ({
-    id: exam.id,
-    date: exam.exam_date,
-    // 必要に応じて診断やスコアを計算・整形
-    diagnosis: "口腔機能低下症", // TODO: 必要なら診断ロジックを追加
-    // scores: {...} // TODO: 必要ならスコア計算
-  }));
+  // サンプルデータ形式に変換＋診断名生成
+  const examinationData = (oralExams ?? []).map((exam: any) => {
+    const data: OralFunctionExamData = {
+      oralHygiene: {
+        tongueFrontLeft: String(exam.tongue_front_left ?? ""),
+        tongueFrontCenter: String(exam.tongue_front_center ?? ""),
+        tongueFrontRight: String(exam.tongue_front_right ?? ""),
+        tongueMiddleLeft: String(exam.tongue_middle_left ?? ""),
+        tongueMiddleCenter: String(exam.tongue_middle_center ?? ""),
+        tongueMiddleRight: String(exam.tongue_middle_right ?? ""),
+        tongueBackLeft: String(exam.tongue_back_left ?? ""),
+        tongueBackCenter: String(exam.tongue_back_center ?? ""),
+        tongueBackRight: String(exam.tongue_back_right ?? ""),
+      },
+      oralDryness: {
+        evaluationMethod: exam.oral_dryness_method ?? "method1",
+        mucusValue: String(exam.mucus_value ?? ""),
+        gauzeWeight: String(exam.gauze_weight ?? ""),
+      },
+      bitingForce: {
+        evaluationMethod: exam.biting_force_method ?? "method1",
+        pressureScaleType: exam.pressure_scale_type ?? "pressScale2",
+        useFilter: exam.use_filter ?? "noFilter",
+        occlusionForce: String(exam.occlusion_force ?? ""),
+        remainingTeeth: String(exam.remaining_teeth ?? ""),
+      },
+      tongueMovement: {
+        paSound: String(exam.pa_sound ?? ""),
+        taSound: String(exam.ta_sound ?? ""),
+        kaSound: String(exam.ka_sound ?? ""),
+      },
+      tonguePressure: {
+        value: String(exam.tongue_pressure_value ?? ""),
+      },
+      chewingFunction: {
+        evaluationMethod: exam.chewing_function_method ?? "method1",
+        glucoseConcentration: String(exam.glucose_concentration ?? ""),
+        masticatoryScore: String(exam.masticatory_score ?? ""),
+      },
+      swallowingFunction: {
+        evaluationMethod: exam.swallowing_function_method ?? "eat10",
+        eat10Score: String(exam.eat10_score ?? ""),
+        seireiScore: String(exam.seirei_score ?? ""),
+      },
+    };
+    const scores = [
+      judgeOralHygiene(data.oralHygiene) ? 0 : 1,
+      judgeOralDryness(data.oralDryness) ? 0 : 1,
+      judgeBitingForce(data.bitingForce) ? 0 : 1,
+      judgeTongueMovement(data.tongueMovement) ? 0 : 1,
+      judgeTonguePressure(data.tonguePressure) ? 0 : 1,
+      judgeChewingFunction(data.chewingFunction) ? 0 : 1,
+      judgeSwallowingFunction(data.swallowingFunction) ? 0 : 1,
+    ];
+    const abnormalCount = scores.reduce((a, b) => a + b, 0);
+    return {
+      id: exam.id,
+      date: exam.exam_date,
+      diagnosis: `口腔機能低下症（該当項目: ${abnormalCount}/7）`,
+      raw: exam,
+    };
+  });
+
+  // 健康スコア・診断バッジ用ロジック
+  let healthScore = 0;
+  let healthStatus = "要管理";
+  let healthStatusColor = "bg-red-100 text-red-800";
+  if (examinationData.length > 0) {
+    const exam = examinationData[0].raw;
+    const data: OralFunctionExamData = {
+      oralHygiene: {
+        tongueFrontLeft: String(exam.tongue_front_left ?? ""),
+        tongueFrontCenter: String(exam.tongue_front_center ?? ""),
+        tongueFrontRight: String(exam.tongue_front_right ?? ""),
+        tongueMiddleLeft: String(exam.tongue_middle_left ?? ""),
+        tongueMiddleCenter: String(exam.tongue_middle_center ?? ""),
+        tongueMiddleRight: String(exam.tongue_middle_right ?? ""),
+        tongueBackLeft: String(exam.tongue_back_left ?? ""),
+        tongueBackCenter: String(exam.tongue_back_center ?? ""),
+        tongueBackRight: String(exam.tongue_back_right ?? ""),
+      },
+      oralDryness: {
+        evaluationMethod: exam.oral_dryness_method ?? "method1",
+        mucusValue: String(exam.mucus_value ?? ""),
+        gauzeWeight: String(exam.gauze_weight ?? ""),
+      },
+      bitingForce: {
+        evaluationMethod: exam.biting_force_method ?? "method1",
+        pressureScaleType: exam.pressure_scale_type ?? "pressScale2",
+        useFilter: exam.use_filter ?? "noFilter",
+        occlusionForce: String(exam.occlusion_force ?? ""),
+        remainingTeeth: String(exam.remaining_teeth ?? ""),
+      },
+      tongueMovement: {
+        paSound: String(exam.pa_sound ?? ""),
+        taSound: String(exam.ta_sound ?? ""),
+        kaSound: String(exam.ka_sound ?? ""),
+      },
+      tonguePressure: {
+        value: String(exam.tongue_pressure_value ?? ""),
+      },
+      chewingFunction: {
+        evaluationMethod: exam.chewing_function_method ?? "method1",
+        glucoseConcentration: String(exam.glucose_concentration ?? ""),
+        masticatoryScore: String(exam.masticatory_score ?? ""),
+      },
+      swallowingFunction: {
+        evaluationMethod: exam.swallowing_function_method ?? "eat10",
+        eat10Score: String(exam.eat10_score ?? ""),
+        seireiScore: String(exam.seirei_score ?? ""),
+      },
+    };
+    const scores = [
+      judgeOralHygiene(data.oralHygiene) ? 0 : 1,
+      judgeOralDryness(data.oralDryness) ? 0 : 1,
+      judgeBitingForce(data.bitingForce) ? 0 : 1,
+      judgeTongueMovement(data.tongueMovement) ? 0 : 1,
+      judgeTonguePressure(data.tonguePressure) ? 0 : 1,
+      judgeChewingFunction(data.chewingFunction) ? 0 : 1,
+      judgeSwallowingFunction(data.swallowingFunction) ? 0 : 1,
+    ];
+    const abnormalCount = scores.reduce((a, b) => a + b, 0);
+    healthScore = Math.round(((7 - abnormalCount) / 7) * 100);
+    if (healthScore > 70) {
+      healthStatus = "良好";
+      healthStatusColor = "bg-green-100 text-green-800";
+    } else if (healthScore > 50) {
+      healthStatus = "経過観察";
+      healthStatusColor = "bg-yellow-100 text-yellow-800";
+    } else {
+      healthStatus = "要管理";
+      healthStatusColor = "bg-red-100 text-red-800";
+    }
+  }
 
   // サンプル管理記録データ（実際はAPIから取得）
   const managementData = [
@@ -86,34 +224,26 @@ export default async function PatientDetailPage({ params }: { params: { patientI
               <div>
                 <h2 className="text-2xl font-bold">{patientData.name ?? ""}</h2>
                 <div className="flex items-center mt-1">
-                  {/* TODO: スコア計算ロジック追加予定 */}
                   <span
-                    className={`px-2 py-1 rounded text-sm font-medium ${
-                      0 > 70
-                        ? "bg-green-100 text-green-800"
-                        : 0 > 50
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-red-100 text-red-800"
-                    }`}
+                    className={`px-2 py-1 rounded text-sm font-medium ${healthStatusColor}`}
                   >
-                    {/* TODO: スコア計算ロジック追加予定 */}
-                    {"要管理"}
+                    {healthStatus}
                   </span>
                   <div className="ml-3 flex items-center">
                     <span className="text-sm text-gray-500 mr-2">健康スコア:</span>
                     <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
                       <div
                         className={`h-full ${
-                          0 > 70
+                          healthScore > 70
                             ? "bg-green-500"
-                            : 0 > 50
+                            : healthScore > 50
                               ? "bg-yellow-500"
                               : "bg-red-500"
                         }`}
-                        style={{ width: `0%` }}
+                        style={{ width: `${healthScore}%` }}
                       ></div>
                     </div>
-                    <span className="ml-2 text-sm font-medium">0/100</span>
+                    <span className="ml-2 text-sm font-medium">{healthScore}/100</span>
                   </div>
                 </div>
               </div>
@@ -144,88 +274,7 @@ export default async function PatientDetailPage({ params }: { params: { patientI
         </div>
       </div>
       {/* 患者基本情報 */}
-      <Card className="border-2">
-        <CardHeader
-          className="bg-white rounded-t-lg border-b flex flex-row items-center justify-between cursor-pointer"
-        >
-          <div className="flex items-center">
-            <User className="mr-2 h-5 w-5 text-gray-500" />
-            <CardTitle className="text-2xl">患者基本情報</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent className="pt-6 transition-all duration-300 ease-in-out">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-medium text-muted-foreground">氏名</h3>
-                <p className="text-xl">{patientData.name ?? ""}</p>
-              </div>
-              <div>
-                <h3 className="text-lg font-medium text-muted-foreground">フリガナ</h3>
-                <p className="text-xl">{patientData.kana ?? ""}</p>
-              </div>
-              <div>
-                <h3 className="text-lg font-medium text-muted-foreground">生年月日</h3>
-                <p className="text-xl">
-                  {patientData.birthday
-                    ? `${patientData.birthday} (${(() => {
-                        if (!patientData.birthday) return "";
-                        const today = new Date();
-                        const birth = new Date(patientData.birthday);
-                        let age = today.getFullYear() - birth.getFullYear();
-                        const m = today.getMonth() - birth.getMonth();
-                        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
-                          age--;
-                        }
-                        return isNaN(age) ? "" : `${age}歳`;
-                      })()})`
-                    : ""}
-                </p>
-              </div>
-              <div>
-                <h3 className="text-lg font-medium text-muted-foreground">性別</h3>
-                <p className="text-xl">{patientData.gender ?? ""}</p>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-medium text-muted-foreground">電話番号</h3>
-                <p className="text-xl">{patientData.phone ?? ""}</p>
-              </div>
-              <div>
-                <h3 className="text-lg font-medium text-muted-foreground">住所</h3>
-                <p className="text-xl">{patientData.address ?? ""}</p>
-              </div>
-            </div>
-          </div>
-          <div className="mt-8 space-y-6">
-            <div>
-              <h3 className="text-lg font-medium text-muted-foreground">既往歴</h3>
-              <p className="text-xl">{patientData.medicalHistory || "なし"}</p>
-            </div>
-            <div>
-              <h3 className="text-lg font-medium text-muted-foreground">服用中の薬</h3>
-              <p className="text-xl">{patientData.medications || "なし"}</p>
-            </div>
-            <div>
-              <h3 className="text-lg font-medium text-muted-foreground">アレルギー</h3>
-              <p className="text-xl">{patientData.allergies || "なし"}</p>
-            </div>
-            <div>
-              <h3 className="text-lg font-medium text-muted-foreground">備考</h3>
-              <p className="text-xl">{patientData.notes || "なし"}</p>
-            </div>
-          </div>
-          <div className="mt-8">
-            <Link href={`/patients/${patientId}/edit`}>
-              <Button variant="outline" size="lg" className="text-lg py-6 px-6">
-                <Edit className="mr-2 h-4 w-4" />
-                患者情報を編集
-              </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+      <PatientInfoAccordion patientData={{ ...patientData, id: patientId }} />
       <Card className="border-2 mt-6">
         <CardHeader className="bg-blue-50 rounded-t-lg">
           <CardTitle className="text-2xl">検査・評価履歴</CardTitle>
