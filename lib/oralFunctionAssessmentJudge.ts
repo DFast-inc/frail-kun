@@ -463,6 +463,32 @@ export function toResultStruct(exam: any) {
   };
 }
 
+/**
+ * 各検査項目の全評価方法と基準値を返す
+ */
+export const oralFunctionCriteriaDetails = {
+  oralDryness: [
+    { method: "口腔湿潤度計測", label: "湿潤度値", threshold: "27.0以上" },
+    { method: "サクソンテスト", label: "ガーゼ重量", threshold: "2g以上" }
+  ],
+  bitingForce: [
+    { method: "最大咬合力", label: "咬合力", threshold: "500N以上（フィルタ有350N以上）" },
+    { method: "残存歯数", label: "残存歯数", threshold: "20本以上" }
+  ],
+  chewingFunction: [
+    { method: "グルコース含有ゼリー法", label: "グルコース濃度", threshold: "100mg/dL以上" },
+    { method: "咀嚼能率スコア法", label: "スコア", threshold: "3以上" }
+  ],
+  swallowingFunction: [
+    { method: "EAT-10", label: "EAT-10スコア", threshold: "3点未満" },
+    { method: "聖隷式嚥下質問紙", label: "聖隷スコア", threshold: "2点未満" }
+  ]
+};
+
+export function getAllCriteriaDetails(key: keyof typeof oralFunctionCriteriaDetails) {
+  return oralFunctionCriteriaDetails[key];
+}
+
 // 口腔機能検査の該当項目数（0〜7）を返す
 export function countApplicableItems(data: OralFunctionExamData): number {
   // toResultStructのscore合計と完全一致させる

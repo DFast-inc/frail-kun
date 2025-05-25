@@ -3,7 +3,8 @@ import {
   judgeAssessment,
   toOralFunctionExamData,
   countApplicableItems,
-  toResultStruct
+  toResultStruct,
+  getAllCriteriaDetails
 } from '@/lib/oralFunctionAssessmentJudge';
 import { notFound } from 'next/navigation';
 
@@ -209,8 +210,18 @@ export default async function OralFunctionAssessmentPrintPage({
               {/* 口腔乾燥 */}
               <tr>
                 <td rowSpan={1} style={{ fontWeight: 'bold' }}>② 口腔乾燥</td>
-                <td>口腔粘膜湿潤度</td>
-                <td>27未満</td>
+                <td>口腔粘膜湿潤度 / サクソンテスト</td>
+                <td>
+                  {getAllCriteriaDetails("oralDryness")
+                    .map((c) => `${c.method}：${c.label}${c.threshold}`)
+                    .join('\n')
+                    .split('\n').map((line, i) => (
+                      <span key={i}>
+                        {line}
+                        <br />
+                      </span>
+                    ))}
+                </td>
                 <td>
                   {exam.mucus_value !== undefined && exam.mucus_value !== null
                     ? `${exam.mucus_value}`
@@ -223,8 +234,18 @@ export default async function OralFunctionAssessmentPrintPage({
               {/* 咬合力低下 */}
               <tr>
                 <td rowSpan={1} style={{ fontWeight: 'bold' }}>③ 咬合力低下</td>
-                <td>咬合力検査</td>
-                <td>200N未満</td>
+                <td>咬合力検査 / 残存歯数</td>
+                <td>
+                  {getAllCriteriaDetails("bitingForce")
+                    .map((c) => `${c.method}：${c.label}${c.threshold}`)
+                    .join('\n')
+                    .split('\n').map((line, i) => (
+                      <span key={i}>
+                        {line}
+                        <br />
+                      </span>
+                    ))}
+                </td>
                 <td>
                   {exam.occlusion_force !== undefined && exam.occlusion_force !== null
                     ? `${exam.occlusion_force}N`
@@ -271,8 +292,18 @@ export default async function OralFunctionAssessmentPrintPage({
               {/* 咀嚼機能低下 */}
               <tr>
                 <td rowSpan={1} style={{ fontWeight: 'bold' }}>⑤ 咀嚼機能低下</td>
-                <td>咀嚼能力検査</td>
-                <td>100mg/dL未満</td>
+                <td>咀嚼能力検査 / 咀嚼能率スコア法</td>
+                <td>
+                  {getAllCriteriaDetails("chewingFunction")
+                    .map((c) => `${c.method}：${c.label}${c.threshold}`)
+                    .join('\n')
+                    .split('\n').map((line, i) => (
+                      <span key={i}>
+                        {line}
+                        <br />
+                      </span>
+                    ))}
+                </td>
                 <td>
                   {exam.glucose_concentration !== undefined && exam.glucose_concentration !== null
                     ? `${exam.glucose_concentration}mg/dL`
@@ -285,8 +316,18 @@ export default async function OralFunctionAssessmentPrintPage({
               {/* 嚥下機能低下 */}
               <tr>
                 <td rowSpan={1} style={{ fontWeight: 'bold' }}>⑥ 嚥下機能低下</td>
-                <td>嚥下スクリーニング検査（EAT-10）</td>
-                <td>3点以上</td>
+                <td>嚥下スクリーニング検査（EAT-10） / 聖隷式嚥下質問紙</td>
+                <td>
+                  {getAllCriteriaDetails("swallowingFunction")
+                    .map((c) => `${c.method}：${c.label}${c.threshold}`)
+                    .join('\n')
+                    .split('\n').map((line, i) => (
+                      <span key={i}>
+                        {line}
+                        <br />
+                      </span>
+                    ))}
+                </td>
                 <td>
                   {exam.eat10_score !== undefined && exam.eat10_score !== null
                     ? `${exam.eat10_score}点`
