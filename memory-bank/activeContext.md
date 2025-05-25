@@ -28,30 +28,13 @@
 - **oral_function_examテーブルのカラム名に合わせてprint/page.tsxの検査値表示ロジックを修正。Supabaseの実データ構造（プリミティブ値）をMCP経由で調査し、items配列のkeyをDBカラム名に正規化。検査値が正しく反映されるようになった**
 - **「該当」欄を下位症状ごとに1つだけまとめて表示するようにUI/ロジックを修正。checkedCountのロジックとUIの一貫性を確保**
 - **検査詳細ページ（ExaminationDetailClient.tsx）に「印刷」ボタンを追加し、印刷ページへ遷移できるようにした**
+- **身体機能評価詳細ページ（physical_assessment）の新規実装：components/PhysicalAssessmentDetailClient.tsxを作成し、app/patients/[patientId]/examinations/physical-assessment/[physicalAssessmentId]/page.tsxでSupabaseからデータ取得・詳細表示UIを構築。oral-function-assessment詳細ページのパターンを踏襲し、Server/Client分離・params Promise対応・notFound対応・Card/グリッドUIで現場運用に即した見やすい出力を実現**
+- **[NEW] 口腔機能検査データの型変換・判定ロジックを全面見直し。スコア・測定値はnumber型で保持し、型不整合・丸め・判定ズレを根本解消。全画面でDB値と完全一致するよう統一**
 
 ## 最近の変更・進捗
-- **口腔機能精密検査 記録用紙画面の該当判定ロジックをlib/oralFunctionAssessmentJudge.tsのjudgeAssessment/assessmentCriteriaで統合。未入力時はundefined（判定不能）を返し、print/page.tsx側で該当（低下）のみ☑表示・checkedCountも該当のみカウント・3項目以上で診断仕様に完全準拠。**
-- **患者詳細ページ（/patients/[patientId]）の「患者基本情報」アコーディオンで、Supabaseから取得したkarte_no（カルテ番号）をサマリ部（閉じた状態）・詳細部（開いた状態）の両方で常時表示するよう実装。型定義・props受け渡し・UI全てで一貫対応し、現場運用でカルテ番号が一目で分かる体験を実現**
-- **口腔衛生状態（舌苔スコア/TCI）判定ロジック・UIパターンを刷新（6ブロック・TCI計算・50%以上で異常）し、他検査と同様にリアルタイム判定・表示を実装（lib/oralFunctionAssessmentJudge.ts, components/ExaminationDetailClient.tsx）**
-- **患者新規登録時、patients.idを取得し、検査登録画面へidをパスパラメータで遷移するよう修正**
-- **oral_function_examのinsert時、必ずpatients.id（パスパラメータ）をpatient_idとして保存し、外部キー制約違反を解消**
-- **検査データ保存後、Supabaseのinsert直後に.select().single()で新規idを取得し、検査結果詳細画面へ遷移するよう修正**
-- **lib/oralFunctionAssessmentJudge.tsのjudgeBitingForce関数で、フィルタ無し:500N以上、フィルタあり:350N以上で正常判定となるよう修正。不等号バグも解消**
-- components/PatientForm.tsxを新規作成し、患者新規登録・編集フォームのUI/UX・バリデーション・アクセシビリティを完全共通化
-- **患者基本情報フォームに「カルテ番号（karte_no）」入力欄を追加し、Supabaseに保存・編集できるよう対応（型・初期値・insert/updateロジック・取得値も全て対応）**
-- app/patients/new/page.tsxをPatientForm利用にリファクタリング
-- app/patients/[patientId]/edit/page.tsxを新規作成し、Supabaseから患者データを取得して初期値に反映、編集・保存（update）が可能に
-- hooks/useUpdatePatient.tsを新規作成し、Supabaseのpatientsテーブルをupdateするロジックを共通化
-- **hooks/useCreatePatient.ts, hooks/useUpdatePatient.ts, hooks/usePatient.tsもkarte_no対応で修正**
-- **components/PatientInfoAccordion.tsxを新規作成し、患者基本情報セクションをアコーディオン展開・サマリ/詳細切替・編集導線付きで統一**
-- **app/patients/[patientId]/page.tsxを大幅リファクタし、健康スコア・診断バッジ・プログレスバーを最新検査データから自動計算・色分け、診断名も自動生成するように改善**
-- **oral_function_examデータからスコア・診断名を自動計算するパターンを確立し、現場運用・拡張性・一貫性を高めた**
-- **口腔機能検査記録印刷ページ（print/page.tsx）を新規実装し、A4印刷レイアウト・paramsのPromise対応・ID整合性デバッグパターンを確立**
-- **printページのoralExamサブオブジェクトに空オブジェクト初期値（?? {}）を与え、undefinedアクセスエラー（Cannot read properties of undefined）を解消**
-- **oral_function_examテーブルのカラム名に合わせてprint/page.tsxの検査値表示ロジックを修正。Supabaseの実データ構造（プリミティブ値）をMCP経由で調査し、items配列のkeyをDBカラム名に正規化。検査値が正しく反映されるようになった**
-- **「該当」欄を下位症状ごとに1つだけまとめて表示するようにUI/ロジックを修正。checkedCountのロジックとUIの一貫性を確保**
-- **検査詳細ページ（ExaminationDetailClient.tsx）に「印刷」ボタンを追加し、印刷ページへ遷移できるようにした**
-- ...（従来の進捗も維持）
+- **[NEW] OralFunctionExamData型をstring→number | undefined型に修正。全データ変換部（app/patients/[patientId]/page.tsx, app/patients/page.tsx, components/ExaminationDetailClient.tsx）でスコア・測定値をnumber型で渡すよう統一。**
+- **[NEW] これにより該当項目数や判定値のズレ・丸め・型不整合が根本的に解消され、DB値と完全に一致するようになった。**
+- （従来の進捗も維持）
 
 ## 次のステップ
 - **他画面・他用途への判定ロジック再利用、判定基準の柔軟な拡張、UI/UX仕様のさらなる最適化**
@@ -64,31 +47,10 @@
 - 実装進捗・課題・学びを随時activeContext.mdに記録
 
 ## アクティブな意思決定・考慮事項
-- **口腔機能精密検査の判定関数は返り値undefined対応（未入力時は判定不能）、print/page.tsx側で該当（低下）のみ☑表示・checkedCountも該当のみカウント・3項目以上で診断仕様に完全準拠。UI/UX仕様も明確化し、現場運用・診断基準に沿った設計を徹底。**
-- **患者基本情報のカルテ番号（karte_no）はbigint型で管理し、フォームではtext入力→保存時に数値変換。新規登録・編集・取得・初期値セット・型定義・バリデーション・UI全てで一貫して対応。さらに、患者詳細ページのアコーディオンUIでもkarte_noを常時表示し、現場運用での識別性・利便性を最大化**
-- **karte_noのバリデーション（未入力・数値以外・桁数制限）・重複チェック・型チェックを今後必須パターンとする。エラー時はSupabaseエラー内容も含め詳細なフィードバックをtoastやUIで明示する。UX観点で入力補助・エラー箇所明示も強化する。**
-- **口腔衛生状態（TCI）判定は6ブロック・TCI計算・50%以上で異常とし、lib/oralFunctionAssessmentJudge.tsのjudgeOralHygieneStatusで一元化。他検査と同様のUI/UX・判定パターンを徹底**
-- **患者新規登録・編集フォームはcomponents/PatientForm.tsxで完全共通化し、UI/UX・バリデーション・アクセシビリティを統一**
-- **患者編集は/patients/[patientId]/editで実装し、初期値はSupabaseから取得したデータを反映**
-- **updateロジックはhooks/useUpdatePatient.tsで共通化し、APIエラー時はtoastで通知**
-- **患者登録→検査登録のid受け渡し・外部キー制約違反の解消・保存後の詳細画面遷移は、全体のデータ整合性・運用性向上のため必須パターンとして確立**
-- **咬合力判定条件（フィルタ有無で基準値分岐）は現場運用・エビデンスに基づき明示的に実装**
-- **患者詳細ページのUI/UXはshadcn/ui＋Tailwind CSSの思想に沿い、アコーディオン化・健康スコア/診断バッジ/プログレスバーの自動化・診断名自動生成を徹底**
-- **oral_function_examデータからスコア・診断名を自動計算するパターンを全体で再利用可能な形で確立**
-- **印刷ページのparamsはPromiseをawaitしてから利用する（Next.js 15 App Router仕様）**
-- **Supabaseデータ取得時はID整合性・null時のデバッグパターンを徹底し、ID不一致・データ欠損時のエラーを早期発見できるようにする**
-- **printページのoralExamサブオブジェクトに空オブジェクト初期値を与え、データ取得・初期値補完パターンを詳細画面と統一**
-- **検査詳細ページから印刷ページへの遷移UIパターンを確立**
-- ...（従来の意思決定も維持）
+- **[NEW] 口腔機能検査データの型変換・判定ロジックは「スコア・測定値はnumber型で保持」「文字列項目のみString化」「型定義もnumber型に修正」を徹底。**
+- **[NEW] これにより、型不整合や意図しない丸め・判定ズレが発生しない設計を全画面で統一。**
+- （従来の意思決定も維持）
 
 ## 重要なパターン・知見
-- **口腔機能精密検査の判定ロジックはassessmentCriteria/統合関数で一元管理し、未入力時はundefined返却・該当（低下）のみ☑表示・checkedCountも該当のみカウント・3項目以上で診断仕様に完全準拠するパターンを確立。今後の拡張・他画面再利用も容易。**
-- **患者基本情報のカルテ番号（karte_no）を型・UI・insert/update/取得・props受け渡し・アコーディオンUI全てで一貫して扱うパターンを確立。サマリ部・詳細部の両方でkarte_noを明示的に表示することで、現場運用での識別性・利便性・一貫性を高めた**
-- **口腔衛生状態（TCI）判定の新パターン（6ブロック・TCI計算・50%以上で異常）を確立。他検査と同様のリアルタイム判定・UI/UXパターンを再利用可能**
-- **患者登録→検査登録のid受け渡し・外部キー制約違反の解消・保存後の詳細画面遷移のパターンを確立**
-- **咬合力判定条件（フィルタ有無で基準値分岐）のバグ解消・仕様明示**
-- **患者詳細ページの健康スコア・診断バッジ・診断名自動生成パターンを確立し、今後の他画面・他機能でも再利用可能な設計とした**
-- **A4印刷用の検査記録ページ設計・データ取得・判定ロジック・ID整合性チェック・null時のデバッグパターンを確立**
-- **printページのデータ取得・初期値補完パターンを詳細画面と統一し、undefinedアクセスエラーを根本解消**
-- **検査詳細ページから印刷ページへの遷移UIパターンを確立**
-- ...（従来のパターンも維持）
+- **[NEW] OralFunctionExamData型・データ変換・判定ロジックのnumber型統一パターンを確立。今後の拡張・他画面再利用も容易。**
+- （従来のパターンも維持）

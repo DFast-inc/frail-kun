@@ -16,6 +16,7 @@ type Patient = {
   gender: string;
   lastVisit: string;
   status: string;
+  diagnosis: string;
 };
 
 import { useState } from "react";
@@ -83,6 +84,7 @@ export default function PatientsList({
                 <TableHead className="text-lg">性別</TableHead>
                 <TableHead className="text-lg">最終来院日</TableHead>
                 <TableHead className="text-lg">状態</TableHead>
+                <TableHead className="text-lg">診断</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -121,6 +123,9 @@ export default function PatientsList({
                       >
                         {patient.status}
                       </span>
+                    </TableCell>
+                    <TableCell className="text-lg">
+                      {patient.diagnosis || "-"}
                     </TableCell>
                   </TableRow>
                 ))

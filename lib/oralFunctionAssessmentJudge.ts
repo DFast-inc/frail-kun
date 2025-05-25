@@ -185,51 +185,51 @@ export function judgeAssessment(type: keyof typeof assessmentCriteria, data: any
 export type OralFunctionExamData = {
   // 口腔衛生状態
   oralHygiene: {
-    tongueFrontLeft: string
-    tongueFrontCenter: string
-    tongueFrontRight: string
-    tongueMiddleLeft: string
-    tongueMiddleCenter: string
-    tongueMiddleRight: string
-    tongueBackLeft: string
-    tongueBackCenter: string
-    tongueBackRight: string
+    tongueFrontLeft: number | undefined
+    tongueFrontCenter: number | undefined
+    tongueFrontRight: number | undefined
+    tongueMiddleLeft: number | undefined
+    tongueMiddleCenter: number | undefined
+    tongueMiddleRight: number | undefined
+    tongueBackLeft: number | undefined
+    tongueBackCenter: number | undefined
+    tongueBackRight: number | undefined
   }
   // 口腔乾燥
   oralDryness: {
     evaluationMethod: "method1" | "method2"
-    mucusValue: string // method1
-    gauzeWeight: string // method2
+    mucusValue: number | undefined // method1
+    gauzeWeight: number | undefined // method2
   }
   // 咬合力
   bitingForce: {
     evaluationMethod: "method1" | "method2"
     pressureScaleType: "pressScale2" | "pressScale" | "oramo"
     useFilter: "withFilter" | "noFilter"
-    occlusionForce: string
-    remainingTeeth: string
+    occlusionForce: number | undefined
+    remainingTeeth: number | undefined
   }
   // 舌口唇運動
   tongueMovement: {
-    paSound: string
-    taSound: string
-    kaSound: string
+    paSound: number | undefined
+    taSound: number | undefined
+    kaSound: number | undefined
   }
   // 舌圧
   tonguePressure: {
-    value: string
+    value: number | undefined
   }
   // 咀嚼機能
   chewingFunction: {
     evaluationMethod: "method1" | "method2"
-    glucoseConcentration: string // method1
-    masticatoryScore: string // method2
+    glucoseConcentration: number | undefined // method1
+    masticatoryScore: number | undefined // method2
   }
   // 嚥下機能
   swallowingFunction: {
     evaluationMethod: "eat10" | "seirei"
-    eat10Score: string // eat10
-    seireiScore: string // seirei
+    eat10Score: number | undefined // eat10
+    seireiScore: number | undefined // seirei
   }
 }
 

@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { createSupabaseClient } from "@/lib/supabaseClient";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -27,6 +29,8 @@ export default async function PatientDetailPage({ params }: { params: { patientI
   const supabase = createSupabaseClient();
   const { data: patientData, error } = await supabase.from("patients").select("*").eq("id", patientId).single();
 
+
+
   if (error || !patientData) {
     // データが見つからない場合は一覧にリダイレクト
     redirect("/patients");
@@ -39,51 +43,54 @@ export default async function PatientDetailPage({ params }: { params: { patientI
     .eq("patient_id", patientId)
     .order("exam_date", { ascending: false });
 
+      console.log("患者データ:", oralExams);
+
   // サンプルデータ形式に変換＋診断名生成
   const examinationData = (oralExams ?? []).map((exam: any) => {
     const data: OralFunctionExamData = {
       oralHygiene: {
-        tongueFrontLeft: String(exam.tongue_front_left ?? ""),
-        tongueFrontCenter: String(exam.tongue_front_center ?? ""),
-        tongueFrontRight: String(exam.tongue_front_right ?? ""),
-        tongueMiddleLeft: String(exam.tongue_middle_left ?? ""),
-        tongueMiddleCenter: String(exam.tongue_middle_center ?? ""),
-        tongueMiddleRight: String(exam.tongue_middle_right ?? ""),
-        tongueBackLeft: String(exam.tongue_back_left ?? ""),
-        tongueBackCenter: String(exam.tongue_back_center ?? ""),
-        tongueBackRight: String(exam.tongue_back_right ?? ""),
+        tongueFrontLeft: exam.tongue_front_left !== null && exam.tongue_front_left !== undefined ? Number(exam.tongue_front_left) : undefined,
+        tongueFrontCenter: exam.tongue_front_center !== null && exam.tongue_front_center !== undefined ? Number(exam.tongue_front_center) : undefined,
+        tongueFrontRight: exam.tongue_front_right !== null && exam.tongue_front_right !== undefined ? Number(exam.tongue_front_right) : undefined,
+        tongueMiddleLeft: exam.tongue_middle_left !== null && exam.tongue_middle_left !== undefined ? Number(exam.tongue_middle_left) : undefined,
+        tongueMiddleCenter: exam.tongue_middle_center !== null && exam.tongue_middle_center !== undefined ? Number(exam.tongue_middle_center) : undefined,
+        tongueMiddleRight: exam.tongue_middle_right !== null && exam.tongue_middle_right !== undefined ? Number(exam.tongue_middle_right) : undefined,
+        tongueBackLeft: exam.tongue_back_left !== null && exam.tongue_back_left !== undefined ? Number(exam.tongue_back_left) : undefined,
+        tongueBackCenter: exam.tongue_back_center !== null && exam.tongue_back_center !== undefined ? Number(exam.tongue_back_center) : undefined,
+        tongueBackRight: exam.tongue_back_right !== null && exam.tongue_back_right !== undefined ? Number(exam.tongue_back_right) : undefined,
       },
       oralDryness: {
         evaluationMethod: exam.oral_dryness_method ?? "method1",
-        mucusValue: String(exam.mucus_value ?? ""),
-        gauzeWeight: String(exam.gauze_weight ?? ""),
+        mucusValue: exam.mucus_value !== null && exam.mucus_value !== undefined ? Number(exam.mucus_value) : undefined,
+        gauzeWeight: exam.gauze_weight !== null && exam.gauze_weight !== undefined ? Number(exam.gauze_weight) : undefined,
       },
       bitingForce: {
         evaluationMethod: exam.biting_force_method ?? "method1",
         pressureScaleType: exam.pressure_scale_type ?? "pressScale2",
         useFilter: exam.use_filter ?? "noFilter",
-        occlusionForce: String(exam.occlusion_force ?? ""),
-        remainingTeeth: String(exam.remaining_teeth ?? ""),
+        occlusionForce: exam.occlusion_force !== null && exam.occlusion_force !== undefined ? Number(exam.occlusion_force) : undefined,
+        remainingTeeth: exam.remaining_teeth !== null && exam.remaining_teeth !== undefined ? Number(exam.remaining_teeth) : undefined,
       },
       tongueMovement: {
-        paSound: String(exam.pa_sound ?? ""),
-        taSound: String(exam.ta_sound ?? ""),
-        kaSound: String(exam.ka_sound ?? ""),
+        paSound: exam.pa_sound !== null && exam.pa_sound !== undefined ? Number(exam.pa_sound) : undefined,
+        taSound: exam.ta_sound !== null && exam.ta_sound !== undefined ? Number(exam.ta_sound) : undefined,
+        kaSound: exam.ka_sound !== null && exam.ka_sound !== undefined ? Number(exam.ka_sound) : undefined,
       },
       tonguePressure: {
-        value: String(exam.tongue_pressure_value ?? ""),
+        value: exam.tongue_pressure_value !== null && exam.tongue_pressure_value !== undefined ? Number(exam.tongue_pressure_value) : undefined,
       },
       chewingFunction: {
         evaluationMethod: exam.chewing_function_method ?? "method1",
-        glucoseConcentration: String(exam.glucose_concentration ?? ""),
-        masticatoryScore: String(exam.masticatory_score ?? ""),
+        glucoseConcentration: exam.glucose_concentration !== null && exam.glucose_concentration !== undefined ? Number(exam.glucose_concentration) : undefined,
+        masticatoryScore: exam.masticatory_score !== null && exam.masticatory_score !== undefined ? Number(exam.masticatory_score) : undefined,
       },
       swallowingFunction: {
         evaluationMethod: exam.swallowing_function_method ?? "eat10",
-        eat10Score: String(exam.eat10_score ?? ""),
-        seireiScore: String(exam.seirei_score ?? ""),
+        eat10Score: exam.eat10_score !== null && exam.eat10_score !== undefined ? Number(exam.eat10_score) : undefined,
+        seireiScore: exam.seirei_score !== null && exam.seirei_score !== undefined ? Number(exam.seirei_score) : undefined,
       },
     };
+    console.log("検査データ:", data);
     const scores = [
       judgeOralHygiene(data.oralHygiene) ? 0 : 1,
       judgeOralDryness(data.oralDryness) ? 0 : 1,
@@ -110,45 +117,45 @@ export default async function PatientDetailPage({ params }: { params: { patientI
     const exam = examinationData[0].raw;
     const data: OralFunctionExamData = {
       oralHygiene: {
-        tongueFrontLeft: String(exam.tongue_front_left ?? ""),
-        tongueFrontCenter: String(exam.tongue_front_center ?? ""),
-        tongueFrontRight: String(exam.tongue_front_right ?? ""),
-        tongueMiddleLeft: String(exam.tongue_middle_left ?? ""),
-        tongueMiddleCenter: String(exam.tongue_middle_center ?? ""),
-        tongueMiddleRight: String(exam.tongue_middle_right ?? ""),
-        tongueBackLeft: String(exam.tongue_back_left ?? ""),
-        tongueBackCenter: String(exam.tongue_back_center ?? ""),
-        tongueBackRight: String(exam.tongue_back_right ?? ""),
+        tongueFrontLeft: exam.tongue_front_left !== null && exam.tongue_front_left !== undefined ? Number(exam.tongue_front_left) : undefined,
+        tongueFrontCenter: exam.tongue_front_center !== null && exam.tongue_front_center !== undefined ? Number(exam.tongue_front_center) : undefined,
+        tongueFrontRight: exam.tongue_front_right !== null && exam.tongue_front_right !== undefined ? Number(exam.tongue_front_right) : undefined,
+        tongueMiddleLeft: exam.tongue_middle_left !== null && exam.tongue_middle_left !== undefined ? Number(exam.tongue_middle_left) : undefined,
+        tongueMiddleCenter: exam.tongue_middle_center !== null && exam.tongue_middle_center !== undefined ? Number(exam.tongue_middle_center) : undefined,
+        tongueMiddleRight: exam.tongue_middle_right !== null && exam.tongue_middle_right !== undefined ? Number(exam.tongue_middle_right) : undefined,
+        tongueBackLeft: exam.tongue_back_left !== null && exam.tongue_back_left !== undefined ? Number(exam.tongue_back_left) : undefined,
+        tongueBackCenter: exam.tongue_back_center !== null && exam.tongue_back_center !== undefined ? Number(exam.tongue_back_center) : undefined,
+        tongueBackRight: exam.tongue_back_right !== null && exam.tongue_back_right !== undefined ? Number(exam.tongue_back_right) : undefined,
       },
       oralDryness: {
         evaluationMethod: exam.oral_dryness_method ?? "method1",
-        mucusValue: String(exam.mucus_value ?? ""),
-        gauzeWeight: String(exam.gauze_weight ?? ""),
+        mucusValue: exam.mucus_value !== null && exam.mucus_value !== undefined ? Number(exam.mucus_value) : undefined,
+        gauzeWeight: exam.gauze_weight !== null && exam.gauze_weight !== undefined ? Number(exam.gauze_weight) : undefined,
       },
       bitingForce: {
         evaluationMethod: exam.biting_force_method ?? "method1",
         pressureScaleType: exam.pressure_scale_type ?? "pressScale2",
         useFilter: exam.use_filter ?? "noFilter",
-        occlusionForce: String(exam.occlusion_force ?? ""),
-        remainingTeeth: String(exam.remaining_teeth ?? ""),
+        occlusionForce: exam.occlusion_force !== null && exam.occlusion_force !== undefined ? Number(exam.occlusion_force) : undefined,
+        remainingTeeth: exam.remaining_teeth !== null && exam.remaining_teeth !== undefined ? Number(exam.remaining_teeth) : undefined,
       },
       tongueMovement: {
-        paSound: String(exam.pa_sound ?? ""),
-        taSound: String(exam.ta_sound ?? ""),
-        kaSound: String(exam.ka_sound ?? ""),
+        paSound: exam.pa_sound !== null && exam.pa_sound !== undefined ? Number(exam.pa_sound) : undefined,
+        taSound: exam.ta_sound !== null && exam.ta_sound !== undefined ? Number(exam.ta_sound) : undefined,
+        kaSound: exam.ka_sound !== null && exam.ka_sound !== undefined ? Number(exam.ka_sound) : undefined,
       },
       tonguePressure: {
-        value: String(exam.tongue_pressure_value ?? ""),
+        value: exam.tongue_pressure_value !== null && exam.tongue_pressure_value !== undefined ? Number(exam.tongue_pressure_value) : undefined,
       },
       chewingFunction: {
         evaluationMethod: exam.chewing_function_method ?? "method1",
-        glucoseConcentration: String(exam.glucose_concentration ?? ""),
-        masticatoryScore: String(exam.masticatory_score ?? ""),
+        glucoseConcentration: exam.glucose_concentration !== null && exam.glucose_concentration !== undefined ? Number(exam.glucose_concentration) : undefined,
+        masticatoryScore: exam.masticatory_score !== null && exam.masticatory_score !== undefined ? Number(exam.masticatory_score) : undefined,
       },
       swallowingFunction: {
         evaluationMethod: exam.swallowing_function_method ?? "eat10",
-        eat10Score: String(exam.eat10_score ?? ""),
-        seireiScore: String(exam.seirei_score ?? ""),
+        eat10Score: exam.eat10_score !== null && exam.eat10_score !== undefined ? Number(exam.eat10_score) : undefined,
+        seireiScore: exam.seirei_score !== null && exam.seirei_score !== undefined ? Number(exam.seirei_score) : undefined,
       },
     };
     const scores = [
