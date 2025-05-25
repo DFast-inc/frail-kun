@@ -105,6 +105,7 @@ export default async function PatientsPage() {
     }
     return {
       id: p.id,
+      karte_no: p.karte_no,
       name: p.name,
       age: calcAge(p.birthday),
       gender: p.gender,

@@ -11,6 +11,7 @@ import type React from "react";
 
 type Patient = {
   id: number;
+  karte_no: string | number;
   name: string;
   age: number | null;
   gender: string;
@@ -39,17 +40,19 @@ export default function PatientsList({
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-        <h1 className="text-3xl font-bold">患者一覧</h1>
-        <div className="flex flex-col">
-          <Link href="/patients/new">
-            <Button size="lg" className="text-lg py-6 px-6">
-              <UserPlus className="mr-2 h-5 w-5" />
-              新規患者登録
-            </Button>
-          </Link>
-          <p className="text-xs text-muted-foreground mt-1 max-w-xs text-right">
-            基本情報の登録に加えて身長・体重、全身疾患の既往歴など全身状態の記録を登録できます
-          </p>
+        <h1 className="text-3xl font-bold whitespace-nowrap min-w-[8rem] flex-shrink-0">患者一覧</h1>
+        <div className="flex flex-row justify-end items-center w-full max-w-[480px]">
+          <div className="flex flex-col items-end w-full">
+            <Link href="/patients/new">
+              <Button size="lg" className="text-lg py-6 px-6">
+                <UserPlus className="mr-2 h-5 w-5" />
+                新規患者登録
+              </Button>
+            </Link>
+            <p className="text-xs text-muted-foreground mt-1 max-w-xs text-right">
+              基本情報の登録に加えて身長・体重、全身疾患の既往歴など全身状態の記録を登録できます
+            </p>
+          </div>
         </div>
       </div>
 
@@ -78,13 +81,14 @@ export default function PatientsList({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-lg">患者ID</TableHead>
+                <TableHead className="text-lg">カルテ番号</TableHead>
                 <TableHead className="text-lg">氏名</TableHead>
                 <TableHead className="text-lg">年齢</TableHead>
                 <TableHead className="text-lg">性別</TableHead>
                 <TableHead className="text-lg">最終来院日</TableHead>
                 <TableHead className="text-lg">状態</TableHead>
                 <TableHead className="text-lg">診断</TableHead>
+                <TableHead className="text-lg"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -95,16 +99,16 @@ export default function PatientsList({
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredPatients.map((patient) => (
+                filteredPatients.map((patient, index) => (
                   <TableRow
-                    key={patient.id}
+                    key={patient.id ?? patient.karte_no ?? `no_karte_${patient.name}_${index}`}
                     className="cursor-pointer hover:bg-accent transition"
-                    onClick={() => router.push(`/patients/${patient.id}`)}
+                    onClick={() => patient.id ? router.push(`/patients/${patient.id}`) : undefined}
                     tabIndex={0}
                     role="button"
                     aria-label={`患者 ${patient.name} の詳細ページへ`}
                   >
-                    <TableCell className="text-lg font-medium">{patient.id}</TableCell>
+                    <TableCell className="text-lg font-medium">{patient.karte_no}</TableCell>
                     <TableCell className="text-lg">{patient.name}</TableCell>
                     <TableCell className="text-lg">
                       {patient.age !== null ? `${patient.age}歳` : "-"}
@@ -126,6 +130,11 @@ export default function PatientsList({
                     </TableCell>
                     <TableCell className="text-lg">
                       {patient.diagnosis || "-"}
+                    </TableCell>
+                    <TableCell className="text-lg text-right">
+                      <span className="inline-block align-middle">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                      </span>
                     </TableCell>
                   </TableRow>
                 ))
