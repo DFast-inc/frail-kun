@@ -3,6 +3,7 @@
 - Next.js 15 + Supabase構成での本番運用を見据えたCRUD・UI・データ設計の安定化
 - 管理計画書作成ページ（/examinations/detail/[id]/management-plan-edit）の新規実装とUX改善
 - **患者新規登録・編集画面のUI/UX統一・フォーム共通化（PatientForm.tsx）・バリデーション強化**
+- **患者基本情報フォームに「カルテ番号（karte_no）」入力欄を追加し、Supabaseに保存・編集できるよう対応**
 - **/patients/[patientId]/edit で既存患者データを初期値として編集できる機能の実装**
 - **hooks/useUpdatePatient.tsによるSupabase updateロジックの追加**
 - **管理計画書作成ページのshadcn/ui＋Tailwind CSSによるUI/UX統一・アクセシビリティ対応**
@@ -33,9 +34,11 @@
 - **検査データ保存後、Supabaseのinsert直後に.select().single()で新規idを取得し、検査結果詳細画面へ遷移するよう修正**
 - **lib/oralFunctionAssessmentJudge.tsのjudgeBitingForce関数で、フィルタ無し:500N以上、フィルタあり:350N以上で正常判定となるよう修正。不等号バグも解消**
 - components/PatientForm.tsxを新規作成し、患者新規登録・編集フォームのUI/UX・バリデーション・アクセシビリティを完全共通化
+- **患者基本情報フォームに「カルテ番号（karte_no）」入力欄を追加し、Supabaseに保存・編集できるよう対応（型・初期値・insert/updateロジック・取得値も全て対応）**
 - app/patients/new/page.tsxをPatientForm利用にリファクタリング
 - app/patients/[patientId]/edit/page.tsxを新規作成し、Supabaseから患者データを取得して初期値に反映、編集・保存（update）が可能に
 - hooks/useUpdatePatient.tsを新規作成し、Supabaseのpatientsテーブルをupdateするロジックを共通化
+- **hooks/useCreatePatient.ts, hooks/useUpdatePatient.ts, hooks/usePatient.tsもkarte_no対応で修正**
 - **components/PatientInfoAccordion.tsxを新規作成し、患者基本情報セクションをアコーディオン展開・サマリ/詳細切替・編集導線付きで統一**
 - **app/patients/[patientId]/page.tsxを大幅リファクタし、健康スコア・診断バッジ・プログレスバーを最新検査データから自動計算・色分け、診断名も自動生成するように改善**
 - **oral_function_examデータからスコア・診断名を自動計算するパターンを確立し、現場運用・拡張性・一貫性を高めた**
@@ -55,6 +58,7 @@
 - 実装進捗・課題・学びを随時activeContext.mdに記録
 
 ## アクティブな意思決定・考慮事項
+- **患者基本情報のカルテ番号（karte_no）はbigint型で管理し、フォームではtext入力→保存時に数値変換。新規登録・編集・取得・初期値セット・型定義・バリデーション・UI全てで一貫して対応**
 - **口腔衛生状態（TCI）判定は6ブロック・TCI計算・50%以上で異常とし、lib/oralFunctionAssessmentJudge.tsのjudgeOralHygieneStatusで一元化。他検査と同様のUI/UX・判定パターンを徹底**
 - **患者新規登録・編集フォームはcomponents/PatientForm.tsxで完全共通化し、UI/UX・バリデーション・アクセシビリティを統一**
 - **患者編集は/patients/[patientId]/editで実装し、初期値はSupabaseから取得したデータを反映**
@@ -70,6 +74,7 @@
 - ...（従来の意思決定も維持）
 
 ## 重要なパターン・知見
+- **患者基本情報のカルテ番号（karte_no）を型・UI・insert/update/取得全てで一貫して扱うパターンを確立**
 - **口腔衛生状態（TCI）判定の新パターン（6ブロック・TCI計算・50%以上で異常）を確立。他検査と同様のリアルタイム判定・UI/UXパターンを再利用可能**
 - **患者登録→検査登録のid受け渡し・外部キー制約違反の解消・保存後の詳細画面遷移のパターンを確立**
 - **咬合力判定条件（フィルタ有無で基準値分岐）のバグ解消・仕様明示**

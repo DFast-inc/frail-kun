@@ -691,7 +691,7 @@ export default function NewExaminationPage() {
                               %
                             </p>
                             <p className="text-sm text-muted-foreground mt-1">
-                              ※ TCI ≧ 3 → 低下（✕）、TCI ≦ 2 → 正常（〇）
+                              ※ TCI ≧ 50 → 低下（✕）、TCI ≦ 50 → 正常（〇）
                             </p>
                           </div>
                           <div className="text-xl font-bold">
@@ -705,7 +705,7 @@ export default function NewExaminationPage() {
                               Number(formData.oralHygiene.tongueBackLeft || 0) +
                               Number(formData.oralHygiene.tongueBackCenter || 0) +
                               Number(formData.oralHygiene.tongueBackRight || 0) >=
-                            3 ? (
+                            18*(50/100) ? (
                               <span className="text-red-500">低下（✕）</span>
                             ) : (
                               <span className="text-green-500">正常（〇）</span>

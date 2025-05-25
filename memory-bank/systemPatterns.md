@@ -19,6 +19,7 @@
 - Card, Form, Table, Tabs, Buttonなどshadcn/uiコンポーネントの積極活用
 - lib/ディレクトリでのユーティリティ関数管理
 - Supabaseスキーマ設計・DDL反映・リレーション管理・テストデータ投入はMCPツールで自動化
+- 患者基本情報（patientsテーブル）は「カルテ番号（karte_no）」をbigint型で持ち、型・UI・insert/update/取得全てで一貫して扱う
 
 ## コンポーネント・関係性
 - UI: components/配下で再利用可能なパーツを管理（管理計画書作成フォーム、印刷用ページなど）
