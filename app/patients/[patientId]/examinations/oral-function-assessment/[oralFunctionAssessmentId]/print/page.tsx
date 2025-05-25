@@ -1,12 +1,6 @@
 import { createSupabaseClient } from '@/lib/supabaseClient';
 import {
-  judgeOralHygiene,
-  judgeOralDryness,
-  judgeBitingForce,
-  judgeTongueMovement,
-  judgeTonguePressure,
-  judgeChewingFunction,
-  judgeSwallowingFunction
+  judgeAssessment
 } from '@/lib/oralFunctionAssessmentJudge';
 import { notFound } from 'next/navigation';
 
@@ -156,25 +150,30 @@ export default async function OralFunctionAssessmentPrintPage({
       swallowingFunction: exam.swallowingFunction ?? {},
     };
 
-    // 各項目の判定
+    // 各項目の判定（統合ロジックで一元化）
     const judged = {
-      tongueCoating: !judgeOralHygiene(oralExam.oralHygiene), // 低下なら該当
-      oralMucosaWetness: !judgeOralDryness({ ...oralExam.oralDryness, evaluationMethod: "method1" }),
-      salivaAmount: !judgeOralDryness({ ...oralExam.oralDryness, evaluationMethod: "method2" }),
-      bitingForce: !judgeBitingForce({ ...oralExam.bitingForce, evaluationMethod: "method1" }),
-      remainingTeeth: !judgeBitingForce({ ...oralExam.bitingForce, evaluationMethod: "method2" }),
-      oralDiadochokinesis: !judgeTongueMovement(oralExam.tongueMovement),
-      tonguePressure: !judgeTonguePressure(oralExam.tonguePressure),
-      chewingAbility: !judgeChewingFunction({ ...oralExam.chewingFunction, evaluationMethod: "method1" }),
-      chewingScore: !judgeChewingFunction({ ...oralExam.chewingFunction, evaluationMethod: "method2" }),
-      eat10: !judgeSwallowingFunction({ ...oralExam.swallowingFunction, evaluationMethod: "eat10" }),
-      questionnaire: !judgeSwallowingFunction({ ...oralExam.swallowingFunction, evaluationMethod: "seirei" }),
+      tongueCoating: !judgeAssessment("tongueCoating", oralExam.oralHygiene),
+      oralMucosaWetness: !judgeAssessment("oralMucosaWetness", { ...oralExam.oralDryness, evaluationMethod: "method1" }),
+      salivaAmount: !judgeAssessment("salivaAmount", { ...oralExam.oralDryness, evaluationMethod: "method2" }),
+      bitingForce: !judgeAssessment("bitingForce", { ...oralExam.bitingForce, evaluationMethod: "method1" }),
+      remainingTeeth: !judgeAssessment("bitingForce", { ...oralExam.bitingForce, evaluationMethod: "method2" }),
+      oralDiadochokinesis: !judgeAssessment("oralDiadochokinesis", oralExam.tongueMovement),
+      tonguePressure: !judgeAssessment("tonguePressure", oralExam.tonguePressure),
+      chewingAbility: !judgeAssessment("chewingAbility", { ...oralExam.chewingFunction, evaluationMethod: "method1" }),
+      chewingScore: !judgeAssessment("chewingScore", { ...oralExam.chewingFunction, evaluationMethod: "method2" }),
+      eat10: !judgeAssessment("eat10", { ...oralExam.swallowingFunction, evaluationMethod: "eat10" }),
+      questionnaire: !judgeAssessment("questionnaire", { ...oralExam.swallowingFunction, evaluationMethod: "seirei" }),
     };
 
-    // 該当項目数（下位症状ごとに1つでも該当があれば1カウント、最大7）
+    // 該当項目数（下位症状ごとに1つでも「低下（該当）」があれば1カウント、最大7）
     const checkedCount = items.reduce((sum, group) => {
-      const groupHasChecked = group.tests.some(test => judged[test.judgedKey as keyof typeof judged]);
-      return sum + (groupHasChecked ? 1 : 0);
+      // グループ内で1つでも「低下（該当）」があれば☑
+      const groupHasDecline = group.tests.some(test => {
+        const result = judged[test.judgedKey as keyof typeof judged];
+        // 判定値がtrue（低下・該当）の場合のみカウント
+        return result === true;
+      });
+      return sum + (groupHasDecline ? 1 : 0);
     }, 0);
 
     return (
@@ -217,7 +216,11 @@ export default async function OralFunctionAssessmentPrintPage({
             </thead>
             <tbody>
               {items.map((group, i) => {
-                const groupHasChecked = group.tests.some(test => judged[test.judgedKey as keyof typeof judged]);
+                // グループ内で1つでも「低下（該当）」があれば☑
+                const groupHasDecline = group.tests.some(test => {
+                  const result = judged[test.judgedKey as keyof typeof judged];
+                  return result === true;
+                });
                 return group.tests.map((test, j) => (
                   <tr key={test.key}>
                     {j === 0 && (
@@ -235,7 +238,7 @@ export default async function OralFunctionAssessmentPrintPage({
                     </td>
                     {j === 0 ? (
                       <td rowSpan={group.tests.length}>
-                        {groupHasChecked ? '☑' : ''}
+                        {groupHasDecline ? '' : '☑'}
                       </td>
                     ) : null}
                   </tr>
