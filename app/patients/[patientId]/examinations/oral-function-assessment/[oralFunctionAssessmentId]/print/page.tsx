@@ -1,6 +1,9 @@
 import { createSupabaseClient } from '@/lib/supabaseClient';
 import {
-  judgeAssessment
+  judgeAssessment,
+  toOralFunctionExamData,
+  countApplicableItems,
+  toResultStruct
 } from '@/lib/oralFunctionAssessmentJudge';
 import { notFound } from 'next/navigation';
 
@@ -140,41 +143,11 @@ export default async function OralFunctionAssessmentPrintPage({
         : '';
 
     // OralFunctionExamData型にマッピング
-    const oralExam: any = {
-      oralHygiene: exam.oralHygiene ?? {},
-      oralDryness: exam.oralDryness ?? {},
-      bitingForce: exam.bitingForce ?? {},
-      tongueMovement: exam.tongueMovement ?? {},
-      tonguePressure: exam.tonguePressure ?? {},
-      chewingFunction: exam.chewingFunction ?? {},
-      swallowingFunction: exam.swallowingFunction ?? {},
-    };
+    const oralExam = toOralFunctionExamData(exam);
+    const results = toResultStruct(exam);
 
-    // 各項目の判定（統合ロジックで一元化）
-    const judged = {
-      tongueCoating: !judgeAssessment("tongueCoating", oralExam.oralHygiene),
-      oralMucosaWetness: !judgeAssessment("oralMucosaWetness", { ...oralExam.oralDryness, evaluationMethod: "method1" }),
-      salivaAmount: !judgeAssessment("salivaAmount", { ...oralExam.oralDryness, evaluationMethod: "method2" }),
-      bitingForce: !judgeAssessment("bitingForce", { ...oralExam.bitingForce, evaluationMethod: "method1" }),
-      remainingTeeth: !judgeAssessment("bitingForce", { ...oralExam.bitingForce, evaluationMethod: "method2" }),
-      oralDiadochokinesis: !judgeAssessment("oralDiadochokinesis", oralExam.tongueMovement),
-      tonguePressure: !judgeAssessment("tonguePressure", oralExam.tonguePressure),
-      chewingAbility: !judgeAssessment("chewingAbility", { ...oralExam.chewingFunction, evaluationMethod: "method1" }),
-      chewingScore: !judgeAssessment("chewingScore", { ...oralExam.chewingFunction, evaluationMethod: "method2" }),
-      eat10: !judgeAssessment("eat10", { ...oralExam.swallowingFunction, evaluationMethod: "eat10" }),
-      questionnaire: !judgeAssessment("questionnaire", { ...oralExam.swallowingFunction, evaluationMethod: "seirei" }),
-    };
-
-    // 該当項目数（下位症状ごとに1つでも「低下（該当）」があれば1カウント、最大7）
-    const checkedCount = items.reduce((sum, group) => {
-      // グループ内で1つでも「低下（該当）」があれば☑
-      const groupHasDecline = group.tests.some(test => {
-        const result = judged[test.judgedKey as keyof typeof judged];
-        // 判定値がtrue（低下・該当）の場合のみカウント
-        return result === true;
-      });
-      return sum + (groupHasDecline ? 1 : 0);
-    }, 0);
+    // 共通ロジックで該当項目数を計算
+    const checkedCount = countApplicableItems(oralExam);
 
     return (
       <>
@@ -200,7 +173,11 @@ export default async function OralFunctionAssessmentPrintPage({
               </tr>
               <tr>
                 <th>計測日</th>
-                <td colSpan={7}>{exam.created_at ? formatDate(exam.created_at) : ''}</td>
+                <td colSpan={7}>
+                  {exam.exam_date
+                    ? formatDate(exam.exam_date)
+                    : (exam.created_at ? formatDate(exam.created_at) : '')}
+                </td>
               </tr>
             </tbody>
           </table>
@@ -215,35 +192,110 @@ export default async function OralFunctionAssessmentPrintPage({
               </tr>
             </thead>
             <tbody>
-              {items.map((group, i) => {
-                // グループ内で1つでも「低下（該当）」があれば☑
-                const groupHasDecline = group.tests.some(test => {
-                  const result = judged[test.judgedKey as keyof typeof judged];
-                  return result === true;
-                });
-                return group.tests.map((test, j) => (
-                  <tr key={test.key}>
-                    {j === 0 && (
-                      <td rowSpan={group.tests.length} style={{ fontWeight: 'bold' }}>
-                        {group.group}
-                      </td>
-                    )}
-                    <td>{test.label}</td>
-                    <td>{test.criteria}</td>
-                    <td>
-                      {(() => {
-                        const value = exam[test.key] ?? oralExam[test.key]?.value ?? '';
-                        return value !== '' ? `${value}${test.unit}` : '';
-                      })()}
-                    </td>
-                    {j === 0 ? (
-                      <td rowSpan={group.tests.length}>
-                        {groupHasDecline ? '' : '☑'}
-                      </td>
-                    ) : null}
-                  </tr>
-                ));
-              })}
+              {/* 舌苔の付着程度（TCI%） */}
+              <tr>
+                <td rowSpan={1} style={{ fontWeight: 'bold' }}>① 口腔衛生状態不良</td>
+                <td>舌苔の付着程度</td>
+                <td>50%以上</td>
+                <td>
+                  {typeof results.oralHygiene.value.tciValue === "number"
+                    ? `${results.oralHygiene.value.tciValue.toFixed(1)}%`
+                    : "-"}
+                </td>
+                <td>
+                  {results.oralHygiene.score === 1 ? "☑" : ""}
+                </td>
+              </tr>
+              {/* 口腔乾燥 */}
+              <tr>
+                <td rowSpan={1} style={{ fontWeight: 'bold' }}>② 口腔乾燥</td>
+                <td>口腔粘膜湿潤度</td>
+                <td>27未満</td>
+                <td>
+                  {exam.mucus_value !== undefined && exam.mucus_value !== null
+                    ? `${exam.mucus_value}`
+                    : "-"}
+                </td>
+                <td>
+                  {results.oralDryness.score === 1 ? "☑" : ""}
+                </td>
+              </tr>
+              {/* 咬合力低下 */}
+              <tr>
+                <td rowSpan={1} style={{ fontWeight: 'bold' }}>③ 咬合力低下</td>
+                <td>咬合力検査</td>
+                <td>200N未満</td>
+                <td>
+                  {exam.occlusion_force !== undefined && exam.occlusion_force !== null
+                    ? `${exam.occlusion_force}N`
+                    : "-"}
+                </td>
+                <td>
+                  {results.bitingForce.score === 1 ? "☑" : ""}
+                </td>
+              </tr>
+              {/* 舌口唇運動機能低下 */}
+              <tr>
+                <td rowSpan={1} style={{ fontWeight: 'bold' }}>④舌口唇運動機能低下</td>
+                <td>オーラルディアドコキネシス</td>
+                <td>どれか1つでも6回/秒未満</td>
+                <td>
+                  {exam.pa_sound !== undefined && exam.pa_sound !== null
+                    ? `${exam.pa_sound}/pa/`
+                    : "-"}
+                  {exam.ta_sound !== undefined && exam.ta_sound !== null
+                    ? `${exam.ta_sound}/ta/`
+                    : ""}
+                  {exam.ka_sound !== undefined && exam.ka_sound !== null
+                    ? `${exam.ka_sound}/ka`
+                    : ""}
+                </td>
+                <td>
+                  {results.tongueMotor.score === 1 ? "☑" : ""}
+                </td>
+              </tr>
+              {/* 低舌圧 */}
+              <tr>
+                <td rowSpan={1} style={{ fontWeight: 'bold' }}>④ 低舌圧</td>
+                <td>舌圧検査</td>
+                <td>30kPa未満</td>
+                <td>
+                  {results.tonguePressureValue !== undefined && results.tonguePressureValue !== null
+                    ? `${results.tonguePressureValue}kPa`
+                    : "-"}
+                </td>
+                <td>
+                  {results.tonguePressure.score === 1 ? "☑" : ""}
+                </td>
+              </tr>
+              {/* 咀嚼機能低下 */}
+              <tr>
+                <td rowSpan={1} style={{ fontWeight: 'bold' }}>⑤ 咀嚼機能低下</td>
+                <td>咀嚼能力検査</td>
+                <td>100mg/dL未満</td>
+                <td>
+                  {exam.glucose_concentration !== undefined && exam.glucose_concentration !== null
+                    ? `${exam.glucose_concentration}mg/dL`
+                    : "-"}
+                </td>
+                <td>
+                  {results.chewingFunction.score === 1 ? "☑" : ""}
+                </td>
+              </tr>
+              {/* 嚥下機能低下 */}
+              <tr>
+                <td rowSpan={1} style={{ fontWeight: 'bold' }}>⑥ 嚥下機能低下</td>
+                <td>嚥下スクリーニング検査（EAT-10）</td>
+                <td>3点以上</td>
+                <td>
+                  {exam.eat10_score !== undefined && exam.eat10_score !== null
+                    ? `${exam.eat10_score}点`
+                    : "-"}
+                </td>
+                <td>
+                  {results.swallowingFunction.score === 1 ? "☑" : ""}
+                </td>
+              </tr>
             </tbody>
           </table>
           <div style={{ marginTop: '8mm', fontSize: '12pt', textAlign: 'right' }}>

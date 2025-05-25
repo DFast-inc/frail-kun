@@ -1,6 +1,8 @@
 ## 現在の作業フォーカス
 - 口腔機能検査・全身機能評価・管理計画書作成のUI/UXリファイン
 - **口腔機能精密検査 記録用紙画面の該当判定ロジック統合・UI仕様最適化（判定関数の統合・未入力時の判定不能対応・該当（低下）のみ☑表示・3項目以上で診断仕様への完全準拠）**
+- **[NEW] 口腔機能検査の値計算・判定・該当表示・日付表示をlib/oralFunctionAssessmentJudge.tsのtoResultStructに完全集約。supabaseから同じ値を取得した場合、全ての画面で同じ出力になることを保証。**
+- **[NEW] 印刷ページ・詳細ページ・n/7表示など全ての画面でtoResultStructのみを使うよう統一。舌苔の付着程度（TCI%）や計測日も正しく表示されるよう修正。**
 - Next.js 15 + Supabase構成での本番運用を見据えたCRUD・UI・データ設計の安定化
 - 管理計画書作成ページ（/examinations/detail/[id]/management-plan-edit）の新規実装とUX改善
 - **患者新規登録・編集画面のUI/UX統一・フォーム共通化（PatientForm.tsx）・バリデーション強化**
@@ -34,6 +36,7 @@
 ## 最近の変更・進捗
 - **[NEW] OralFunctionExamData型をstring→number | undefined型に修正。全データ変換部（app/patients/[patientId]/page.tsx, app/patients/page.tsx, components/ExaminationDetailClient.tsx）でスコア・測定値をnumber型で渡すよう統一。**
 - **[NEW] これにより該当項目数や判定値のズレ・丸め・型不整合が根本的に解消され、DB値と完全に一致するようになった。**
+- **[NEW] toResultStruct共通化により、全画面でsupabase値→同一出力・同一判定・同一表示・同一日付が保証されるようになった。**
 - （従来の進捗も維持）
 
 ## 次のステップ
@@ -49,6 +52,7 @@
 ## アクティブな意思決定・考慮事項
 - **[NEW] 口腔機能検査データの型変換・判定ロジックは「スコア・測定値はnumber型で保持」「文字列項目のみString化」「型定義もnumber型に修正」を徹底。**
 - **[NEW] これにより、型不整合や意図しない丸め・判定ズレが発生しない設計を全画面で統一。**
+- **[NEW] supabaseから同じ値を取得した場合、全ての画面でtoResultStructを通じて同じ出力・同じ判定・同じ日付表示になることを保証。**
 - （従来の意思決定も維持）
 
 ## 重要なパターン・知見

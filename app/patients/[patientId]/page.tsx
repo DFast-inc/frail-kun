@@ -20,6 +20,7 @@ import {
   judgeChewingFunction,
   judgeSwallowingFunction,
   judgeOverall,
+  countApplicableItems,
 } from "@/lib/oralFunctionAssessmentJudge";
 
 export default async function PatientDetailPage({ params }: { params: { patientId: string } }) {
@@ -91,16 +92,7 @@ export default async function PatientDetailPage({ params }: { params: { patientI
       },
     };
     console.log("検査データ:", data);
-    const scores = [
-      judgeOralHygiene(data.oralHygiene) ? 0 : 1,
-      judgeOralDryness(data.oralDryness) ? 0 : 1,
-      judgeBitingForce(data.bitingForce) ? 0 : 1,
-      judgeTongueMovement(data.tongueMovement) ? 0 : 1,
-      judgeTonguePressure(data.tonguePressure) ? 0 : 1,
-      judgeChewingFunction(data.chewingFunction) ? 0 : 1,
-      judgeSwallowingFunction(data.swallowingFunction) ? 0 : 1,
-    ];
-    const abnormalCount = scores.reduce((a, b) => a + b, 0);
+    const abnormalCount = countApplicableItems(data);
     return {
       id: exam.id,
       date: exam.exam_date,
@@ -158,16 +150,7 @@ export default async function PatientDetailPage({ params }: { params: { patientI
         seireiScore: exam.seirei_score !== null && exam.seirei_score !== undefined ? Number(exam.seirei_score) : undefined,
       },
     };
-    const scores = [
-      judgeOralHygiene(data.oralHygiene) ? 0 : 1,
-      judgeOralDryness(data.oralDryness) ? 0 : 1,
-      judgeBitingForce(data.bitingForce) ? 0 : 1,
-      judgeTongueMovement(data.tongueMovement) ? 0 : 1,
-      judgeTonguePressure(data.tonguePressure) ? 0 : 1,
-      judgeChewingFunction(data.chewingFunction) ? 0 : 1,
-      judgeSwallowingFunction(data.swallowingFunction) ? 0 : 1,
-    ];
-    const abnormalCount = scores.reduce((a, b) => a + b, 0);
+    const abnormalCount = countApplicableItems(data);
     healthScore = Math.round(((7 - abnormalCount) / 7) * 100);
     if (healthScore > 70) {
       healthStatus = "良好";

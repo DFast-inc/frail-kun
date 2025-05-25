@@ -1,7 +1,8 @@
 ## 現在動作しているもの
 - **[NEW] 口腔機能検査データの型変換・判定ロジックを全面見直し。スコア・測定値はnumber型で保持し、型不整合・丸め・判定ズレを根本解消。全画面でDB値と完全一致するよう統一。**
 - **[NEW] OralFunctionExamData型をstring→number | undefined型に修正。全データ変換部（app/patients/[patientId]/page.tsx, app/patients/page.tsx, components/ExaminationDetailClient.tsx）でスコア・測定値をnumber型で渡すよう統一。**
-- **[NEW] これにより該当項目数や判定値のズレ・丸め・型不整合が根本的に解消され、DB値と完全に一致するようになった。**
+- **[NEW] toResultStruct共通化により、全画面でsupabase値→同一出力・同一判定・同一表示・同一日付が保証されるようになった。**
+- **[NEW] 印刷ページ・詳細ページ・n/7表示など全ての画面でtoResultStructのみを使うよう統一。舌苔の付着程度（TCI%）や計測日も正しく表示されるよう修正。**
 - （従来の動作確認済み機能も維持）
 
 ## 今後実装すべきもの
@@ -31,4 +32,5 @@
 ## プロジェクト意思決定の変遷
 - **[NEW] OralFunctionExamData型・データ変換・判定ロジックのnumber型統一パターンを確立。今後の拡張・他画面再利用も容易。**
 - **[NEW] 型不整合や意図しない丸め・判定ズレが発生しない設計を全画面で統一。**
+- **[NEW] supabaseから同じ値を取得した場合、全ての画面でtoResultStructを通じて同じ出力・同じ判定・同じ日付表示になることを保証。**
 - （従来の意思決定も維持）
