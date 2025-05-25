@@ -23,6 +23,7 @@
 - **口腔機能検査記録印刷ページ（/patients/[patientId]/examinations/oral-function-assessment/[oralFunctionAssessmentId]/print）の新規実装とA4印刷レイアウト対応**
 - **Supabaseデータ取得時のID整合性チェック・null時のデバッグパターンの確立**
 - **oral_function_examテーブルのカラム名に合わせてprint/page.tsxの検査値表示ロジックを修正。Supabaseの実データ構造（プリミティブ値）をMCP経由で調査し、items配列のkeyをDBカラム名に正規化。検査値が正しく反映されるようになった**
+- **「該当」欄を下位症状ごとに1つだけまとめて表示するようにUI/ロジックを修正。checkedCountのロジックとUIの一貫性を確保**
 
 ## 最近の変更・進捗
 - **口腔衛生状態（舌苔スコア/TCI）判定ロジック・UIパターンを刷新（6ブロック・TCI計算・50%以上で異常）し、他検査と同様にリアルタイム判定・表示を実装（lib/oralFunctionAssessmentJudge.ts, components/ExaminationDetailClient.tsx）**
@@ -40,6 +41,7 @@
 - **口腔機能検査記録印刷ページ（print/page.tsx）を新規実装し、A4印刷レイアウト・paramsのPromise対応・ID整合性デバッグパターンを確立**
 - **printページのoralExamサブオブジェクトに空オブジェクト初期値（?? {}）を与え、undefinedアクセスエラー（Cannot read properties of undefined）を解消**
 - **oral_function_examテーブルのカラム名に合わせてprint/page.tsxの検査値表示ロジックを修正。Supabaseの実データ構造（プリミティブ値）をMCP経由で調査し、items配列のkeyをDBカラム名に正規化。検査値が正しく反映されるようになった**
+- **「該当」欄を下位症状ごとに1つだけまとめて表示するようにUI/ロジックを修正。checkedCountのロジックとUIの一貫性を確保**
 - ...（従来の進捗も維持）
 
 ## 次のステップ

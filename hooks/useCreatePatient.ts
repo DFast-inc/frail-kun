@@ -24,7 +24,7 @@ export function useCreatePatient() {
       .insert([
         {
           name: formData.name,
-          birthday: formData.birthday ? formData.birthday : null,
+          birthdate: formData.birthday ? formData.birthday : null,
           gender: formData.gender,
           address: formData.address,
           phone: formData.phone,

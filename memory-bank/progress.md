@@ -13,6 +13,7 @@
 - **口腔機能検査記録印刷ページ（/patients/[patientId]/examinations/oral-function-assessment/[oralFunctionAssessmentId]/print）の新規実装・A4印刷レイアウト・params Promise対応・ID整合性チェック・null時のデバッグパターンが確立**
 - **printページのoralExamサブオブジェクトに空オブジェクト初期値（?? {}）を与え、undefinedアクセスエラー（Cannot read properties of undefined）を根本解消し、詳細画面と同様の安定動作を実現**
 - **oral_function_examテーブルのカラム名に合わせてprint/page.tsxの検査値表示ロジックを修正。Supabaseの実データ構造（プリミティブ値）をMCP経由で調査し、items配列のkeyをDBカラム名に正規化。検査値が正しく反映されるようになった**
+- **「該当」欄を下位症状ごとに1つだけまとめて表示するようにUI/ロジックを修正。checkedCountのロジックとUIの一貫性を確保**
 
 ## 今後実装すべきもの
 - **患者編集画面の更なるUX改善・バリデーション強化・エラーハンドリングの拡充**
@@ -30,6 +31,7 @@
 - **印刷ページのparams Promise対応・ID整合性チェック・null時のデバッグパターンも現場運用レベルで確立**
 - **printページのoralExamサブオブジェクトに空オブジェクト初期値を与え、データ取得・初期値補完パターンを詳細画面と統一し、undefinedアクセスエラーを根本解消**
 - **oral_function_examテーブルのカラム名に合わせてprint/page.tsxの検査値表示ロジックを修正。Supabaseの実データ構造（プリミティブ値）をMCP経由で調査し、items配列のkeyをDBカラム名に正規化。検査値が正しく反映されるようになった**
+- **「該当」欄を下位症状ごとに1つだけまとめて表示するようにUI/ロジックを修正。checkedCountのロジックとUIの一貫性を確保**
 
 ## 既知の課題・懸念点
 - **患者編集画面のバリデーション・UX改善・エラーハンドリング強化**
@@ -47,4 +49,5 @@
 - **印刷ページ設計・params Promise対応・ID整合性チェック・null時のデバッグパターンを確立し、Next.js 15/Supabaseの最新仕様・現場運用要件に完全準拠**
 - **printページのoralExamサブオブジェクトに空オブジェクト初期値を与え、データ取得・初期値補完パターンを詳細画面と統一し、undefinedアクセスエラーを根本解消**
 - **oral_function_examテーブルのカラム名に合わせてprint/page.tsxの検査値表示ロジックを修正。Supabaseの実データ構造（プリミティブ値）をMCP経由で調査し、items配列のkeyをDBカラム名に正規化。検査値が正しく反映されるようになった**
+- **「該当」欄を下位症状ごとに1つだけまとめて表示するようにUI/ロジックを修正。checkedCountのロジックとUIの一貫性を確保**
 - ...（従来の意思決定も維持）
