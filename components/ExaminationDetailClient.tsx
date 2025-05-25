@@ -219,6 +219,11 @@ export default function ExaminationDetailClient({ exam, patient }: ExaminationDe
           </div>
         </div>
         <div>
+          <Link href={`/patients/${exam.patient_id}/examinations/oral-function-assessment/${exam.id}/edit`}>
+            <Button variant="secondary" size="sm" className="ml-2">
+              編集
+            </Button>
+          </Link>
           <Link href={`/patients/${exam.patient_id}/examinations/oral-function-assessment/${exam.id}/management-plan-edit`}>
             <Button variant="default" size="sm" className="ml-2">
               管理計画書作成
