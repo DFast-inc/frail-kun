@@ -92,3 +92,89 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* 印刷用A4一枚レイアウト最適化 */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+  html,
+  body {
+    width: 210mm;
+    height: 297mm;
+    min-width: unset;
+    min-height: unset;
+    max-width: unset;
+    max-height: unset;
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+    background: white !important;
+    color: black !important;
+    overflow: visible !important;
+    box-sizing: border-box;
+  }
+  .print-area,
+  body {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 180mm !important;
+  }
+  table {
+    font-size: 9px !important;
+    line-height: 1.1 !important;
+    padding: 1px 2px !important;
+    word-break: break-all !important;
+    overflow-wrap: anywhere !important;
+    border-collapse: collapse !important;
+    table-layout: fixed !important;
+  }
+  th,
+  td {
+    font-size: 9px !important;
+    line-height: 1.1 !important;
+    padding: 1px 2px !important;
+    word-break: break-all !important;
+    overflow-wrap: anywhere !important;
+    border-collapse: collapse !important;
+    vertical-align: top !important;
+  }
+  th,
+  td {
+    vertical-align: top !important;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0 0 4px 0 !important;
+    padding: 0 !important;
+    font-weight: bold !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  /* 改ページ防止 */
+  table,
+  .print-section,
+  .avoid-break {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+  /* 余白・空行最小化 */
+  .mb-0,
+  .pb-0,
+  .gap-0 {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+    gap: 0 !important;
+  }
+  /* 全体を自動縮小（必要に応じて調整） */
+  body {
+    transform: scale(0.98);
+    transform-origin: top left;
+  }
+}
