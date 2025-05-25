@@ -16,7 +16,12 @@ export default function Navbar() {
   const navItems = [{ href: "/settings", label: "設定", icon: Settings }]
 
   return (
-    <nav className="bg-white text-gray-800 p-4 sticky top-0 z-10 shadow-sm border-b border-black">
+    <nav
+      className={cn(
+        "bg-white text-gray-800 p-4 sticky top-0 z-10 shadow-sm border-b border-black",
+        pathname.includes("/print") ? "print:hidden" : ""
+      )}
+    >
       <div className="container mx-auto">
         <div className="flex justify-between items-center">
           {/* ロゴ */}

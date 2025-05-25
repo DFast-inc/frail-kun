@@ -1,4 +1,5 @@
 ## 現在動作しているもの
+- **[NEW] /printページで印刷時にヘッダー（navbar）が消えるTailwind print:hidden制御を導入。pathname.includes('/print')で判定し、要件通りの印刷UIを実現**
 - **[NEW] 口腔乾燥・咬合力低下・咀嚼機能低下・嚥下機能低下の「該当基準」欄を、oralFunctionAssessmentJudge.tsのgetAllCriteriaDetails APIで全評価方法・基準値を常時改行区切りで表示するよう修正**
   - printページで全ての方法・基準値を明示し、現場運用・拡張性・一貫性を担保
   - API追加により他画面・他用途への再利用も容易

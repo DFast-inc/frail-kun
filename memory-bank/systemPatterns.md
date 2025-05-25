@@ -15,6 +15,7 @@
 - **口腔乾燥・咬合力低下・咀嚼機能低下・嚥下機能低下の「該当基準」欄はoralFunctionAssessmentJudge.tsのgetAllCriteriaDetails APIで全方法・基準値を一元管理し、printページ等で常時改行区切りで表示するパターンを徹底。現場運用・拡張性・一貫性を担保**
 
 ## 採用デザインパターン
+- **/printページ等で印刷時にUI要素を制御する場合はTailwindのprint:hidden＋ルーティング判定（pathname.includes('/print')）を組み合わせることで柔軟に対応可能**
 - API Routeによるサーバーサイド処理
 - hooks/ディレクトリでのカスタムフックによるロジック分離
 - components/ディレクトリでのUIコンポーネント分割
