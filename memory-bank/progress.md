@@ -1,4 +1,7 @@
 ## 現在動作しているもの
+- **[NEW] 管理指導記録簿枠組みUI（components/ManagementGuidanceRecordSheet.tsx）を新規作成し、/patients/[id]ページに追加**
+- **[NEW] 管理指導記録簿印刷専用ページ（/patients/[id]/management-guidance-record/print）を新規作成し、枠組みUIを配置**
+- **[NEW] /patients/[id]ページの管理指導記録簿カード部分に「印刷ページへ」ボタンを追加し、印刷専用ページへ遷移可能に**
 - **[NEW] /printページで印刷時にヘッダー（navbar）が消えるTailwind print:hidden制御を導入。pathname.includes('/print')で判定し、要件通りの印刷UIを実現**
 - **[NEW] 口腔乾燥・咬合力低下・咀嚼機能低下・嚥下機能低下の「該当基準」欄を、oralFunctionAssessmentJudge.tsのgetAllCriteriaDetails APIで全評価方法・基準値を常時改行区切りで表示するよう修正**
   - printページで全ての方法・基準値を明示し、現場運用・拡張性・一貫性を担保
@@ -30,6 +33,7 @@
 - ドキュメント・学びの随時反映
 
 ## 現在のステータス
+- **[NEW] 管理指導記録簿枠組みUI・印刷専用ページ・遷移ボタンが実装され、患者詳細ページから印刷ページへの遷移が可能になった**
 - **[NEW] 口腔乾燥・咬合力低下・咀嚼機能低下・嚥下機能低下の「該当基準」欄がoralFunctionAssessmentJudge.tsのgetAllCriteriaDetails APIで全方法・基準値を常時改行区切りで表示するようになり、現場運用・拡張性・一貫性が担保された**
 - **[NEW] 管理計画書印刷ページの「口腔機能の状態」テーブルがoralFunctionAssessmentJudge.tsのtoResultStruct共通ロジックで一元管理され、全画面で同一出力・同一判定・同一基準値・同一日付が保証されるようになった**
 - 患者一覧画面のUI/UX・バグ修正により、現場運用に即した一覧・遷移・年齢表示・レイアウトが安定動作
@@ -48,6 +52,7 @@
 - Supabaseデータ取得時のID不一致・データ欠損時のエラー検知・デバッグパターンの徹底
 
 ## プロジェクト意思決定の変遷
+- **[NEW] 管理指導記録簿枠組みUI・印刷専用ページ・遷移ボタンは、現場運用・印刷業務の効率化・一貫性を重視し、枠組み→印刷ページ→遷移ボタンの流れで実装する方針に統一**
 - **[NEW] 口腔乾燥・咬合力低下・咀嚼機能低下・嚥下機能低下の「該当基準」欄はoralFunctionAssessmentJudge.tsのgetAllCriteriaDetails APIで全方法・基準値を常時改行区切りで表示する方針に統一**
 - **[NEW] 管理計画書・詳細ページ・n/7表示など全ての画面でtoResultStruct共通ロジックを使い、supabase値→同一出力・同一判定・同一基準値・同一日付を保証する方針に統一**
 - **/app配下の性別表記はDB値（male/female）はそのまま、画面表示のみ「男性」「女性」に変換する方針に統一**

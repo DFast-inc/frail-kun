@@ -22,6 +22,7 @@ import {
   judgeOverall,
   countApplicableItems,
 } from "@/lib/oralFunctionAssessmentJudge";
+import ManagementGuidanceRecordSheet from "@/components/ManagementGuidanceRecordSheet";
 
 export default async function PatientDetailPage({ params }: { params: { patientId: string } }) {
   const patientId = await params.patientId;
@@ -356,6 +357,17 @@ export default async function PatientDetailPage({ params }: { params: { patientI
           </Tabs>
         </CardContent>
       </Card>
+      {/* 管理指導記録簿 枠組み */}
+      <div className="mt-8">
+        <div className="flex justify-end mb-2">
+          <Link href={`/patients/${patientId}/management-guidance-record/print`} passHref>
+            <Button size="sm" variant="outline">
+              印刷ページへ
+            </Button>
+          </Link>
+        </div>
+        <ManagementGuidanceRecordSheet />
+      </div>
     </div>
   );
 }

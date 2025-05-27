@@ -1,5 +1,6 @@
 ## 現在の作業フォーカス
 - 口腔機能検査・全身機能評価・管理計画書作成のUI/UXリファイン
+- **管理指導記録簿枠組みUIの追加（/patients/[id]ページ）・印刷専用ページ新設・遷移ボタン追加**
 - **管理計画書印刷ページ（/patients/[patientId]/examinations/oral-function-assessment/[oralFunctionAssessmentId]/management-plan-edit/print）の「口腔機能の状態」テーブルをoralFunctionAssessmentJudge.tsのtoResultStruct共通ロジックに統一**
   - これにより、全画面でsupabase値→同一出力・同一判定・同一基準値・同一日付が保証される
   - 型不整合・判定ズレ・基準値の食い違いが根本的に解消
@@ -13,6 +14,9 @@
 - **口腔乾燥・咬合力低下・咀嚼機能低下・嚥下機能低下の「該当基準」欄を、全ての評価方法・基準値を常時改行区切りで表示するUI/ロジックに統一**
 
 ## 最近の変更・進捗
+- **管理指導記録簿枠組みUIをcomponents/ManagementGuidanceRecordSheet.tsxとして新規作成し、/patients/[id]ページに追加**
+- **管理指導記録簿印刷専用ページ（/patients/[id]/management-guidance-record/print）を新規作成し、枠組みUIを配置**
+- **/patients/[id]ページの管理指導記録簿カード部分に「印刷ページへ」ボタンを追加し、印刷専用ページへ遷移可能に**
 - **/printページで印刷時にヘッダー（navbar）が消えるTailwind print:hidden制御を導入。pathname.includes('/print')で判定し、要件通りの印刷UIを実現**
 - **管理計画書印刷ページの「口腔機能の状態」テーブルをoralFunctionAssessmentJudge.tsのtoResultStruct共通ロジックに統一**
   - すべての検査項目（検査値・基準値・判定）がoralFunctionAssessmentJudge.tsの一元管理ロジックで出力される
@@ -25,6 +29,7 @@
 - その他、従来の進捗も維持
 
 ## 次のステップ
+- 管理指導記録簿枠組みUI・印刷ページのデータ連携・編集機能の拡張
 - 他画面・他用途への判定ロジック再利用、判定基準の柔軟な拡張、UI/UX仕様のさらなる最適化
 - 患者編集画面の更なるUX改善・バリデーション強化・エラーハンドリングの拡充
 - karte_noバリデーション・重複チェック・エラー詳細表示の実装
