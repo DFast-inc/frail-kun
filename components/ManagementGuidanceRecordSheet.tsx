@@ -26,6 +26,9 @@ const observationItems = [
 
 export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) => {
 
+  // 評価値→ラベル変換
+  const evalLabel = (v: number) => v === 1 ? "改善" : v === 2 ? "著変なし" : v === 3 ? "悪化" : "";
+
   console.log("ManagementGuidanceRecordSheet exam:", compareData)
 
 
@@ -87,8 +90,19 @@ export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) =
                       <div className="space-y-1">
                         <div className="font-semibold text-slate-700">{label}</div>
                         <div className="text-xs text-slate-500">
-                          <div>年: _____ 月: _____ 日: _____</div>
-                          <div className="mt-1">評価: _____</div>
+                          {(() => {
+                            const d = compareData && compareData[i] && compareData[i].date ? new Date(compareData[i].date) : null;
+                            return (
+                              <div>
+                                年: {d ? d.getFullYear() : "_____"} 月: {d ? d.getMonth() + 1 : "_____"} 日: {d ? d.getDate() : "_____"}
+                                <div className="mt-1">
+                                  評価: {compareData && compareData[i] && typeof compareData[i].bitingForce === "number"
+                                    ? `${compareData[i].bitingForce} ${evalLabel(compareData[i].bitingForce)}`
+                                    : "_____"}
+                                </div>
+                              </div>
+                            );
+                          })()}
                         </div>
                       </div>
                     </th>
@@ -127,14 +141,30 @@ export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) =
                     </td>
                     {Array(evaluationHeaders.length)
                       .fill(null)
-                      .map((_, i) => (
-                        <td
-                          key={i}
-                          className="border border-slate-200 p-3 hover:bg-gray-50 transition-colors duration-150"
-                        >
-                          <div className="w-full h-8 rounded border-2 border-dashed border-slate-300 hover:border-gray-400 transition-colors duration-150"></div>
-                        </td>
-                      ))}
+                      .map((_, i) => {
+                        // oralFunctionItemsのnameとcompareDataのkeyのマッピング
+                        const scoreKeyMap: { [key: string]: string } = {
+                          "栄養・体重": "bitingForce",
+                          "口腔衛生": "oralHygiene",
+                          "口腔乾燥": "oralDryness",
+                          "咬合・義歯": "bitingForce",
+                          "口腔機能": "swallowingFunction",
+                          "舌機能": "tongueMotor",
+                          "咀嚼機能": "chewingFunction",
+                        };
+                        const scoreKey = scoreKeyMap[item.name] || "";
+                        const value = compareData && compareData[i] && typeof compareData[i][scoreKey] === "number" ? compareData[i][scoreKey] : "_____";
+                        return (
+                          <td
+                            key={i}
+                            className="border border-slate-200 p-3 hover:bg-gray-50 transition-colors duration-150"
+                          >
+                            <div className="w-full h-8 rounded border-2 border-dashed border-slate-300 hover:border-gray-400 transition-colors duration-150 flex items-center justify-center">
+                              評価: {typeof value === "number" ? `${value} ${evalLabel(value)}` : "_____"}
+                            </div>
+                          </td>
+                        );
+                      })}
                   </tr>
                 ))}
 

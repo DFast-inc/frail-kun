@@ -1,4 +1,6 @@
 ## 現在動作しているもの
+- **[NEW] compareData（旧comparetest）による評価推移ロジックをapp/patients/[patientId]/page.tsxに実装。最大4件分の評価推移を算出し、components/ManagementGuidanceRecordSheet.tsxに渡す設計に統一**
+- **[NEW] ManagementGuidanceRecordSheet.tsxで、評価値（1:改善, 2:著変なし, 3:悪化）を「評価: n ラベル（例: 評価: 2 著変なし）」の形式で全セル・ヘッダー下に表示するようUI/ロジックを強化**
 - **[NEW] 管理指導記録簿枠組みUI（components/ManagementGuidanceRecordSheet.tsx）を新規作成し、/patients/[id]ページに追加**
 - **[NEW] 管理指導記録簿印刷専用ページ（/patients/[id]/management-guidance-record/print）を新規作成し、枠組みUIを配置**
 - **[NEW] /patients/[id]ページの管理指導記録簿カード部分に「印刷ページへ」ボタンを追加し、印刷専用ページへ遷移可能に**
@@ -33,6 +35,7 @@
 - ドキュメント・学びの随時反映
 
 ## 現在のステータス
+- **[NEW] compareDataロジックにより、口腔機能評価の推移（最大4件分）が数字＋ラベル（例: 評価: 2 著変なし）でUIに正しく反映されるようになった**
 - **[NEW] 管理指導記録簿枠組みUI・印刷専用ページ・遷移ボタンが実装され、患者詳細ページから印刷ページへの遷移が可能になった**
 - **[NEW] 口腔乾燥・咬合力低下・咀嚼機能低下・嚥下機能低下の「該当基準」欄がoralFunctionAssessmentJudge.tsのgetAllCriteriaDetails APIで全方法・基準値を常時改行区切りで表示するようになり、現場運用・拡張性・一貫性が担保された**
 - **[NEW] 管理計画書印刷ページの「口腔機能の状態」テーブルがoralFunctionAssessmentJudge.tsのtoResultStruct共通ロジックで一元管理され、全画面で同一出力・同一判定・同一基準値・同一日付が保証されるようになった**
@@ -52,6 +55,7 @@
 - Supabaseデータ取得時のID不一致・データ欠損時のエラー検知・デバッグパターンの徹底
 
 ## プロジェクト意思決定の変遷
+- **[NEW] compareDataロジックと数字＋ラベル表示のUIパターンを全画面で徹底する方針に統一**
 - **[NEW] 管理指導記録簿枠組みUI・印刷専用ページ・遷移ボタンは、現場運用・印刷業務の効率化・一貫性を重視し、枠組み→印刷ページ→遷移ボタンの流れで実装する方針に統一**
 - **[NEW] 口腔乾燥・咬合力低下・咀嚼機能低下・嚥下機能低下の「該当基準」欄はoralFunctionAssessmentJudge.tsのgetAllCriteriaDetails APIで全方法・基準値を常時改行区切りで表示する方針に統一**
 - **[NEW] 管理計画書・詳細ページ・n/7表示など全ての画面でtoResultStruct共通ロジックを使い、supabase値→同一出力・同一判定・同一基準値・同一日付を保証する方針に統一**
