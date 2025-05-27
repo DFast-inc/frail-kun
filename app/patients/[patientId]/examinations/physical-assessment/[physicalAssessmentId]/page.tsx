@@ -1,9 +1,9 @@
-import { createSupabaseClient } from "@/lib/supabaseClient";
+import { createSupabaseServerClient } from "@/lib/supabaseClient";
 import PhysicalAssessmentDetailClient from "@/components/PhysicalAssessmentDetailClient";
 
 export default async function PhysicalAssessmentDetailPage({ params }: { params: Promise<{ patientId: string; physicalAssessmentId: string }> }) {
   const { patientId, physicalAssessmentId } = await params;
-  const supabase = createSupabaseClient();
+  const supabase = createSupabaseServerClient();
 
   const { data: exam, error } = await supabase
     .from("physical_assessment")
