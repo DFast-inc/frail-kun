@@ -46,7 +46,7 @@ export function PatientEditClient({ patientId, initialValues }: Props) {
         onSubmit={handleSubmit}
         onCancel={() => router.push(`/patients/${patientId}`)}
         submitLabel={loading ? "更新中..." : "更新"}
-        disabled={loading}
+
       />
     </div>
   )

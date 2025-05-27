@@ -2,26 +2,36 @@
 
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
-import { createClient } from "@supabase/supabase-js";
+import { createPagesBrowserClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+const supabase = createPagesBrowserClient();
 
 export default function AuthClient() {
   const router = useRouter();
 
   useEffect(() => {
-    // すでにログイン済みなら/patientsへリダイレクト
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // 初回マウント時にセッションがあればリダイレクト
+    supabase.auth.getSession().then(({ data }) => {
+      const session = (data as { session: any }).session;
       if (session) {
         router.replace("/patients");
       }
     });
-  }, [router]);
+
+    // セッション変化を監視してリダイレクト
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        router.replace("/patients");
+      }
+    });
+
+    // クリーンアップ
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
+  }, [router, supabase]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">

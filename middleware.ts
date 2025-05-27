@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { createPagesServerClient } from "@supabase/auth-helpers-nextjs";
+import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
-  const supabase = createPagesServerClient({ cookies } as any);
+  const supabase = createMiddlewareClient({req, res});
   const { data: { session } } = await supabase.auth.getSession();
 
   if (!session) {

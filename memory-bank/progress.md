@@ -1,9 +1,12 @@
 ## 現在動作しているもの
+- **[NEW] 患者編集ページ（/patients/[patientId]/edit）をServer Component＋Client Component分離し、update処理をServer Action（actions.ts）に分離。UI/UX・バリデーション・トースト等はClient側で維持し、Next.js 15＋Supabase推奨構成にリファクタリング。**
 - **[NEW] 全身機能評価新規登録ページ（/patients/[patientId]/examinations/physical-assessment/new）をServer Component＋Client Component分離し、insert処理をServer Action（actions.ts）に分離。UI/UX・バリデーション・トースト等はClient側で維持し、Next.js 15＋Supabase推奨構成にリファクタリング。**
 - **[NEW] 口腔機能検査編集ページ（/patients/[patientId]/examinations/oral-function-assessment/[oralFunctionAssessmentId]/edit/page.tsx）の既存データ取得（select）もServer Action（fetchOralFunctionExam, fetchPatientData）に分離し、Client Componentから直接サーバー専用supabaseクライアントを呼ばないNext.js 15推奨構成にリファクタリング。UI/UX・入力ロジック・バリデーション・トースト等は一切変更せず、型エラー・ランタイムエラーも解消。**
 - **[NEW] 口腔機能検査新規登録ページ（/patients/[patientId]/examinations/oral-function-assessment/new/page.tsx）のSupabase insert処理をServer Action（actions.ts）に分離し、UI/UX・入力ロジック・バリデーション・トースト・一時保存・タブUI等は一切変更せず、Next.js 15＋Supabaseの推奨構成にリファクタリング。params.patientIdの型エラーも最小限の修正で解消。**
 - **[NEW] 新規患者登録ページ（/patients/new）を完全Server Component化し、Server Action＋Formパターンでサーバー専用supabaseクライアント（lib/supabaseClient.ts）を利用する構成に刷新。use client・useRouter・useCreatePatient・PatientForm.tsx等のクライアントロジックを全廃止し、バリデーション・エラー処理もサーバー側で一元化。Next.js 15の推奨パターンに完全準拠。**
 - **[NEW] Supabase認証・ルートガード（Next.js 15 middleware＋Server Component構成）を導入。/patients・/settings配下はmiddlewareでセッション必須、loginページはServer Component＋Clientラッパー構成、lib/supabaseClient.tsはサーバー専用に分離。認証UI・リダイレクト・ガードが安定動作**
+- **[NEW] Next.js 15＋Supabase公式UI＋middleware認証の完全連携を実現。AuthClient.tsxでsupabase.auth.onAuthStateChange＋getSession併用により、ログイン直後の/patientsリダイレクトが確実に動作するようになった。**
+- **[NEW] middleware.tsを/app配下からルート直下（/middleware.ts）に移動したことで、Next.jsの認証ガード・ルートガードが正常動作するようになった。配置場所の誤りが原因でmiddlewareが一切発火しない問題を解消。**
 - **[NEW] compareData（旧comparetest）による評価推移ロジックをapp/patients/[patientId]/page.tsxに実装。最大4件分の評価推移を算出し、components/ManagementGuidanceRecordSheet.tsxに渡す設計に統一**
 - **[NEW] ManagementGuidanceRecordSheet.tsxで、評価値（1:改善, 2:著変なし, 3:悪化）を「評価: n ラベル（例: 評価: 2 著変なし）」の形式で全セル・ヘッダー下に表示するようUI/ロジックを強化**
 - **[NEW] 管理指導記録簿枠組みUI（components/ManagementGuidanceRecordSheet.tsx）を新規作成し、/patients/[id]ページに追加**
@@ -66,14 +69,18 @@
 - 他セクションのUI/UX最適化
 - Supabaseデータ取得時のID不一致・データ欠損時のエラー検知・デバッグパターンの徹底
 - **[NEW] Supabase認証・ルートガードの運用・拡張に関する課題（医院単位のロール管理、認証エラー時のUI/UX、サインアウト・セッション切れ時の挙動など）**
+- **[FIXED] middleware.tsの配置場所が/app配下だったため認証ガードが一切発火しなかったが、ルート直下に移動することで解決。今後はmiddleware.tsは必ずルート直下に配置することを徹底。**
 - **[NEW] 管理指導記録簿の一括保存APIの最適化（bulk update/transaction化）、バリデーション強化、エラー時のUI/UX改善**
 
 ## プロジェクト意思決定の変遷
+- **[NEW] 患者編集ページ（/patients/[patientId]/edit）も、updateはServer Action経由・サーバー専用supabaseクライアント利用、UI/UX・バリデーション・トースト等はClient Componentで一元管理する方針に統一**
 - **[NEW] 全身機能評価新規登録ページ（/patients/[patientId]/examinations/physical-assessment/new）も、insertはServer Action経由・サーバー専用supabaseクライアント利用、UI/UX・バリデーション・トースト等はClient Componentで一元管理する方針に統一**
 - **[NEW] 口腔機能検査編集ページ（edit/page.tsx）は既存データ取得（select）もServer Action（fetchOralFunctionExam, fetchPatientData）経由で実行し、Client Componentから直接サーバー専用supabaseクライアントを呼ばない構成に統一。UI/UX・ロジックは一切変更せず、Next.js 15推奨パターンを徹底。**
 - **[NEW] 口腔機能検査新規登録ページ（oral-function-assessment/new/page.tsx）はUI/UX・入力ロジック・バリデーション・トースト等は一切変更せず、Supabase insertのみServer Action（actions.ts）経由で実行する構成に統一。lib/supabaseClient.tsのサーバー専用クライアントを利用。**
 - **[NEW] 新規患者登録ページ（/patients/new）は完全Server Component化・Server Action＋Formパターン・サーバー専用supabaseクライアント利用・バリデーション/エラー処理もサーバー側で一元化し、Next.js 15の推奨パターンに完全準拠する方針に統一**
 - **[NEW] Supabase認証・ルートガードはNext.js 15のmiddleware＋Server Component構成で統一。lib/supabaseClient.tsはサーバー専用、loginページはServer Component＋Clientラッパー構成で安全に分離。クライアントは直接supabase-jsを使う。**
+- **[NEW] Next.js 15＋Supabase公式UI＋middleware認証の完全連携には、クライアント側で@supabase/auth-helpers-nextjsのcreatePagesBrowserClient()（引数なし、storage: 'cookie'デフォルト）で初期化し、Auth UIにはこのクライアントを渡す。AuthClient.tsxのuseEffectでsupabase.auth.onAuthStateChange＋getSession併用により、ログイン直後のリダイレクトを確実に行うパターンを採用。**
+- **[NEW] middleware.tsは必ずプロジェクトのルート直下に配置すること。サブディレクトリでは一切認識されない。今回の配置修正で認証ガードが正常動作するようになった。**
 - **[NEW] compareDataロジックと数字＋ラベル表示のUIパターンを全画面で徹底する方針に統一**
 - **[NEW] 管理指導記録簿枠組みUI・印刷専用ページ・遷移ボタンは、現場運用・印刷業務の効率化・一貫性を重視し、枠組み→印刷ページ→遷移ボタンの流れで実装する方針に統一**
 - **[NEW] 口腔乾燥・咬合力低下・咀嚼機能低下・嚥下機能低下の「該当基準」欄はoralFunctionAssessmentJudge.tsのgetAllCriteriaDetails APIで全方法・基準値を常時改行区切りで表示する方針に統一**

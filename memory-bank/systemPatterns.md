@@ -7,6 +7,8 @@
 - Vercelでの本番デプロイを前提
 
 ## 主要な技術的意思決定
+- **Next.js 15＋Supabase公式UI＋middleware認証の完全連携には、クライアント側で@supabase/auth-helpers-nextjsのcreatePagesBrowserClient()（引数なし、storage: 'cookie'デフォルト）で初期化し、Auth UIにはこのクライアントを渡す。AuthClient.tsxのuseEffectでsupabase.auth.onAuthStateChange＋getSession併用により、ログイン直後のリダイレクトを確実に行うパターンを採用。**
+- **Next.jsのmiddleware（middleware.ts）は必ずプロジェクトのルート直下（/middleware.ts）に配置すること。/app/middleware.ts等サブディレクトリでは一切認識されない。認証ガードやルートガードの動作不全時はまず配置場所を確認する。**
 - Next.js 15のApp Router構成・Server/Client分離を徹底
 - Supabase公式ドキュメント・Next.jsチュートリアルに準拠した実装
 - paramsのPromise対応・"use client"ディレクティブの適用でNext.js最新仕様に完全準拠

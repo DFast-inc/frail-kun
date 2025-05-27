@@ -18,6 +18,7 @@
 - **Supabase認証・ルートガードの導入（middlewareによる/patients・/settings配下のプロテクト、loginページServer Component化、lib/supabaseClient.tsサーバー専用化）**
 
 ## 最近の変更・進捗
+- **患者編集ページ（/patients/[patientId]/edit）をServer Component＋Client Component分離し、update処理をServer Action（actions.ts）に分離。UI/UX・バリデーション・トースト等はClient側で維持し、Next.js 15＋Supabase推奨構成にリファクタリング。**
 - **全身機能評価新規登録ページ（/patients/[patientId]/examinations/physical-assessment/new）をServer Component＋Client Component分離し、insert処理をServer Action（actions.ts）に分離。UI/UX・バリデーション・トースト等はClient側で維持し、Next.js 15＋Supabase推奨構成にリファクタリング。**
 - **口腔機能検査編集ページ（/patients/[patientId]/examinations/oral-function-assessment/[oralFunctionAssessmentId]/edit/page.tsx）の既存データ取得（select）もServer Action（fetchOralFunctionExam, fetchPatientData）に分離し、Client Componentから直接サーバー専用supabaseクライアントを呼ばないNext.js 15推奨構成にリファクタリング。UI/UX・入力ロジック・バリデーション・トースト等は一切変更せず、型エラー・ランタイムエラーも解消。**
 - **口腔機能検査新規登録ページ（/patients/[patientId]/examinations/oral-function-assessment/new/page.tsx）のSupabase insert処理をServer Action（actions.ts）に分離し、UI/UX・入力ロジック・バリデーション・トースト・一時保存・タブUI等は一切変更せず、Next.js 15＋Supabaseの推奨構成にリファクタリング。params.patientIdの型エラーも最小限の修正で解消。**
@@ -53,6 +54,10 @@
 - 実装進捗・課題・学びを随時activeContext.mdに記録
 
 ## アクティブな意思決定・考慮事項
+- **Next.js 15＋Supabase公式UI＋middleware認証の完全連携には、クライアント側で@supabase/auth-helpers-nextjsのcreatePagesBrowserClient()を使い、storage: 'cookie'（デフォルト）で初期化すること。**
+- **AuthClient.tsxではsupabase.auth.onAuthStateChange＋getSession併用で、ログイン直後のリダイレクトを確実に行うパターンを採用。**
+- **Next.jsのmiddleware（middleware.ts）は必ずプロジェクトのルート直下（/middleware.ts）に配置すること。/app/middleware.ts等サブディレクトリでは一切認識されない。認証ガードやルートガードの動作不全時はまず配置場所を確認する。**
+- **患者編集ページ（/patients/[patientId]/edit）も、updateはServer Action経由・サーバー専用supabaseクライアント利用、UI/UX・バリデーション・トースト等はClient Componentで一元管理するパターンを徹底。**
 - **全身機能評価新規登録ページ（/patients/[patientId]/examinations/physical-assessment/new）も、insertはServer Action経由・サーバー専用supabaseクライアント利用、UI/UX・バリデーション・トースト等はClient Componentで一元管理するパターンを徹底。**
 - **口腔機能検査編集ページ（edit/page.tsx）は既存データ取得（select）もServer Action（fetchOralFunctionExam, fetchPatientData）経由で実行し、Client Componentから直接サーバー専用supabaseクライアントを呼ばない構成に統一。UI/UX・ロジックは一切変更せず、Next.js 15推奨パターンを徹底。**
 - **口腔機能検査新規登録ページ（oral-function-assessment/new/page.tsx）はUI/UX・入力ロジック・バリデーション・トースト等は一切変更せず、Supabase insertのみServer Action（actions.ts）経由で実行する構成に統一。lib/supabaseClient.tsのサーバー専用クライアントを利用。**
@@ -71,6 +76,10 @@
 - その他、従来の意思決定も維持
 
 ## 重要なパターン・知見
+- **Next.js 15＋Supabase公式UI＋middleware認証の完全連携には、クライアント側で@supabase/auth-helpers-nextjsのcreatePagesBrowserClient()（引数なし、storage: 'cookie'デフォルト）で初期化し、Auth UIにはこのクライアントを渡す。**
+- **AuthClient.tsxのuseEffectでsupabase.auth.onAuthStateChange＋getSession併用により、ログイン直後のリダイレクトを確実に行う。これにより「ログイン直後に/patientsへ遷移しない」問題を根本解消。**
+- **Next.jsのmiddleware（middleware.ts）は必ずプロジェクトのルート直下（/middleware.ts）に配置すること。サブディレクトリでは一切認識されない。今回、/app/middleware.ts→/middleware.tsへ移動したことで認証ガードが正常動作するようになった。**
+- **患者編集ページ（/patients/[patientId]/edit）も、updateはServer Action分離・サーバー専用supabaseクライアント利用パターンを徹底。Client ComponentのUI/UX・バリデーション・トースト等は一元管理。**
 - **全身機能評価新規登録ページ（/patients/[patientId]/examinations/physical-assessment/new）も、insertはServer Action分離・サーバー専用supabaseクライアント利用パターンを徹底。Client ComponentのUI/UX・バリデーション・トースト等は一元管理。**
 - **口腔機能検査編集ページ（edit/page.tsx）は既存データ取得（select）もServer Action分離・サーバー専用supabaseクライアント利用パターンを徹底。Client ComponentのUI/UX・ローカルロジックは一切変更せず、全てのDBアクセスをServer Action経由で実行。**
 - **口腔機能検査新規登録ページ（oral-function-assessment/new/page.tsx）はClient ComponentのUI/UX・ローカルロジックは一切変更せず、Supabase insertのみServer Action分離・サーバー専用supabaseクライアント利用パターンを徹底。**
