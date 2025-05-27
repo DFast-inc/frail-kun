@@ -288,13 +288,6 @@ export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) =
                               onChange={e => handleChange(examId, "managementContent", e.target.value)}
                               placeholder="管理内容を入力"
                             />
-                            <button
-                              className="mt-1 px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600"
-                              onClick={() => handleSave(examId)}
-                              type="button"
-                            >
-                              保存
-                            </button>
                           </div>
                         ) : (
                           <div className="w-full h-12 rounded border-2 border-dashed border-slate-300"></div>
@@ -305,6 +298,46 @@ export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) =
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          {/* 一括保存ボタン */}
+          <div className="flex justify-end mt-6">
+            <button
+              className="px-6 py-2 bg-blue-600 text-white rounded font-bold hover:bg-blue-700 transition"
+              onClick={async () => {
+                // 一括保存ロジック
+                const updates = Object.entries(formState).map(([examId, values]) => ({
+                  id: examId,
+                  general_condition_note: values.generalCondition,
+                  oral_function_note: values.oralFunction,
+                  other_note: values.other,
+                  management_content_note: values.managementContent,
+                }));
+                let success = true;
+                let errorMsg = "";
+                for (const update of updates) {
+                  const res = await fetch("/api/management-guidance-record", {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(update),
+                  });
+                  if (!res.ok) {
+                    success = false;
+                    const data = await res.json().catch(() => ({}));
+                    errorMsg = data.error || res.statusText;
+                    break;
+                  }
+                }
+                if (success) {
+                  alert("全て保存しました");
+                } else {
+                  alert("保存に失敗しました: " + errorMsg);
+                }
+              }}
+              type="button"
+            >
+              一括保存
+            </button>
           </div>
 
           {/* フッター情報 */}

@@ -1,29 +1,261 @@
-import ManagementGuidanceRecordSheet from "@/components/ManagementGuidanceRecordSheet";
+export const dynamic = 'force-dynamic';
+
 import { createSupabaseClient } from "@/lib/supabaseClient";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ClipboardList, Edit, Dumbbell, Plus, ArrowLeft, ChevronDown, ChevronUp, User } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import PatientInfoAccordion from "@/components/PatientInfoAccordion";
+import {
+  OralFunctionExamData,
+  judgeOralHygiene,
+  judgeOralDryness,
+  judgeBitingForce,
+  judgeTongueMovement,
+  judgeTonguePressure,
+  judgeChewingFunction,
+  judgeSwallowingFunction,
+  judgeOverall,
+  countApplicableItems,
+} from "@/lib/oralFunctionAssessmentJudge";
+import ManagementGuidanceRecordSheet from "@/components/ManagementGuidanceRecordSheet";
 
 /**
  * 管理指導記録簿 印刷専用ページ
  * - 既存の枠組みと同じレイアウト
  * - 印刷時に余計なUIが出ないようにする
  */
-export default async function ManagementGuidanceRecordPrintPage() {
-  // サーバーサイドでoral_function_examデータを取得
-  const supabase = createSupabaseClient();
-  // TODO: patientIdをルーティングパラメータから取得し、where句に追加する
-  const { data, error } = await supabase
-    .from("oral_function_exam")
-    .select("id, date, general_condition, oral_function, other, management_content")
-    .order("date", { ascending: true });
+export default async function ManagementGuidanceRecordPrintPage({ params }: { params: { patientId: string } }) {
+  const patientId = await params.patientId;
 
-  // compareDataの整形
-  const compareData = (data || []).map((d: any) => ({
-    id: d.id,
-    date: d.date,
-    generalCondition: d.general_condition,
-    oralFunction: d.oral_function,
-    other: d.other,
-    managementContent: d.management_content,
+  // サーバー側で患者データ取得
+  const supabase = createSupabaseClient();
+  const { data: patientData, error } = await supabase.from("patients").select("*").eq("id", patientId).single();
+
+
+
+  if (error || !patientData) {
+    // データが見つからない場合は一覧にリダイレクト
+    redirect("/patients");
+  }
+
+  // Supabaseから検査データを取得
+  const { data: oralExams, error: oralExamError } = await supabase
+    .from("oral_function_exam")
+    .select("*")
+    .eq("patient_id", patientId)
+    .order("exam_date", { ascending: false });
+
+      // console.log("患者データ:", oralExams);
+
+  // サンプルデータ形式に変換＋診断名生成
+  const examinationData = (oralExams ?? []).map((exam: any) => {
+    const data: OralFunctionExamData = {
+      oralHygiene: {
+        tongueFrontLeft: exam.tongue_front_left !== null && exam.tongue_front_left !== undefined ? Number(exam.tongue_front_left) : undefined,
+        tongueFrontCenter: exam.tongue_front_center !== null && exam.tongue_front_center !== undefined ? Number(exam.tongue_front_center) : undefined,
+        tongueFrontRight: exam.tongue_front_right !== null && exam.tongue_front_right !== undefined ? Number(exam.tongue_front_right) : undefined,
+        tongueMiddleLeft: exam.tongue_middle_left !== null && exam.tongue_middle_left !== undefined ? Number(exam.tongue_middle_left) : undefined,
+        tongueMiddleCenter: exam.tongue_middle_center !== null && exam.tongue_middle_center !== undefined ? Number(exam.tongue_middle_center) : undefined,
+        tongueMiddleRight: exam.tongue_middle_right !== null && exam.tongue_middle_right !== undefined ? Number(exam.tongue_middle_right) : undefined,
+        tongueBackLeft: exam.tongue_back_left !== null && exam.tongue_back_left !== undefined ? Number(exam.tongue_back_left) : undefined,
+        tongueBackCenter: exam.tongue_back_center !== null && exam.tongue_back_center !== undefined ? Number(exam.tongue_back_center) : undefined,
+        tongueBackRight: exam.tongue_back_right !== null && exam.tongue_back_right !== undefined ? Number(exam.tongue_back_right) : undefined,
+      },
+      oralDryness: {
+        evaluationMethod: exam.oral_dryness_method ?? "method1",
+        mucusValue: exam.mucus_value !== null && exam.mucus_value !== undefined ? Number(exam.mucus_value) : undefined,
+        gauzeWeight: exam.gauze_weight !== null && exam.gauze_weight !== undefined ? Number(exam.gauze_weight) : undefined,
+      },
+      bitingForce: {
+        evaluationMethod: exam.biting_force_method ?? "method1",
+        pressureScaleType: exam.pressure_scale_type ?? "pressScale2",
+        useFilter: exam.use_filter ?? "noFilter",
+        occlusionForce: exam.occlusion_force !== null && exam.occlusion_force !== undefined ? Number(exam.occlusion_force) : undefined,
+        remainingTeeth: exam.remaining_teeth !== null && exam.remaining_teeth !== undefined ? Number(exam.remaining_teeth) : undefined,
+      },
+      tongueMovement: {
+        paSound: exam.pa_sound !== null && exam.pa_sound !== undefined ? Number(exam.pa_sound) : undefined,
+        taSound: exam.ta_sound !== null && exam.ta_sound !== undefined ? Number(exam.ta_sound) : undefined,
+        kaSound: exam.ka_sound !== null && exam.ka_sound !== undefined ? Number(exam.ka_sound) : undefined,
+      },
+      tonguePressure: {
+        value: exam.tongue_pressure_value !== null && exam.tongue_pressure_value !== undefined ? Number(exam.tongue_pressure_value) : undefined,
+      },
+      chewingFunction: {
+        evaluationMethod: exam.chewing_function_method ?? "method1",
+        glucoseConcentration: exam.glucose_concentration !== null && exam.glucose_concentration !== undefined ? Number(exam.glucose_concentration) : undefined,
+        masticatoryScore: exam.masticatory_score !== null && exam.masticatory_score !== undefined ? Number(exam.masticatory_score) : undefined,
+      },
+      swallowingFunction: {
+        evaluationMethod: exam.swallowing_function_method ?? "eat10",
+        eat10Score: exam.eat10_score !== null && exam.eat10_score !== undefined ? Number(exam.eat10_score) : undefined,
+        seireiScore: exam.seirei_score !== null && exam.seirei_score !== undefined ? Number(exam.seirei_score) : undefined,
+      },
+    };
+    // console.log("検査データ:", data);
+    const {abnormalCount,bitingForceScore,chewingFunctionScore,oralDrynessScore,oralHygieneScore,swallowingFunctionScore,tongueMotorScore,tonguePressureScore } = countApplicableItems(data);
+    return {
+      id: exam.id,
+      date: exam.exam_date,
+      diagnosis: `口腔機能低下症（該当項目: ${abnormalCount}/7）`,
+      scores:{      bitingForceScore,
+      chewingFunctionScore,
+      oralDrynessScore,
+      oralHygieneScore,
+      swallowingFunctionScore,
+      tongueMotorScore,
+      tonguePressureScore,},
+      raw: exam,
+    };
+  });
+
+  // 比較ロジック: date昇順で並べ替えてから比較
+  const sortedExams = [...examinationData].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const compareData = sortedExams.map((item, idx, arr) => {
+    // oral_function_examの管理指導記録用フィールドも含める
+    const base = {
+      id: item.id,
+      date: item.date,
+      generalCondition: item.raw.general_condition ?? "",
+      oralFunction: item.raw.oral_function ?? "",
+      other: item.raw.other ?? "",
+      managementContent: item.raw.management_content ?? "",
+      generalConditionNote: item.raw.general_condition_note ?? "",
+      oralFunctionNote: item.raw.oral_function_note ?? "",
+      otherNote: item.raw.other_note ?? "",
+      managementContentNote: item.raw.management_content_note ?? "",
+    };
+    if (idx === 0) {
+      return {
+        ...base,
+        bitingForce: 2,
+        chewingFunction: 2,
+        oralDryness: 2,
+        oralHygiene: 2,
+        swallowingFunction: 2,
+        tongueMotor: 2,
+        tonguePressure: 2,
+      };
+    }
+    const prev = arr[idx - 1];
+    const compare = (now: number, before: number) => {
+      if (now === before) return 2;
+      if (before === 1 && now === 0) return 1;
+      if (before === 0 && now === 1) return 3;
+      return 2;
+    };
+    return {
+      ...base,
+      bitingForce: compare(item.scores.bitingForceScore, prev.scores.bitingForceScore),
+      chewingFunction: compare(item.scores.chewingFunctionScore, prev.scores.chewingFunctionScore),
+      oralDryness: compare(item.scores.oralDrynessScore, prev.scores.oralDrynessScore),
+      oralHygiene: compare(item.scores.oralHygieneScore, prev.scores.oralHygieneScore),
+      swallowingFunction: compare(item.scores.swallowingFunctionScore, prev.scores.swallowingFunctionScore),
+      tongueMotor: compare(item.scores.tongueMotorScore, prev.scores.tongueMotorScore),
+      tonguePressure: compare(item.scores.tonguePressureScore, prev.scores.tonguePressureScore),
+    };
+  });
+
+  // 健康スコア・診断バッジ用ロジック
+  let healthScore = 0;
+  let healthStatus = "要管理";
+  let healthStatusColor = "bg-red-100 text-red-800";
+  if (examinationData.length > 0) {
+    const exam = examinationData[0].raw;
+    const data: OralFunctionExamData = {
+      oralHygiene: {
+        tongueFrontLeft: exam.tongue_front_left !== null && exam.tongue_front_left !== undefined ? Number(exam.tongue_front_left) : undefined,
+        tongueFrontCenter: exam.tongue_front_center !== null && exam.tongue_front_center !== undefined ? Number(exam.tongue_front_center) : undefined,
+        tongueFrontRight: exam.tongue_front_right !== null && exam.tongue_front_right !== undefined ? Number(exam.tongue_front_right) : undefined,
+        tongueMiddleLeft: exam.tongue_middle_left !== null && exam.tongue_middle_left !== undefined ? Number(exam.tongue_middle_left) : undefined,
+        tongueMiddleCenter: exam.tongue_middle_center !== null && exam.tongue_middle_center !== undefined ? Number(exam.tongue_middle_center) : undefined,
+        tongueMiddleRight: exam.tongue_middle_right !== null && exam.tongue_middle_right !== undefined ? Number(exam.tongue_middle_right) : undefined,
+        tongueBackLeft: exam.tongue_back_left !== null && exam.tongue_back_left !== undefined ? Number(exam.tongue_back_left) : undefined,
+        tongueBackCenter: exam.tongue_back_center !== null && exam.tongue_back_center !== undefined ? Number(exam.tongue_back_center) : undefined,
+        tongueBackRight: exam.tongue_back_right !== null && exam.tongue_back_right !== undefined ? Number(exam.tongue_back_right) : undefined,
+      },
+      oralDryness: {
+        evaluationMethod: exam.oral_dryness_method ?? "method1",
+        mucusValue: exam.mucus_value !== null && exam.mucus_value !== undefined ? Number(exam.mucus_value) : undefined,
+        gauzeWeight: exam.gauze_weight !== null && exam.gauze_weight !== undefined ? Number(exam.gauze_weight) : undefined,
+      },
+      bitingForce: {
+        evaluationMethod: exam.biting_force_method ?? "method1",
+        pressureScaleType: exam.pressure_scale_type ?? "pressScale2",
+        useFilter: exam.use_filter ?? "noFilter",
+        occlusionForce: exam.occlusion_force !== null && exam.occlusion_force !== undefined ? Number(exam.occlusion_force) : undefined,
+        remainingTeeth: exam.remaining_teeth !== null && exam.remaining_teeth !== undefined ? Number(exam.remaining_teeth) : undefined,
+      },
+      tongueMovement: {
+        paSound: exam.pa_sound !== null && exam.pa_sound !== undefined ? Number(exam.pa_sound) : undefined,
+        taSound: exam.ta_sound !== null && exam.ta_sound !== undefined ? Number(exam.ta_sound) : undefined,
+        kaSound: exam.ka_sound !== null && exam.ka_sound !== undefined ? Number(exam.ka_sound) : undefined,
+      },
+      tonguePressure: {
+        value: exam.tongue_pressure_value !== null && exam.tongue_pressure_value !== undefined ? Number(exam.tongue_pressure_value) : undefined,
+      },
+      chewingFunction: {
+        evaluationMethod: exam.chewing_function_method ?? "method1",
+        glucoseConcentration: exam.glucose_concentration !== null && exam.glucose_concentration !== undefined ? Number(exam.glucose_concentration) : undefined,
+        masticatoryScore: exam.masticatory_score !== null && exam.masticatory_score !== undefined ? Number(exam.masticatory_score) : undefined,
+      },
+      swallowingFunction: {
+        evaluationMethod: exam.swallowing_function_method ?? "eat10",
+        eat10Score: exam.eat10_score !== null && exam.eat10_score !== undefined ? Number(exam.eat10_score) : undefined,
+        seireiScore: exam.seirei_score !== null && exam.seirei_score !== undefined ? Number(exam.seirei_score) : undefined,
+      },
+    };
+    const {abnormalCount} = countApplicableItems(data);
+    healthScore = Math.round(((7 - abnormalCount) / 7) * 100);
+    if (healthScore > 70) {
+      healthStatus = "良好";
+      healthStatusColor = "bg-green-100 text-green-800";
+    } else if (healthScore > 50) {
+      healthStatus = "経過観察";
+      healthStatusColor = "bg-yellow-100 text-yellow-800";
+    } else {
+      healthStatus = "要管理";
+      healthStatusColor = "bg-red-100 text-red-800";
+    }
+  }
+
+  // サンプル管理記録データ（実際はAPIから取得）
+  const managementData = [
+    {
+      id: 1,
+      date: "2023-04-20",
+      interventions: "専門的口腔ケア、舌運動訓練、嚥下リハビリテーション",
+      notes: "舌運動訓練の方法を指導。自宅でも毎日実施するよう説明。",
+    },
+    // ...（省略）
+  ];
+
+  // Supabaseから全身機能評価データを取得
+  const { data: physicalAssessments, error: physicalAssessmentError } = await supabase
+    .from("physical_assessment")
+    .select("*")
+    .eq("patient_id", patientId)
+    .order("assessment_date", { ascending: false });
+
+  const physicalAssessmentData = (physicalAssessments ?? []).map((a: any) => ({
+    id: a.id,
+    date: a.assessment_date,
+    height: a.height,
+    weight: a.weight,
+    bmi: a.bmi,
+    gripStrength: `右: ${a.grip_strength_right ?? "-"} / 左: ${a.grip_strength_left ?? "-"}`,
+    walkingSpeed: a.walking_speed,
+    frailtyStatus: a.frailty_status,
+    // 必要に応じて他のカラムも追加
   }));
+
+  // 展開状態はクライアントで管理するため、"use client"な小コンポーネントに分離するのが理想だが、ここではサーバー側でpropsとして渡す
+  // 既存デザイン・UIは一切変更しない
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center py-8 print:bg-white">
