@@ -1,4 +1,6 @@
 ## 現在動作しているもの
+- **[NEW] 口腔機能検査編集ページ（/patients/[patientId]/examinations/oral-function-assessment/[oralFunctionAssessmentId]/edit/page.tsx）の既存データ取得（select）もServer Action（fetchOralFunctionExam, fetchPatientData）に分離し、Client Componentから直接サーバー専用supabaseクライアントを呼ばないNext.js 15推奨構成にリファクタリング。UI/UX・入力ロジック・バリデーション・トースト等は一切変更せず、型エラー・ランタイムエラーも解消。**
+- **[NEW] 口腔機能検査新規登録ページ（/patients/[patientId]/examinations/oral-function-assessment/new/page.tsx）のSupabase insert処理をServer Action（actions.ts）に分離し、UI/UX・入力ロジック・バリデーション・トースト・一時保存・タブUI等は一切変更せず、Next.js 15＋Supabaseの推奨構成にリファクタリング。params.patientIdの型エラーも最小限の修正で解消。**
 - **[NEW] 新規患者登録ページ（/patients/new）を完全Server Component化し、Server Action＋Formパターンでサーバー専用supabaseクライアント（lib/supabaseClient.ts）を利用する構成に刷新。use client・useRouter・useCreatePatient・PatientForm.tsx等のクライアントロジックを全廃止し、バリデーション・エラー処理もサーバー側で一元化。Next.js 15の推奨パターンに完全準拠。**
 - **[NEW] Supabase認証・ルートガード（Next.js 15 middleware＋Server Component構成）を導入。/patients・/settings配下はmiddlewareでセッション必須、loginページはServer Component＋Clientラッパー構成、lib/supabaseClient.tsはサーバー専用に分離。認証UI・リダイレクト・ガードが安定動作**
 - **[NEW] compareData（旧comparetest）による評価推移ロジックをapp/patients/[patientId]/page.tsxに実装。最大4件分の評価推移を算出し、components/ManagementGuidanceRecordSheet.tsxに渡す設計に統一**
@@ -66,6 +68,8 @@
 - **[NEW] 管理指導記録簿の一括保存APIの最適化（bulk update/transaction化）、バリデーション強化、エラー時のUI/UX改善**
 
 ## プロジェクト意思決定の変遷
+- **[NEW] 口腔機能検査編集ページ（edit/page.tsx）は既存データ取得（select）もServer Action（fetchOralFunctionExam, fetchPatientData）経由で実行し、Client Componentから直接サーバー専用supabaseクライアントを呼ばない構成に統一。UI/UX・ロジックは一切変更せず、Next.js 15推奨パターンを徹底。**
+- **[NEW] 口腔機能検査新規登録ページ（oral-function-assessment/new/page.tsx）はUI/UX・入力ロジック・バリデーション・トースト等は一切変更せず、Supabase insertのみServer Action（actions.ts）経由で実行する構成に統一。lib/supabaseClient.tsのサーバー専用クライアントを利用。**
 - **[NEW] 新規患者登録ページ（/patients/new）は完全Server Component化・Server Action＋Formパターン・サーバー専用supabaseクライアント利用・バリデーション/エラー処理もサーバー側で一元化し、Next.js 15の推奨パターンに完全準拠する方針に統一**
 - **[NEW] Supabase認証・ルートガードはNext.js 15のmiddleware＋Server Component構成で統一。lib/supabaseClient.tsはサーバー専用、loginページはServer Component＋Clientラッパー構成で安全に分離。クライアントは直接supabase-jsを使う。**
 - **[NEW] compareDataロジックと数字＋ラベル表示のUIパターンを全画面で徹底する方針に統一**

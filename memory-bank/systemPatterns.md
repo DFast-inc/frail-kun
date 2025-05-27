@@ -12,6 +12,7 @@
 - paramsのPromise対応・"use client"ディレクティブの適用でNext.js最新仕様に完全準拠
 - MCPツールによるDBマイグレーション・テストデータ投入の自動化
 - UI/UXは現場運用・可読性・操作性重視でshadcn/ui, Tailwind CSSを積極活用
+- **SupabaseへのDB書き込み・既存データ取得（select）は全てServer Actionで行い、lib/supabaseClient.tsのサーバー専用クライアントを利用。Client ComponentのUI/UX・ローカルロジックは一切変更せず、insert/update/select全てServer Action経由で実行するパターンを徹底。**
 - **認証・ルートガードはmiddleware＋Server Component構成で統一。lib/supabaseClient.tsはサーバー専用、loginページはServer Component＋Clientラッパー構成。クライアントはsupabase-jsを直利用。**
 - **性別（gender）はDB値（male/female）はそのまま、画面表示のみ「男性」「女性」に変換するパターンを全画面で徹底**
 - **口腔乾燥・咬合力低下・咀嚼機能低下・嚥下機能低下の「該当基準」欄はoralFunctionAssessmentJudge.tsのgetAllCriteriaDetails APIで全方法・基準値を一元管理し、printページ等で常時改行区切りで表示するパターンを徹底。現場運用・拡張性・一貫性を担保**

@@ -15,6 +15,7 @@
 - shadcn/uiコンポーネントの積極活用
 - Supabase公式クライアントSDK利用
 - MCPサーバ（supabase）でDDL反映・テストデータ投入・DB操作を自動化
+- **Supabaseへのinsert等のDB書き込み・既存データ取得（select）は全てServer Actionで行い、lib/supabaseClient.tsのサーバー専用クライアントを利用。Client ComponentのUI/UX・ロジックは一切変更せず、insert/update/select全てServer Action経由で実行。**
 - **lib/supabaseClient.tsはサーバー専用。クライアントは@supabase/supabase-jsのcreateClientを直利用。loginページはServer Component＋Clientラッパー構成。**
 
 ## 技術的制約

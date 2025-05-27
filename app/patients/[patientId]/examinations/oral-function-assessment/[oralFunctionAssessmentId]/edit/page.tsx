@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
+import { updateOralFunctionExam, fetchOralFunctionExam, fetchPatientData } from "./actions"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -17,8 +18,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 export default function EditExaminationPage() {
   const router = useRouter()
   const params = useParams()
-  const patientId = params?.patientId || ""
-  const oralFunctionAssessmentId = params?.oralFunctionAssessmentId || ""
+  const patientId = Array.isArray(params?.patientId) ? params.patientId[0] : params?.patientId || ""
+  const oralFunctionAssessmentId = Array.isArray(params?.oralFunctionAssessmentId) ? params.oralFunctionAssessmentId[0] : params?.oralFunctionAssessmentId || ""
 
   const [formData, setFormData] = useState<any>(null)
   const [loading, setLoading] = useState(false)
@@ -29,14 +30,8 @@ export default function EditExaminationPage() {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true)
-      const supabase = (await import("@/lib/supabaseClient")).createSupabaseClient()
-      // 検査データ取得
-      const { data, error } = await supabase
-        .from("oral_function_exam")
-        .select("*")
-        .eq("id", oralFunctionAssessmentId)
-        .single()
-      if (error || !data) {
+      const result = await fetchOralFunctionExam(oralFunctionAssessmentId)
+      if (result.error || !result.data) {
         toast({
           title: "データ取得エラー",
           description: "検査データの取得に失敗しました",
@@ -45,13 +40,11 @@ export default function EditExaminationPage() {
         setLoading(false)
         return
       }
+      const data = result.data
 
       // 患者データ取得
-      const { data: patient, error: patientError } = await supabase
-        .from("patients")
-        .select("id, name, gender, birthday")
-        .eq("id", data.patient_id)
-        .single()
+      const patientResult = await fetchPatientData(data.patient_id)
+      let patient = patientResult && !patientResult.error ? patientResult.data : null
 
       setPatientData(
         patient
@@ -146,57 +139,9 @@ export default function EditExaminationPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    const supabase = (await import("@/lib/supabaseClient")).createSupabaseClient()
-    const { error } = await supabase
-      .from("oral_function_exam")
-      .update({
-        // 口腔衛生状態
-        tongue_front_left: Number(formData.oralHygiene.tongueFrontLeft),
-        tongue_front_center: Number(formData.oralHygiene.tongueFrontCenter),
-        tongue_front_right: Number(formData.oralHygiene.tongueFrontRight),
-        tongue_middle_left: Number(formData.oralHygiene.tongueMiddleLeft),
-        tongue_middle_center: Number(formData.oralHygiene.tongueMiddleCenter),
-        tongue_middle_right: Number(formData.oralHygiene.tongueMiddleRight),
-        tongue_back_left: Number(formData.oralHygiene.tongueBackLeft),
-        tongue_back_center: Number(formData.oralHygiene.tongueBackCenter),
-        tongue_back_right: Number(formData.oralHygiene.tongueBackRight),
-        plaque_control: formData.oralHygiene.plaqueControl,
-        oral_hygiene_notes: formData.oralHygiene.notes,
-        // 口腔乾燥
-        oral_dryness_method: formData.oralDryness.evaluationMethod,
-        mucus_value: formData.oralDryness.mucusValue ? Number(formData.oralDryness.mucusValue) : null,
-        gauze_weight: formData.oralDryness.gauzeWeight ? Number(formData.oralDryness.gauzeWeight) : null,
-        oral_dryness_notes: formData.oralDryness.notes,
-        // 咬合力
-        biting_force_method: formData.bitingForce.evaluationMethod,
-        pressure_scale_type: formData.bitingForce.pressureScaleType,
-        use_filter: formData.bitingForce.useFilter,
-        occlusion_force: formData.bitingForce.occlusionForce ? Number(formData.bitingForce.occlusionForce) : null,
-        remaining_teeth: formData.bitingForce.remainingTeeth ? Number(formData.bitingForce.remainingTeeth) : null,
-        biting_force_notes: formData.bitingForce.notes,
-        // 舌口唇運動
-        pa_sound: formData.tongueMovement.paSound ? Number(formData.tongueMovement.paSound) : null,
-        ta_sound: formData.tongueMovement.taSound ? Number(formData.tongueMovement.taSound) : null,
-        ka_sound: formData.tongueMovement.kaSound ? Number(formData.tongueMovement.kaSound) : null,
-        tongue_movement_notes: formData.tongueMovement.notes,
-        // 舌圧
-        tongue_pressure_value: formData.tonguePressure.value ? Number(formData.tonguePressure.value) : null,
-        tongue_pressure_notes: formData.tonguePressure.notes,
-        // 咀嚼機能
-        chewing_function_method: formData.chewingFunction.evaluationMethod,
-        glucose_concentration: formData.chewingFunction.glucoseConcentration ? Number(formData.chewingFunction.glucoseConcentration) : null,
-        masticatory_score: formData.chewingFunction.masticatoryScore ? Number(formData.chewingFunction.masticatoryScore) : null,
-        chewing_function_notes: formData.chewingFunction.notes,
-        // 嚥下機能
-        swallowing_function_method: formData.swallowingFunction.evaluationMethod,
-        eat10_score: formData.swallowingFunction.eat10Score ? Number(formData.swallowingFunction.eat10Score) : null,
-        seirei_score: formData.swallowingFunction.seireiScore ? Number(formData.swallowingFunction.seireiScore) : null,
-        swallowing_function_notes: formData.swallowingFunction.notes,
-      })
-      .eq("id", oralFunctionAssessmentId)
-
+    const result = await updateOralFunctionExam(formData, oralFunctionAssessmentId)
     setLoading(false)
-    if (error) {
+    if (result.error) {
       toast({
         title: "保存エラー",
         description: "Supabaseへの保存に失敗しました",
