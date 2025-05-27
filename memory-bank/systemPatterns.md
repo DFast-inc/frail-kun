@@ -1,6 +1,7 @@
 ## システムアーキテクチャ
 - Next.js 15 App Router構成（Server/Client Component分離、paramsのPromise対応、"use client"ディレクティブ適用）
 - Supabaseをバックエンド（BaaS）として利用し、データのCRUDを実現
+- **Supabase認証・ルートガードはNext.js 15のmiddleware＋Server Component構成で統一。/patients・/settings配下はmiddlewareでセッション必須、loginページはServer Component＋Clientラッパー構成、lib/supabaseClient.tsはサーバー専用。クライアントは直接supabase-jsを使う。**
 - MCPサーバ（supabase）を活用し、DDL反映・テストデータ投入・DB操作を自動化
 - shadcn/ui, Tailwind CSSによるUI/UX最適化
 - Vercelでの本番デプロイを前提
@@ -11,12 +12,14 @@
 - paramsのPromise対応・"use client"ディレクティブの適用でNext.js最新仕様に完全準拠
 - MCPツールによるDBマイグレーション・テストデータ投入の自動化
 - UI/UXは現場運用・可読性・操作性重視でshadcn/ui, Tailwind CSSを積極活用
+- **認証・ルートガードはmiddleware＋Server Component構成で統一。lib/supabaseClient.tsはサーバー専用、loginページはServer Component＋Clientラッパー構成。クライアントはsupabase-jsを直利用。**
 - **性別（gender）はDB値（male/female）はそのまま、画面表示のみ「男性」「女性」に変換するパターンを全画面で徹底**
 - **口腔乾燥・咬合力低下・咀嚼機能低下・嚥下機能低下の「該当基準」欄はoralFunctionAssessmentJudge.tsのgetAllCriteriaDetails APIで全方法・基準値を一元管理し、printページ等で常時改行区切りで表示するパターンを徹底。現場運用・拡張性・一貫性を担保**
 
 ## 採用デザインパターン
 - **管理指導記録簿枠組みUIはcomponents/ManagementGuidanceRecordSheet.tsxとして再利用可能なコンポーネント化し、/patients/[id]ページや印刷専用ページで共通利用。印刷専用ページはapp/patients/[patientId]/management-guidance-record/print/page.tsxで実装し、不要なUIはprint:hiddenで制御。遷移ボタンで患者詳細ページから印刷ページへシームレスに移動可能な設計を徹底**
 - **/printページ等で印刷時にUI要素を制御する場合はTailwindのprint:hidden＋ルーティング判定（pathname.includes('/print')）を組み合わせることで柔軟に対応可能**
+- **loginページはServer Component＋Clientラッパー（AuthClient）構成で安全に分離。lib/supabaseClient.tsはサーバー専用。クライアントは@supabase/supabase-jsのcreateClientを直利用。**
 - API Routeによるサーバーサイド処理
 - hooks/ディレクトリでのカスタムフックによるロジック分離
 - components/ディレクトリでのUIコンポーネント分割
@@ -34,6 +37,7 @@
 - DB: clinics→patients→oral_function_exam/physical_assessment（検査）とリレーション
 
 ## 重要な実装パス
+- **Supabase認証・ルートガードはmiddlewareで/patients・/settings配下をプロテクト。loginページはServer Component＋Clientラッパー構成。lib/supabaseClient.tsはサーバー専用。**
 - 管理指導記録簿枠組みUI→印刷専用ページ→遷移ボタンの一貫した実装パスで、現場運用・印刷業務の効率化・一貫性を担保
 - SupabaseとのCRUD連携（ageカラム送信廃止、clinic_id自動付与）
 - MCPツールによるDDL反映・テストデータ投入・DB操作の自動化

@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-import { createSupabaseClient } from "@/lib/supabaseClient";
+import { createSupabaseServerClient } from "@/lib/supabaseClient";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,7 @@ export default async function PatientDetailPage({ params }: { params: { patientI
   const patientId = await params.patientId;
 
   // サーバー側で患者データ取得
-  const supabase = createSupabaseClient();
+  const supabase = createSupabaseServerClient();
   const { data: patientData, error } = await supabase.from("patients").select("*").eq("id", patientId).single();
 
 

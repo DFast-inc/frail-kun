@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-import { createSupabaseClient } from "@/lib/supabaseClient";
+import { createSupabaseServerClient } from "@/lib/supabaseClient";
 import PatientsList from "@/components/PatientsList";
 import {
   OralFunctionExamData,
@@ -14,7 +14,7 @@ import {
 } from "@/lib/oralFunctionAssessmentJudge";
 
 export default async function PatientsPage() {
-  const supabase = createSupabaseClient();
+  const supabase = await createSupabaseServerClient();
   const { data: patients, error } = await supabase.from("patients").select("*");
   const { data: oralExams, error: oralExamError } = await supabase
     .from("oral_function_exam")

@@ -14,6 +14,7 @@
 - **/app配下の性別表記をmale/femaleから「男性」「女性」へ統一（DB値はそのまま）**
 - **口腔乾燥・咬合力低下・咀嚼機能低下・嚥下機能低下の「該当基準」欄を、全ての評価方法・基準値を常時改行区切りで表示するUI/ロジックに統一**
 - **compareData（旧comparetest）による評価推移ロジックの実装と、管理指導記録簿UIへの反映（数字＋ラベル表示）**
+- **Supabase認証・ルートガードの導入（middlewareによる/patients・/settings配下のプロテクト、loginページServer Component化、lib/supabaseClient.tsサーバー専用化）**
 
 ## 最近の変更・進捗
 - **管理指導記録簿枠組みUIをcomponents/ManagementGuidanceRecordSheet.tsxとして新規作成し、/patients/[id]ページに追加**
@@ -32,6 +33,7 @@
 - **口腔乾燥・咬合力低下・咀嚼機能低下・嚥下機能低下の「該当基準」欄を、oralFunctionAssessmentJudge.tsのgetAllCriteriaDetails APIで全方法・基準値を取得し、printページで常時改行区切りで表示するよう修正。現場運用・拡張性・一貫性を担保。**
 - **compareData（旧comparetest）による評価推移ロジックをapp/patients/[patientId]/page.tsxに実装。最大4件分の評価推移を算出し、components/ManagementGuidanceRecordSheet.tsxに渡す設計に統一**
 - **ManagementGuidanceRecordSheet.tsxで、評価値（1:改善, 2:著変なし, 3:悪化）を「評価: n ラベル（例: 評価: 2 著変なし）」の形式で全セル・ヘッダー下に表示するようUI/ロジックを強化**
+- **Supabase認証・ルートガードをNext.js 15構成で導入。/patients・/settings配下はmiddlewareでセッション必須、loginページはServer Component＋Clientラッパー構成、lib/supabaseClient.tsはサーバー専用に分離**
 - その他、従来の進捗も維持
 
 ## 次のステップ
@@ -56,6 +58,7 @@
 - **口腔乾燥・咬合力低下・咀嚼機能低下・嚥下機能低下の「該当基準」欄は、oralFunctionAssessmentJudge.tsのgetAllCriteriaDetails APIで全方法・基準値を取得し、printページで常時改行区切りで表示するパターンを全画面で徹底**
 - **compareDataによる評価推移ロジックと、数字＋ラベル表示のUIパターンを全画面で徹底**
 - **管理指導記録簿の一括保存UI/UX・API一括更新設計を全画面で徹底**
+- **認証・ルートガードはNext.js 15のmiddleware＋Server Component構成で統一。lib/supabaseClient.tsはサーバー専用、クライアントは直接supabase-jsを使う。loginページはServer Component＋Clientラッパー構成で安全に分離**
 - その他、従来の意思決定も維持
 
 ## 重要なパターン・知見
@@ -69,4 +72,5 @@
 - **性別表記はmale/female→「男性」「女性」へ画面側で変換するパターンを全画面で徹底**
 - **compareDataによる評価推移ロジックと、数字＋ラベル表示のUIパターンを全画面で徹底**
 - **管理指導記録簿の一括保存UI/UX・API一括更新設計を全画面で徹底**
+- **認証UIはServer Component＋Clientラッパー構成で安全に分離。lib/supabaseClient.tsはサーバー専用。**
 - その他、従来のパターンも維持
