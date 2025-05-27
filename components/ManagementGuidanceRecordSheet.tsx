@@ -24,7 +24,11 @@ const observationItems = [
   { id: 3, name: "その他", color: "bg-gray-100 text-gray-700" },
 ]
 
-export const ManagementGuidanceRecordSheet: React.FC = () => {
+export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) => {
+
+  console.log("ManagementGuidanceRecordSheet exam:", compareData)
+
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <Card className="max-w-7xl mx-auto shadow-2xl border-0 bg-white/95 backdrop-blur-sm">

@@ -45,7 +45,7 @@ export default async function PatientDetailPage({ params }: { params: { patientI
     .eq("patient_id", patientId)
     .order("exam_date", { ascending: false });
 
-      console.log("患者データ:", oralExams);
+      // console.log("患者データ:", oralExams);
 
   // サンプルデータ形式に変換＋診断名生成
   const examinationData = (oralExams ?? []).map((exam: any) => {
@@ -92,13 +92,54 @@ export default async function PatientDetailPage({ params }: { params: { patientI
         seireiScore: exam.seirei_score !== null && exam.seirei_score !== undefined ? Number(exam.seirei_score) : undefined,
       },
     };
-    console.log("検査データ:", data);
-    const abnormalCount = countApplicableItems(data);
+    // console.log("検査データ:", data);
+    const {abnormalCount,bitingForceScore,chewingFunctionScore,oralDrynessScore,oralHygieneScore,swallowingFunctionScore,tongueMotorScore,tonguePressureScore } = countApplicableItems(data);
     return {
       id: exam.id,
       date: exam.exam_date,
       diagnosis: `口腔機能低下症（該当項目: ${abnormalCount}/7）`,
+      scores:{      bitingForceScore,
+      chewingFunctionScore,
+      oralDrynessScore,
+      oralHygieneScore,
+      swallowingFunctionScore,
+      tongueMotorScore,
+      tonguePressureScore,},
       raw: exam,
+    };
+  });
+
+  // 比較ロジック: date昇順で並べ替えてから比較
+  const sortedExams = [...examinationData].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const compareData = sortedExams.map((item, idx, arr) => {
+    if (idx === 0) {
+      return {
+        date: item.date,
+        bitingForce: 2,
+        chewingFunction: 2,
+        oralDryness: 2,
+        oralHygiene: 2,
+        swallowingFunction: 2,
+        tongueMotor: 2,
+        tonguePressure: 2,
+      };
+    }
+    const prev = arr[idx - 1];
+    const compare = (now: number, before: number) => {
+      if (now === before) return 2;
+      if (before === 1 && now === 0) return 1;
+      if (before === 0 && now === 1) return 3;
+      return 2;
+    };
+    return {
+      date: item.date,
+      bitingForce: compare(item.scores.bitingForceScore, prev.scores.bitingForceScore),
+      chewingFunction: compare(item.scores.chewingFunctionScore, prev.scores.chewingFunctionScore),
+      oralDryness: compare(item.scores.oralDrynessScore, prev.scores.oralDrynessScore),
+      oralHygiene: compare(item.scores.oralHygieneScore, prev.scores.oralHygieneScore),
+      swallowingFunction: compare(item.scores.swallowingFunctionScore, prev.scores.swallowingFunctionScore),
+      tongueMotor: compare(item.scores.tongueMotorScore, prev.scores.tongueMotorScore),
+      tonguePressure: compare(item.scores.tonguePressureScore, prev.scores.tonguePressureScore),
     };
   });
 
@@ -151,7 +192,7 @@ export default async function PatientDetailPage({ params }: { params: { patientI
         seireiScore: exam.seirei_score !== null && exam.seirei_score !== undefined ? Number(exam.seirei_score) : undefined,
       },
     };
-    const abnormalCount = countApplicableItems(data);
+    const {abnormalCount} = countApplicableItems(data);
     healthScore = Math.round(((7 - abnormalCount) / 7) * 100);
     if (healthScore > 70) {
       healthStatus = "良好";
@@ -366,7 +407,7 @@ export default async function PatientDetailPage({ params }: { params: { patientI
             </Button>
           </Link>
         </div>
-        <ManagementGuidanceRecordSheet />
+        <ManagementGuidanceRecordSheet compareData={compareData} />
       </div>
     </div>
   );

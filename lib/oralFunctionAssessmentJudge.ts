@@ -490,7 +490,7 @@ export function getAllCriteriaDetails(key: keyof typeof oralFunctionCriteriaDeta
 }
 
 // 口腔機能検査の該当項目数（0〜7）を返す
-export function countApplicableItems(data: OralFunctionExamData): number {
+export function countApplicableItems(data: OralFunctionExamData) {
   // toResultStructのscore合計と完全一致させる
   const oralHygieneScore = (() => {
     // 6ブロック: 左前・右前・左中・右中・左後・右後
@@ -513,7 +513,7 @@ export function countApplicableItems(data: OralFunctionExamData): number {
   const chewingFunctionScore = judgeChewingFunction(data.chewingFunction) ? 0 : 1;
   const swallowingFunctionScore = judgeSwallowingFunction(data.swallowingFunction) ? 0 : 1;
 
-  return [
+  return {abnormalCount: [
     oralHygieneScore,
     oralDrynessScore,
     bitingForceScore,
@@ -521,5 +521,11 @@ export function countApplicableItems(data: OralFunctionExamData): number {
     tonguePressureScore,
     chewingFunctionScore,
     swallowingFunctionScore,
-  ].reduce((a, b) => a + b, 0);
+  ].reduce((a, b) => a + b, 0),    oralHygieneScore,
+    oralDrynessScore,
+    bitingForceScore,
+    tongueMotorScore,
+    tonguePressureScore,
+    chewingFunctionScore,
+    swallowingFunctionScore,};
 }
