@@ -11,12 +11,14 @@
 - Next.js 15 + Supabase構成での本番運用を見据えたCRUD・UI・データ設計の安定化
 - 管理計画書作成ページの新規実装とUX改善
 - その他、患者新規登録・編集画面のUI/UX統一・バリデーション強化
+- **新規患者登録ページ（/patients/new）の完全Server Component化・Server Action化・クライアントロジック全廃止・サーバー専用supabaseクライアント利用（Next.js 15推奨パターン準拠）**
 - **/app配下の性別表記をmale/femaleから「男性」「女性」へ統一（DB値はそのまま）**
 - **口腔乾燥・咬合力低下・咀嚼機能低下・嚥下機能低下の「該当基準」欄を、全ての評価方法・基準値を常時改行区切りで表示するUI/ロジックに統一**
 - **compareData（旧comparetest）による評価推移ロジックの実装と、管理指導記録簿UIへの反映（数字＋ラベル表示）**
 - **Supabase認証・ルートガードの導入（middlewareによる/patients・/settings配下のプロテクト、loginページServer Component化、lib/supabaseClient.tsサーバー専用化）**
 
 ## 最近の変更・進捗
+- **新規患者登録ページ（/patients/new）を完全Server Component化し、Server Action＋Formパターンでサーバー専用supabaseクライアント（lib/supabaseClient.ts）を利用する構成に刷新。use client・useRouter・useCreatePatient・PatientForm.tsx等のクライアントロジックを全廃止し、バリデーション・エラー処理もサーバー側で一元化。Next.js 15の推奨パターンに完全準拠。**
 - **管理指導記録簿枠組みUIをcomponents/ManagementGuidanceRecordSheet.tsxとして新規作成し、/patients/[id]ページに追加**
 - **管理指導記録簿印刷専用ページ（/patients/[id]/management-guidance-record/print）を新規作成し、枠組みUIを配置**
 - **/patients/[id]ページの管理指導記録簿カード部分に「印刷ページへ」ボタンを追加し、印刷専用ページへ遷移可能に**
@@ -48,6 +50,7 @@
 - 実装進捗・課題・学びを随時activeContext.mdに記録
 
 ## アクティブな意思決定・考慮事項
+- **新規患者登録ページ（/patients/new）は完全Server Component化・Server Action＋Formパターン・サーバー専用supabaseクライアント利用・バリデーション/エラー処理もサーバー側で一元化し、Next.js 15の推奨パターンに完全準拠する方針に統一**
 - **管理計画書・詳細ページ・n/7表示など全ての画面でtoResultStruct共通ロジックを使い、supabase値→同一出力・同一判定・同一基準値・同一日付を保証する**
 - **患者詳細ページ遷移は必ず患者ID（id）ベースで行う**
 - **年齢はpatientsテーブルの誕生日から常に自動計算して表示**
@@ -62,6 +65,7 @@
 - その他、従来の意思決定も維持
 
 ## 重要なパターン・知見
+- **新規患者登録ページ（/patients/new）は完全Server Component化・Server Action＋Formパターン・サーバー専用supabaseクライアント利用・バリデーション/エラー処理もサーバー側で一元化するパターンを徹底**
 - **/printページ等、特定ページで印刷時にUI要素を制御する場合はTailwindのprint:hidden＋ルーティング判定（pathname.includes('/print')）を組み合わせることで柔軟に対応可能**
 - **判定ロジック・基準値・表示値の一元管理はoralFunctionAssessmentJudge.tsのtoResultStructで実現。今後の拡張・他画面再利用も容易**
 - **該当基準の全方法・基準値一元管理はoralFunctionAssessmentJudge.tsのgetAllCriteriaDetails APIで実現。printページ等で全ての方法・基準値を常時改行区切りで表示することで現場運用・拡張性・一貫性を担保。**

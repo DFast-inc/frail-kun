@@ -1,4 +1,5 @@
 ## 現在動作しているもの
+- **[NEW] 新規患者登録ページ（/patients/new）を完全Server Component化し、Server Action＋Formパターンでサーバー専用supabaseクライアント（lib/supabaseClient.ts）を利用する構成に刷新。use client・useRouter・useCreatePatient・PatientForm.tsx等のクライアントロジックを全廃止し、バリデーション・エラー処理もサーバー側で一元化。Next.js 15の推奨パターンに完全準拠。**
 - **[NEW] Supabase認証・ルートガード（Next.js 15 middleware＋Server Component構成）を導入。/patients・/settings配下はmiddlewareでセッション必須、loginページはServer Component＋Clientラッパー構成、lib/supabaseClient.tsはサーバー専用に分離。認証UI・リダイレクト・ガードが安定動作**
 - **[NEW] compareData（旧comparetest）による評価推移ロジックをapp/patients/[patientId]/page.tsxに実装。最大4件分の評価推移を算出し、components/ManagementGuidanceRecordSheet.tsxに渡す設計に統一**
 - **[NEW] ManagementGuidanceRecordSheet.tsxで、評価値（1:改善, 2:著変なし, 3:悪化）を「評価: n ラベル（例: 評価: 2 著変なし）」の形式で全セル・ヘッダー下に表示するようUI/ロジックを強化**
@@ -40,6 +41,7 @@
 - **[TODO] Supabase認証・ルートガードの拡張（医院単位のロール管理、認証エラー時のUI/UX改善、サインアウト・セッション切れ時の挙動最適化など）**
 
 ## 現在のステータス
+- **[NEW] 新規患者登録ページ（/patients/new）が完全Server Component化・Server Action＋Formパターン・サーバー専用supabaseクライアント利用・バリデーション/エラー処理もサーバー側で一元化し、Next.js 15の推奨パターンに完全準拠して安定動作**
 - **[NEW] Supabase認証・ルートガード（Next.js 15 middleware＋Server Component構成）が安定動作。/patients・/settings配下はmiddlewareでセッション必須、loginページはServer Component＋Clientラッパー構成、lib/supabaseClient.tsはサーバー専用に分離。**
 - **[NEW] compareDataロジックにより、口腔機能評価の推移（最大4件分）が数字＋ラベル（例: 評価: 2 著変なし）でUIに正しく反映されるようになった**
 - **[NEW] 管理指導記録簿枠組みUI・印刷専用ページ・遷移ボタンが実装され、患者詳細ページから印刷ページへの遷移が可能になった**
@@ -64,6 +66,7 @@
 - **[NEW] 管理指導記録簿の一括保存APIの最適化（bulk update/transaction化）、バリデーション強化、エラー時のUI/UX改善**
 
 ## プロジェクト意思決定の変遷
+- **[NEW] 新規患者登録ページ（/patients/new）は完全Server Component化・Server Action＋Formパターン・サーバー専用supabaseクライアント利用・バリデーション/エラー処理もサーバー側で一元化し、Next.js 15の推奨パターンに完全準拠する方針に統一**
 - **[NEW] Supabase認証・ルートガードはNext.js 15のmiddleware＋Server Component構成で統一。lib/supabaseClient.tsはサーバー専用、loginページはServer Component＋Clientラッパー構成で安全に分離。クライアントは直接supabase-jsを使う。**
 - **[NEW] compareDataロジックと数字＋ラベル表示のUIパターンを全画面で徹底する方針に統一**
 - **[NEW] 管理指導記録簿枠組みUI・印刷専用ページ・遷移ボタンは、現場運用・印刷業務の効率化・一貫性を重視し、枠組み→印刷ページ→遷移ボタンの流れで実装する方針に統一**

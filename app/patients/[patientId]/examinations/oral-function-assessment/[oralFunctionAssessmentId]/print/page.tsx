@@ -1,4 +1,4 @@
-import { createSupabaseClient } from '@/lib/supabaseClient';
+import { createSupabaseServerClient } from '@/lib/supabaseClient';
 import {
   judgeAssessment,
   toOralFunctionExamData,
@@ -116,7 +116,7 @@ export default async function OralFunctionAssessmentPrintPage({
   try {
     const { patientId, oralFunctionAssessmentId } = await params;
 
-    const supabase = createSupabaseClient();
+    const supabase = createSupabaseServerClient();
     // 患者情報取得
   const { data: patient, error } = await supabase.from("patients").select("*").eq("id", patientId).single();
 
