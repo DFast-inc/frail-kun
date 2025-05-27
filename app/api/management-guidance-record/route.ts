@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseClient } from "@/lib/supabaseClient";
+import { createSupabaseServerClient } from "@/lib/supabaseClient";
 
 export async function PATCH(req: NextRequest) {
   try {
@@ -10,7 +10,7 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "id is required" }, { status: 400 });
     }
 
-    const supabase = createSupabaseClient();
+    const supabase = createSupabaseServerClient();
     const { error } = await supabase
       .from("oral_function_exam")
       .update({
