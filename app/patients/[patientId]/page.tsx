@@ -112,9 +112,22 @@ export default async function PatientDetailPage({ params }: { params: { patientI
   // 比較ロジック: date昇順で並べ替えてから比較
   const sortedExams = [...examinationData].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   const compareData = sortedExams.map((item, idx, arr) => {
+    // oral_function_examの管理指導記録用フィールドも含める
+    const base = {
+      id: item.id,
+      date: item.date,
+      generalCondition: item.raw.general_condition ?? "",
+      oralFunction: item.raw.oral_function ?? "",
+      other: item.raw.other ?? "",
+      managementContent: item.raw.management_content ?? "",
+      generalConditionNote: item.raw.general_condition_note ?? "",
+      oralFunctionNote: item.raw.oral_function_note ?? "",
+      otherNote: item.raw.other_note ?? "",
+      managementContentNote: item.raw.management_content_note ?? "",
+    };
     if (idx === 0) {
       return {
-        date: item.date,
+        ...base,
         bitingForce: 2,
         chewingFunction: 2,
         oralDryness: 2,
@@ -132,7 +145,7 @@ export default async function PatientDetailPage({ params }: { params: { patientI
       return 2;
     };
     return {
-      date: item.date,
+      ...base,
       bitingForce: compare(item.scores.bitingForceScore, prev.scores.bitingForceScore),
       chewingFunction: compare(item.scores.chewingFunctionScore, prev.scores.chewingFunctionScore),
       oralDryness: compare(item.scores.oralDrynessScore, prev.scores.oralDrynessScore),

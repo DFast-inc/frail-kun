@@ -1,4 +1,6 @@
+"use client";
 import type React from "react"
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { FileText, Calendar, TrendingUp, User, Heart, Eye } from "lucide-react"
@@ -6,7 +8,7 @@ import { FileText, Calendar, TrendingUp, User, Heart, Eye } from "lucide-react"
 /**
  * 管理指導記録簿の枠組みUI（リッチデザイン版）
  */
-const evaluationHeaders = ["評価期間1", "評価期間2", "評価期間3", "評価期間4"]
+/** oral_function_examの件数分だけ列を動的に描画する */
 
 const oralFunctionItems = [
   { id: 1, name: "栄養・体重", icon: Heart, color: "bg-gray-100 text-gray-700" },
@@ -29,8 +31,51 @@ export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) =
   // 評価値→ラベル変換
   const evalLabel = (v: number) => v === 1 ? "改善" : v === 2 ? "著変なし" : v === 3 ? "悪化" : "";
 
-  console.log("ManagementGuidanceRecordSheet exam:", compareData)
+  // 所見・管理内容フォームの状態管理
+  const [formState, setFormState] = useState<{ [examId: string]: { generalCondition: string, oralFunction: string, other: string, managementContent: string } }>(
+    () => {
+      // 初期値: compareDataから生成
+      const initial: { [examId: string]: { generalCondition: string, oralFunction: string, other: string, managementContent: string } } = {};
+      (compareData || []).forEach((d: any) => {
+        initial[d.id] = {
+          generalCondition: d.generalConditionNote || "",
+          oralFunction: d.oralFunctionNote || "",
+          other: d.otherNote || "",
+          managementContent: d.managementContentNote || "",
+        };
+      });
+      return initial;
+    }
+  );
 
+  const handleChange = (examId: string, field: "generalCondition" | "oralFunction" | "other" | "managementContent", value: string) => {
+    setFormState(prev => ({
+      ...prev,
+      [examId]: { ...prev[examId], [field]: value }
+    }));
+  };
+
+  // 保存ボタン押下時のAPI Route呼び出し
+  const handleSave = async (examId: string) => {
+    const { generalCondition, oralFunction, other, managementContent } = formState[examId] || {};
+    const res = await fetch("/api/management-guidance-record", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: examId,
+        general_condition_note: generalCondition,
+        oral_function_note: oralFunction,
+        other_note: other,
+        management_content_note: managementContent,
+      }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert("保存に失敗しました: " + (data.error || res.statusText));
+    } else {
+      alert("保存しました");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -67,7 +112,7 @@ export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) =
                   </th>
                   <th
                     className="border border-slate-200 p-4 font-bold text-slate-700 bg-gray-200"
-                    colSpan={evaluationHeaders.length}
+                    colSpan={compareData.length}
                   >
                     <div className="flex items-center justify-center gap-2">
                       <Calendar className="w-4 h-4" />
@@ -76,30 +121,25 @@ export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) =
                   </th>
                 </tr>
                 <tr className="bg-slate-50">
-                  {evaluationHeaders.map((label, i) => (
+                  {compareData.map((d: any, i: number) => (
                     <th key={i} className="border border-slate-200 p-3 bg-gray-100">
                       <Badge variant="outline" className="text-xs">
-                        {label}
+                        {`評価${i + 1}`}
                       </Badge>
                     </th>
                   ))}
                 </tr>
                 <tr className="bg-white">
-                  {evaluationHeaders.map((label, i) => (
+                  {compareData.map((d: any, i: number) => (
                     <th key={i} className="border border-slate-200 p-2 text-xs font-medium text-slate-600 bg-slate-50">
                       <div className="space-y-1">
-                        <div className="font-semibold text-slate-700">{label}</div>
+                        <div className="font-semibold text-slate-700">{`評価${i + 1}`}</div>
                         <div className="text-xs text-slate-500">
                           {(() => {
-                            const d = compareData && compareData[i] && compareData[i].date ? new Date(compareData[i].date) : null;
+                            const dateObj = d && d.date ? new Date(d.date) : null;
                             return (
                               <div>
-                                年: {d ? d.getFullYear() : "_____"} 月: {d ? d.getMonth() + 1 : "_____"} 日: {d ? d.getDate() : "_____"}
-                                <div className="mt-1">
-                                  評価: {compareData && compareData[i] && typeof compareData[i].bitingForce === "number"
-                                    ? `${compareData[i].bitingForce} ${evalLabel(compareData[i].bitingForce)}`
-                                    : "_____"}
-                                </div>
+                                年: {dateObj ? dateObj.getFullYear() : "_____"} 月: {dateObj ? dateObj.getMonth() + 1 : "_____"} 日: {dateObj ? dateObj.getDate() : "_____"}
                               </div>
                             );
                           })()}
@@ -139,32 +179,30 @@ export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) =
                         <span className="font-medium text-slate-700">{item.name}</span>
                       </div>
                     </td>
-                    {Array(evaluationHeaders.length)
-                      .fill(null)
-                      .map((_, i) => {
-                        // oralFunctionItemsのnameとcompareDataのkeyのマッピング
-                        const scoreKeyMap: { [key: string]: string } = {
-                          "栄養・体重": "bitingForce",
-                          "口腔衛生": "oralHygiene",
-                          "口腔乾燥": "oralDryness",
-                          "咬合・義歯": "bitingForce",
-                          "口腔機能": "swallowingFunction",
-                          "舌機能": "tongueMotor",
-                          "咀嚼機能": "chewingFunction",
-                        };
-                        const scoreKey = scoreKeyMap[item.name] || "";
-                        const value = compareData && compareData[i] && typeof compareData[i][scoreKey] === "number" ? compareData[i][scoreKey] : "_____";
-                        return (
-                          <td
-                            key={i}
-                            className="border border-slate-200 p-3 hover:bg-gray-50 transition-colors duration-150"
-                          >
-                            <div className="w-full h-8 rounded border-2 border-dashed border-slate-300 hover:border-gray-400 transition-colors duration-150 flex items-center justify-center">
-                              評価: {typeof value === "number" ? `${value} ${evalLabel(value)}` : "_____"}
-                            </div>
-                          </td>
-                        );
-                      })}
+                    {compareData.map((d: any, i: number) => {
+                      // oralFunctionItemsのnameとcompareDataのkeyのマッピング
+                      const scoreKeyMap: { [key: string]: string } = {
+                        "栄養・体重": "bitingForce",
+                        "口腔衛生": "oralHygiene",
+                        "口腔乾燥": "oralDryness",
+                        "咬合・義歯": "bitingForce",
+                        "口腔機能": "swallowingFunction",
+                        "舌機能": "tongueMotor",
+                        "咀嚼機能": "chewingFunction",
+                      };
+                      const scoreKey = scoreKeyMap[item.name] || "";
+                      const value = d && typeof d[scoreKey] === "number" ? d[scoreKey] : "_____";
+                      return (
+                        <td
+                          key={i}
+                          className="border border-slate-200 p-3 hover:bg-gray-50 transition-colors duration-150"
+                        >
+                          <div className="w-full h-8 rounded border-2 border-dashed border-slate-300 hover:border-gray-400 transition-colors duration-150 flex items-center justify-center">
+                            評価: {typeof value === "number" ? `${value} ${evalLabel(value)}` : "_____"}
+                          </div>
+                        </td>
+                      );
+                    })}
                   </tr>
                 ))}
 
@@ -197,16 +235,31 @@ export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) =
                         <span className="font-medium text-slate-700">{item.name}</span>
                       </div>
                     </td>
-                    {Array(evaluationHeaders.length)
-                      .fill(null)
-                      .map((_, i) => (
+                    {compareData.map((d: any, i: number) => {
+                      const examId = d && d.id;
+                      // 各所見項目ごとにフォームフィールド名を決定
+                      let field: "generalCondition" | "oralFunction" | "other";
+                      if (item.name === "全身状態") field = "generalCondition";
+                      else if (item.name === "口腔機能") field = "oralFunction";
+                      else field = "other";
+                      return (
                         <td
                           key={i}
                           className="border border-slate-200 p-3 hover:bg-gray-50 transition-colors duration-150"
                         >
-                          <div className="w-full h-8 rounded border-2 border-dashed border-slate-300 hover:border-gray-400 transition-colors duration-150"></div>
+                          {examId ? (
+                            <textarea
+                              className="w-full h-10 rounded border border-slate-300 p-1 text-xs"
+                              value={formState[examId]?.[field] || ""}
+                              onChange={e => handleChange(examId, field, e.target.value)}
+                              placeholder={`${item.name}を入力`}
+                            />
+                          ) : (
+                            <div className="w-full h-10 rounded border-2 border-dashed border-slate-300"></div>
+                          )}
                         </td>
-                      ))}
+                      );
+                    })}
                   </tr>
                 ))}
 
@@ -220,16 +273,35 @@ export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) =
                       <span className="text-lg font-semibold">管理内容</span>
                     </div>
                   </td>
-                  {Array(evaluationHeaders.length)
-                    .fill(null)
-                    .map((_, i) => (
+                  {compareData.map((d: any, i: number) => {
+                    const examId = d && d.id;
+                    return (
                       <td
                         key={i}
                         className="border border-slate-200 p-3 hover:bg-gray-50 transition-colors duration-150"
                       >
-                        <div className="w-full h-12 rounded border-2 border-dashed border-slate-300 hover:border-gray-400 transition-colors duration-150"></div>
+                        {examId ? (
+                          <div className="flex flex-col gap-1">
+                            <textarea
+                              className="w-full h-10 rounded border border-slate-300 p-1 text-xs"
+                              value={formState[examId]?.managementContent || ""}
+                              onChange={e => handleChange(examId, "managementContent", e.target.value)}
+                              placeholder="管理内容を入力"
+                            />
+                            <button
+                              className="mt-1 px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600"
+                              onClick={() => handleSave(examId)}
+                              type="button"
+                            >
+                              保存
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="w-full h-12 rounded border-2 border-dashed border-slate-300"></div>
+                        )}
                       </td>
-                    ))}
+                    );
+                  })}
                 </tr>
               </tbody>
             </table>
