@@ -283,11 +283,12 @@ export function judgeSwallowingFunction(data: OralFunctionExamData["swallowingFu
 }
 
 export function judgeOralHygieneStatus(scores: number[]) {
-  // 6ブロック分のスコア配列（各0,1,2）
-  if (scores.length !== 6) throw new Error('スコア配列は6要素必要です');
+  // 9ブロック分のスコア配列（各0,1,2）
+  // if (scores.length !== 9) throw new Error('スコア配列は9要素必要です');
   const total = scores.reduce((a, b) => a + b, 0);
-  const tci = (total / 12) * 100;
+  const tci = (total / 18) * 100;
   return {
+    total,
     tci,
     isAbnormal: tci >= 50
   };
@@ -362,30 +363,37 @@ export function toResultStruct(exam: any) {
   const data = toOralFunctionExamData(exam);
   return {
     oralHygiene: (() => {
-      // 6ブロック: 左前・右前・左中・右中・左後・右後
+      // 9ブロック: 舌前方・中央部・後方部 × 左・中央・右
       const scores = [
         Number(data.oralHygiene.tongueFrontLeft || 0),
+        Number(data.oralHygiene.tongueFrontCenter || 0),
         Number(data.oralHygiene.tongueFrontRight || 0),
         Number(data.oralHygiene.tongueMiddleLeft || 0),
+        Number(data.oralHygiene.tongueMiddleCenter || 0),
         Number(data.oralHygiene.tongueMiddleRight || 0),
         Number(data.oralHygiene.tongueBackLeft || 0),
+        Number(data.oralHygiene.tongueBackCenter || 0),
         Number(data.oralHygiene.tongueBackRight || 0),
       ];
-      const { tci, isAbnormal } = judgeOralHygieneStatus(scores);
-      const blockStr = [
-        `左前: ${scores[0]}`,
-        `右前: ${scores[1]}`,
-        `左中: ${scores[2]}`,
-        `右中: ${scores[3]}`,
-        `左後: ${scores[4]}`,
-        `右後: ${scores[5]}`
-      ].join(" / ");
+      const { total, tci, isAbnormal } = judgeOralHygieneStatus(scores);
+      // 9マスUI用の行列データ
+      const grid = [
+        [scores[0], scores[1], scores[2]], // 前方: 左・中央・右
+        [scores[3], scores[4], scores[5]], // 中央部: 左・中央・右
+        [scores[6], scores[7], scores[8]], // 後方部: 左・中央・右
+      ];
+      const gridStr = 
+        `舌前方\n左: ${grid[0][0]}  中央: ${grid[0][1]}  右: ${grid[0][2]}\n` +
+        `舌中央部\n左: ${grid[1][0]}  中央: ${grid[1][1]}  右: ${grid[1][2]}\n` +
+        `舌後方部\n左: ${grid[2][0]}  中央: ${grid[2][1]}  右: ${grid[2][2]}`;
       const tciStr = `TCI: ${tci.toFixed(1)}%`;
-      const status = isAbnormal ? "低下（✕）" : "正常";
+      const totalStr = `合計スコア: ${total}`;
+      const status = isAbnormal ? "低下（✕）" : "正常（〇）";
       return {
         score: isAbnormal ? 1 : 0,
         value: {
-          blocks: blockStr,
+          grid: gridStr,
+          total: totalStr,
           tci: tciStr,
           tciValue: tci,
           plaque: `プラークコントロール: ${exam.plaque_control ?? "-"}`

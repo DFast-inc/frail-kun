@@ -117,8 +117,17 @@ export default async function OralFunctionAssessmentPrintPage({
     const { patientId, oralFunctionAssessmentId } = await params;
 
     const supabase = createSupabaseServerClient();
+
+              const session = await supabase.auth.getSession()
+  const clinic_id = session.data.session?.user.user_metadata.clinic_id;
     // 患者情報取得
-  const { data: patient, error } = await supabase.from("patients").select("*").eq("id", patientId).single();
+  // 患者情報も取得
+  const { data: patient, error: patientError } = await supabase
+    .from("patients")
+    .select("*")
+    .eq("clinic_id", clinic_id)
+    .eq("id", patientId)
+    .single();
 
     // 検査データ取得
     const { data: exam } = await supabase
@@ -149,6 +158,8 @@ export default async function OralFunctionAssessmentPrintPage({
 
     // 共通ロジックで該当項目数を計算
     const checkedCount = countApplicableItems(oralExam);
+
+    console.log('Checked Count:', checkedCount, oralExam);
 
     return (
       <>
@@ -340,7 +351,7 @@ export default async function OralFunctionAssessmentPrintPage({
             </tbody>
           </table>
           <div style={{ marginTop: '8mm', fontSize: '12pt', textAlign: 'right' }}>
-            該当項目数：<span style={{ fontWeight: 'bold', fontSize: '14pt' }}>{checkedCount}</span>
+            該当項目数：<span style={{ fontWeight: 'bold', fontSize: '14pt' }}>{checkedCount.abnormalCount}</span>
           </div>
           <div style={{ marginTop: '4mm', fontSize: '10pt' }}>
             ※該当項目が3項目以上で「口腔機能低下症」と診断する。

@@ -1,5 +1,6 @@
 ## 現在の作業フォーカス
 - 口腔機能検査・全身機能評価・管理計画書作成のUI/UXリファイン
+- **口腔機能検査（TCI/舌苔指数）の9ブロック化・合計スコア/TCI/判定ロジックの共通化・UI修正**
 - **管理指導記録簿枠組みUIの追加（/patients/[id]ページ）・印刷専用ページ新設・遷移ボタン追加**
 - **管理指導記録簿の一括保存UI/UXへの刷新（各列の保存ボタン廃止・一括保存ボタン新設）**
 - **管理計画書印刷ページ（/patients/[patientId]/examinations/oral-function-assessment/[oralFunctionAssessmentId]/management-plan-edit/print）の「口腔機能の状態」テーブルをoralFunctionAssessmentJudge.tsのtoResultStruct共通ロジックに統一**
@@ -18,6 +19,11 @@
 - **Supabase認証・ルートガードの導入（middlewareによる/patients・/settings配下のプロテクト、loginページServer Component化、lib/supabaseClient.tsサーバー専用化）**
 
 ## 最近の変更・進捗
+- **口腔機能検査（TCI/舌苔指数）のロジックを6ブロック→9ブロック（舌前方・中央部・後方部×左中央右）に統一。合計スコア・TCI計算式・判定基準（TCI≧50→低下（✕）、TCI≦50→正常（〇））を正規化。**
+- **lib/oralFunctionAssessmentJudge.tsのtoResultStruct/judgeOralHygieneStatus等を修正し、全画面で共通ロジックを利用。**
+- **components/ExaminationDetailClient.tsxのUIも9ブロック・合計スコア・TCI・判定が正しく表示されるよう修正。**
+- **TypeScript型エラーも型ガードで解消。**
+- **動作確認にはログインが必要なため、UI確認はユーザー側で実施。**
 - **患者編集ページ（/patients/[patientId]/edit）をServer Component＋Client Component分離し、update処理をServer Action（actions.ts）に分離。UI/UX・バリデーション・トースト等はClient側で維持し、Next.js 15＋Supabase推奨構成にリファクタリング。**
 - **全身機能評価新規登録ページ（/patients/[patientId]/examinations/physical-assessment/new）をServer Component＋Client Component分離し、insert処理をServer Action（actions.ts）に分離。UI/UX・バリデーション・トースト等はClient側で維持し、Next.js 15＋Supabase推奨構成にリファクタリング。**
 - **口腔機能検査編集ページ（/patients/[patientId]/examinations/oral-function-assessment/[oralFunctionAssessmentId]/edit/page.tsx）の既存データ取得（select）もServer Action（fetchOralFunctionExam, fetchPatientData）に分離し、Client Componentから直接サーバー専用supabaseクライアントを呼ばないNext.js 15推奨構成にリファクタリング。UI/UX・入力ロジック・バリデーション・トースト等は一切変更せず、型エラー・ランタイムエラーも解消。**
@@ -76,6 +82,9 @@
 - その他、従来の意思決定も維持
 
 ## 重要なパターン・知見
+- **TCI/舌苔指数の9ブロック化・合計スコア/TCI/判定ロジックの共通化・UI修正は、lib/oralFunctionAssessmentJudge.tsのtoResultStruct/judgeOralHygieneStatusを全画面で利用することで実現。**
+- **TypeScript型エラーはtypeof/プロパティ存在チェックで安全に解消。**
+- **動作確認は認証後に実施する運用とし、開発時はUI/ロジックの一貫性を重視。**
 - **Next.js 15＋Supabase公式UI＋middleware認証の完全連携には、クライアント側で@supabase/auth-helpers-nextjsのcreatePagesBrowserClient()（引数なし、storage: 'cookie'デフォルト）で初期化し、Auth UIにはこのクライアントを渡す。**
 - **AuthClient.tsxのuseEffectでsupabase.auth.onAuthStateChange＋getSession併用により、ログイン直後のリダイレクトを確実に行う。これにより「ログイン直後に/patientsへ遷移しない」問題を根本解消。**
 - **Next.jsのmiddleware（middleware.ts）は必ずプロジェクトのルート直下（/middleware.ts）に配置すること。サブディレクトリでは一切認識されない。今回、/app/middleware.ts→/middleware.tsへ移動したことで認証ガードが正常動作するようになった。**

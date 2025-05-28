@@ -24,6 +24,11 @@
 - **[NEW] 管理指導記録簿の一括保存UI/UXを実装。各列の保存ボタンを廃止し、テーブル下部に「一括保存」ボタンを新設。formState全体をAPI Routeで一括保存する設計に刷新**
 - **[NEW] compareData・formState・API Routeのsnake_caseカラム名対応（general_condition_note等）**
 - 患者一覧（/patients）画面のUI/UXリファイン
+- **[NEW] 口腔機能検査（TCI/舌苔指数）のロジックを6ブロック→9ブロック（舌前方・中央部・後方部×左中央右）に統一。合計スコア・TCI計算式・判定基準（TCI≧50→低下（✕）、TCI≦50→正常（〇））を正規化。**
+- **[NEW] lib/oralFunctionAssessmentJudge.tsのtoResultStruct/judgeOralHygieneStatus等を修正し、全画面で共通ロジックを利用。**
+- **[NEW] components/ExaminationDetailClient.tsxのUIも9ブロック・合計スコア・TCI・判定が正しく表示されるよう修正。**
+- **[NEW] TypeScript型エラーも型ガードで解消。**
+- **[NEW] 動作確認にはログインが必要なため、UI確認はユーザー側で実施。**
 - 詳細ページ遷移をカルテ番号から患者ID（id）ベースに統一
 - 年齢計算をsupabaseのpatientsテーブルの誕生日から常に算出するよう統一
 - 口腔機能検査データの型変換・判定ロジックを全面見直し。スコア・測定値はnumber型で保持し、型不整合・丸め・判定ズレを根本解消。全画面でDB値と完全一致するよう統一。
@@ -34,6 +39,7 @@
 - （従来の動作確認済み機能も維持）
 
 ## 今後実装すべきもの
+- **TCI/舌苔指数ロジックの今後の拡張・他画面再利用性の向上・テストケース追加**
 - 身体機能評価詳細ページのさらなるUX改善・バリデーション強化・印刷連携・他画面再利用性の向上
 - 他画面・他用途への判定ロジック再利用、判定基準の柔軟な拡張、UI/UX仕様のさらなる最適化
 - 患者編集画面の更なるUX改善・バリデーション強化・エラーハンドリングの拡充
@@ -47,6 +53,7 @@
 - **[TODO] Supabase認証・ルートガードの拡張（医院単位のロール管理、認証エラー時のUI/UX改善、サインアウト・セッション切れ時の挙動最適化など）**
 
 ## 現在のステータス
+- **[NEW] 口腔機能検査（TCI/舌苔指数）の9ブロック化・合計スコア/TCI/判定ロジックの共通化・UI修正が完了。lib/oralFunctionAssessmentJudge.tsのtoResultStruct/judgeOralHygieneStatusを全画面で利用し、UIも9ブロック・合計スコア・TCI・判定が正しく表示されるよう統一。TypeScript型エラーも型ガードで解消。**
 - **[NEW] 新規患者登録ページ（/patients/new）が完全Server Component化・Server Action＋Formパターン・サーバー専用supabaseクライアント利用・バリデーション/エラー処理もサーバー側で一元化し、Next.js 15の推奨パターンに完全準拠して安定動作**
 - **[NEW] Supabase認証・ルートガード（Next.js 15 middleware＋Server Component構成）が安定動作。/patients・/settings配下はmiddlewareでセッション必須、loginページはServer Component＋Clientラッパー構成、lib/supabaseClient.tsはサーバー専用に分離。**
 - **[NEW] compareDataロジックにより、口腔機能評価の推移（最大4件分）が数字＋ラベル（例: 評価: 2 著変なし）でUIに正しく反映されるようになった**
@@ -60,6 +67,7 @@
 - （従来の安定動作状況も維持）
 
 ## 既知の課題・懸念点
+- **TCI/舌苔指数の今後の拡張・他画面再利用性・テストデータの充実**
 - 身体機能評価詳細ページのバリデーション・UX改善・印刷連携強化
 - 患者編集画面のバリデーション・UX改善・エラーハンドリング強化
 - 患者基本情報フォームのカルテ番号（karte_no）バリデーション・UI/UX最適化
@@ -73,6 +81,8 @@
 - **[NEW] 管理指導記録簿の一括保存APIの最適化（bulk update/transaction化）、バリデーション強化、エラー時のUI/UX改善**
 
 ## プロジェクト意思決定の変遷
+- **[NEW] 口腔機能検査（TCI/舌苔指数）は9ブロック・合計スコア/TCI/判定ロジックをlib/oralFunctionAssessmentJudge.tsのtoResultStruct/judgeOralHygieneStatusで一元管理し、全画面で共通ロジックを利用する方針に統一。**
+- **[NEW] TypeScript型エラーはtypeof/プロパティ存在チェックで安全に解消。**
 - **[NEW] 患者編集ページ（/patients/[patientId]/edit）も、updateはServer Action経由・サーバー専用supabaseクライアント利用、UI/UX・バリデーション・トースト等はClient Componentで一元管理する方針に統一**
 - **[NEW] 全身機能評価新規登録ページ（/patients/[patientId]/examinations/physical-assessment/new）も、insertはServer Action経由・サーバー専用supabaseクライアント利用、UI/UX・バリデーション・トースト等はClient Componentで一元管理する方針に統一**
 - **[NEW] 口腔機能検査編集ページ（edit/page.tsx）は既存データ取得（select）もServer Action（fetchOralFunctionExam, fetchPatientData）経由で実行し、Client Componentから直接サーバー専用supabaseクライアントを呼ばない構成に統一。UI/UX・ロジックは一切変更せず、Next.js 15推奨パターンを徹底。**

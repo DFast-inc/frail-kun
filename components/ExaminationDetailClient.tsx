@@ -17,6 +17,7 @@ import {
   judgeOverall,
   judgeOralHygieneStatus,
   OralFunctionExamData,
+  toResultStruct as judgeToResultStruct,
 } from "@/lib/oralFunctionAssessmentJudge";
 
 type ExaminationDetailClientProps = {
@@ -72,108 +73,7 @@ function toOralFunctionExamData(exam: any): OralFunctionExamData {
 }
 
 // 判定・スコア・statusを共通ロジックで生成
-function toResultStruct(exam: any) {
-  const data = toOralFunctionExamData(exam);
-  return {
-    oralHygiene: (() => {
-      // 6ブロック: 左前・右前・左中・右中・左後・右後
-      const scores = [
-        Number(data.oralHygiene.tongueFrontLeft || 0), // 左前
-        Number(data.oralHygiene.tongueFrontRight || 0), // 右前
-        Number(data.oralHygiene.tongueMiddleLeft || 0), // 左中
-        Number(data.oralHygiene.tongueMiddleRight || 0), // 右中
-        Number(data.oralHygiene.tongueBackLeft || 0), // 左後
-        Number(data.oralHygiene.tongueBackRight || 0), // 右後
-      ];
-      const { tci, isAbnormal } = judgeOralHygieneStatus(scores);
-      const blockStr = [
-        `左前: ${scores[0]}`,
-        `右前: ${scores[1]}`,
-        `左中: ${scores[2]}`,
-        `右中: ${scores[3]}`,
-        `左後: ${scores[4]}`,
-        `右後: ${scores[5]}`
-      ].join(" / ");
-      const tciStr = `TCI: ${tci.toFixed(1)}%`;
-      const status = isAbnormal ? "低下（✕）" : "正常";
-      return {
-        score: isAbnormal ? 1 : 0,
-        value: {
-          blocks: blockStr,
-          tci: tciStr,
-          plaque: `プラークコントロール: ${exam.plaque_control ?? "-"}`
-        },
-        status,
-        name: "口腔衛生状態",
-        description: "舌苔指数（TCI）・プラークコントロール",
-        normalRange: "TCI 50%未満が正常",
-        notes: exam.oral_hygiene_notes,
-      };
-    })(),
-    oralDryness: (() => {
-      const isNormal = judgeOralDryness(data.oralDryness);
-      const value =
-        data.oralDryness.evaluationMethod === "method1"
-          ? `湿潤度値: ${data.oralDryness.mucusValue ?? "-"}`
-          : `ガーゼ重量: ${data.oralDryness.gauzeWeight ?? "-"}`;
-      const status = isNormal ? "正常" : "低下（✕）";
-      return {
-        score: isNormal ? 0 : 1,
-        value: `${value} / 判定: ${status}`,
-        status,
-        name: "口腔乾燥",
-        description: "口腔湿潤度測定値・サクソンテスト",
-        normalRange: "湿潤度27.0以上, ガーゼ2g以上",
-        notes: exam.oral_dryness_notes,
-      };
-    })(),
-    bitingForce: {
-      score: judgeBitingForce(data.bitingForce) ? 0 : 1,
-      value: `咬合力: ${data.bitingForce.occlusionForce ?? "-"}N / 残存歯数: ${data.bitingForce.remainingTeeth ?? "-"}本 / 器具: ${data.bitingForce.pressureScaleType ?? "-"} / フィルタ: ${data.bitingForce.useFilter ?? "-"}`,
-      status: judgeBitingForce(data.bitingForce) ? "正常" : "該当",
-      name: "咬合力",
-      description: "最大咬合力・残存歯数",
-      normalRange: "200N以上, 20本以上",
-      notes: exam.biting_force_notes,
-    },
-    tongueMotor: {
-      score: judgeTongueMovement(data.tongueMovement) ? 0 : 1,
-      value: `pa: ${data.tongueMovement.paSound ?? "-"} / ta: ${data.tongueMovement.taSound ?? "-"} / ka: ${data.tongueMovement.kaSound ?? "-"}`,
-      status: judgeTongueMovement(data.tongueMovement) ? "正常" : "該当",
-      name: "舌口唇運動機能",
-      description: "オーラルディアドコキネシス",
-      normalRange: "6.0回/秒以上",
-      notes: exam.tongue_movement_notes,
-    },
-    tonguePressure: {
-      score: judgeTonguePressure(data.tonguePressure) ? 0 : 1,
-      value: `${data.tonguePressure.value ?? "-"} kPa`,
-      status: judgeTonguePressure(data.tonguePressure) ? "正常" : "該当",
-      name: "舌圧",
-      description: "舌圧測定値",
-      normalRange: "30kPa以上",
-      notes: exam.tongue_pressure_notes,
-    },
-    chewingFunction: {
-      score: judgeChewingFunction(data.chewingFunction) ? 0 : 1,
-      value: `グルコース濃度: ${data.chewingFunction.glucoseConcentration ?? "-"} / 咀嚼能率スコア: ${data.chewingFunction.masticatoryScore ?? "-"}`,
-      status: judgeChewingFunction(data.chewingFunction) ? "正常" : "該当",
-      name: "咀嚼機能",
-      description: "グルコース含有ゼリー法・咀嚼能率スコア",
-      normalRange: "100mg/dL以上, スコア3以上",
-      notes: exam.chewing_function_notes,
-    },
-    swallowingFunction: {
-      score: judgeSwallowingFunction(data.swallowingFunction) ? 0 : 1,
-      value: `EAT-10: ${data.swallowingFunction.eat10Score ?? "-"} / 聖隷式: ${data.swallowingFunction.seireiScore ?? "-"}`,
-      status: judgeSwallowingFunction(data.swallowingFunction) ? "正常" : "該当",
-      name: "嚥下機能",
-      description: "EAT-10・聖隷式嚥下質問紙",
-      normalRange: "EAT-10: 3点未満, 聖隷式: 2点未満",
-      notes: exam.swallowing_function_notes,
-    },
-  };
-}
+const toResultStruct = judgeToResultStruct;
 
 function calcAge(birthday: string | null | undefined): string {
   if (!birthday) return "-";
@@ -384,43 +284,52 @@ export default function ExaminationDetailClient({ exam, patient }: ExaminationDe
                     normalRange: "",
                     notes: "",
                   };
-                  return (
-                    <div key={key} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <h3 className="font-semibold text-lg">{result.name}</h3>
-                          <p className="text-gray-600 text-sm">{result.description}</p>
+                  if (typeof result === "object" && result !== null && "name" in result) {
+                    return (
+                      <div key={key} className="border rounded-lg p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h3 className="font-semibold text-lg">{result.name}</h3>
+                            <p className="text-gray-600 text-sm">{result.description}</p>
+                          </div>
+                          <Badge variant={result.score === 0 ? "secondary" : "destructive"}>{result.status}</Badge>
                         </div>
-                        <Badge variant={result.score === 0 ? "secondary" : "destructive"}>{result.status}</Badge>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4 mt-3">
-                        <div>
-                          <p className="text-sm text-gray-600">測定値</p>
-                          {key === "oralHygiene" && typeof result.value === "object" ? (
-                            <div>
-                              <div className="font-semibold">{result.value.blocks}</div>
-                              <div className="font-semibold">{result.value.tci}</div>
-                              <div className="font-semibold">{result.value.plaque}</div>
-                              <div className="mt-1 font-semibold">
-                                判定: {result.status}
+                        <div className="grid grid-cols-2 gap-4 mt-3">
+                          <div>
+                            <p className="text-sm text-gray-600">測定値</p>
+                            {key === "oralHygiene" && typeof result.value === "object" ? (
+                              <div>
+                                <div className="font-semibold whitespace-pre-line">{result.value.grid}</div>
+                                <div className="font-semibold">{result.value.total}</div>
+                                <div className="font-semibold">{result.value.tci}</div>
+                                <div className="font-semibold">{result.value.plaque}</div>
+                                <div className="mt-1 font-semibold">
+                                  判定: {result.status}
+                                </div>
                               </div>
-                            </div>
-                          ) : (
-                            typeof result.value === "string" ? (
-                              <p className="font-semibold text-lg">{result.value}</p>
-                            ) : null
-                          )}
+                            ) : (
+                              typeof result.value === "string" ? (
+                                <p className="font-semibold text-lg">{result.value}</p>
+                              ) : null
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600">正常範囲</p>
+                            <p className="font-semibold">{result.normalRange}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-sm text-gray-600">正常範囲</p>
-                          <p className="font-semibold">{result.normalRange}</p>
-                        </div>
+                        {result.notes && (
+                          <div className="mt-2 text-sm text-gray-500">備考: {result.notes}</div>
+                        )}
                       </div>
-                      {result.notes && (
-                        <div className="mt-2 text-sm text-gray-500">備考: {result.notes}</div>
-                      )}
-                    </div>
-                  );
+                    );
+                  } else {
+                    return (
+                      <div key={key} className="border rounded-lg p-4">
+                        <div className="text-gray-500">-</div>
+                      </div>
+                    );
+                  }
                 })}
               </div>
             </CardContent>
