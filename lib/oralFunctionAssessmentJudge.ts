@@ -501,14 +501,17 @@ export function getAllCriteriaDetails(key: keyof typeof oralFunctionCriteriaDeta
 export function countApplicableItems(data: OralFunctionExamData) {
   // toResultStructのscore合計と完全一致させる
   const oralHygieneScore = (() => {
-    // 6ブロック: 左前・右前・左中・右中・左後・右後
-    const scores = [
-      Number(data.oralHygiene.tongueFrontLeft || 0),
-      Number(data.oralHygiene.tongueFrontRight || 0),
-      Number(data.oralHygiene.tongueMiddleLeft || 0),
-      Number(data.oralHygiene.tongueMiddleRight || 0),
-      Number(data.oralHygiene.tongueBackLeft || 0),
-      Number(data.oralHygiene.tongueBackRight || 0),
+      // 9ブロック: 舌前方・中央部・後方部 × 左・中央・右
+      const scores = [
+        Number(data.oralHygiene.tongueFrontLeft || 0),
+        Number(data.oralHygiene.tongueFrontCenter || 0),
+        Number(data.oralHygiene.tongueFrontRight || 0),
+        Number(data.oralHygiene.tongueMiddleLeft || 0),
+        Number(data.oralHygiene.tongueMiddleCenter || 0),
+        Number(data.oralHygiene.tongueMiddleRight || 0),
+        Number(data.oralHygiene.tongueBackLeft || 0),
+        Number(data.oralHygiene.tongueBackCenter || 0),
+        Number(data.oralHygiene.tongueBackRight || 0),
     ];
     const { isAbnormal } = judgeOralHygieneStatus(scores);
     return isAbnormal ? 1 : 0;
