@@ -15,7 +15,10 @@ import {
 
 export default async function PatientsPage() {
   const supabase = await createSupabaseServerClient();
-  const { data: patients, error } = await supabase.from("patients").select("*");
+  const session = await supabase.auth.getSession()
+  const clinic_id = session.data.session?.user.user_metadata.clinic_id;
+
+  const { data: patients, error } = await supabase.from("patients").select("*").eq("clinic_id", clinic_id);
   const { data: oralExams, error: oralExamError } = await supabase
     .from("oral_function_exam")
     .select("*")

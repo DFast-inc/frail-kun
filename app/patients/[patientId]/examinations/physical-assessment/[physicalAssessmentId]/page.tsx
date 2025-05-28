@@ -4,6 +4,8 @@ import PhysicalAssessmentDetailClient from "@/components/PhysicalAssessmentDetai
 export default async function PhysicalAssessmentDetailPage({ params }: { params: Promise<{ patientId: string; physicalAssessmentId: string }> }) {
   const { patientId, physicalAssessmentId } = await params;
   const supabase = createSupabaseServerClient();
+        const session = await supabase.auth.getSession()
+  const clinic_id = session.data.session?.user.user_metadata.clinic_id;
 
   const { data: exam, error } = await supabase
     .from("physical_assessment")
@@ -14,6 +16,7 @@ export default async function PhysicalAssessmentDetailPage({ params }: { params:
   const { data: patient, error: patientError } = await supabase
     .from("patients")
     .select("*")
+    .eq("clinic_id", clinic_id)
     .eq("id", patientId)
     .single();
 

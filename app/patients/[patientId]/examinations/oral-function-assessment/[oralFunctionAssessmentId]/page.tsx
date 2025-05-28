@@ -4,6 +4,8 @@ import ExaminationDetailClient from "@/components/ExaminationDetailClient"
 export default async function ExaminationDetailPage({ params }: { params: Promise<{ patientId: string; oralFunctionAssessmentId: string }> }) {
   const { patientId, oralFunctionAssessmentId } = await params;
   const supabase = createSupabaseServerClient()
+          const session = await supabase.auth.getSession()
+  const clinic_id = session.data.session?.user.user_metadata.clinic_id;
   const { data: exam, error } = await supabase
     .from("oral_function_exam")
     .select("*")
@@ -14,6 +16,7 @@ export default async function ExaminationDetailPage({ params }: { params: Promis
   const { data: patient, error: patientError } = await supabase
     .from("patients")
     .select("*")
+    .eq("clinic_id", clinic_id)
     .eq("id", patientId)
     .single();
 

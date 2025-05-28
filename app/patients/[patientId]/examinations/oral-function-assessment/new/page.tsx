@@ -23,9 +23,7 @@ export default function NewExaminationPage() {
   // サンプル患者データ（実際はAPIから取得）
   const patientData = {
     id: patientId,
-    name: patientId ? `患者ID: ${patientId}の患者` : "山田 太郎",
-    age: 75,
-    gender: "男性",
+    name: patientId ? `患者ID: ${patientId}の患者` : "---",
   }
 
   const [formData, setFormData] = useState({

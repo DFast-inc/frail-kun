@@ -29,9 +29,9 @@ export default async function PatientDetailPage({ params }: { params: { patientI
 
   // サーバー側で患者データ取得
   const supabase = createSupabaseServerClient();
-  const { data: patientData, error } = await supabase.from("patients").select("*").eq("id", patientId).single();
-
-
+      const session = await supabase.auth.getSession()
+  const clinic_id = session.data.session?.user.user_metadata.clinic_id;
+  const { data: patientData, error } = await supabase.from("patients").select("*").eq("clinic_id",clinic_id).eq("id", patientId).single();
 
   if (error || !patientData) {
     // データが見つからない場合は一覧にリダイレクト

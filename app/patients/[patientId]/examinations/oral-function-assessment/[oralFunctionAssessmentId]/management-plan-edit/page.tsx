@@ -10,6 +10,8 @@ type PageProps = {
 
 export default async function ManagementPlanEditPage({ params }: PageProps) {
   const supabase = createSupabaseServerClient();
+          const session = await supabase.auth.getSession()
+  const clinic_id = session.data.session?.user.user_metadata.clinic_id;
 
   // oral_function_examデータ取得
   const { data: exam, error: examError } = await supabase
@@ -22,6 +24,7 @@ export default async function ManagementPlanEditPage({ params }: PageProps) {
   const { data: patient, error: patientError } = await supabase
     .from("patients")
     .select("*")
+    .eq("clinic_id", clinic_id)
     .eq("id", params.patientId)
     .single();
 

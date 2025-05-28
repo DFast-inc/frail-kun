@@ -21,6 +21,9 @@ export async function createPatient(formData: FormData) {
   // サーバー専用supabaseクライアント
   const supabase = createSupabaseServerClient()
 
+    const session = await supabase.auth.getSession()
+  const clinic_id = session.data.session?.user.user_metadata.clinic_id;
+
   // clinic_idは現状セッションや環境から取得する想定。ここではnullで仮置き
   const { data, error } = await supabase
     .from('patients')
@@ -34,7 +37,7 @@ export async function createPatient(formData: FormData) {
         email,
         notes,
         karte_no,
-        clinic_id: 1, // TODO: clinic_idをセッション等から取得してセット
+        clinic_id:clinic_id, // TODO: clinic_idをセッション等から取得してセット
       }
     ])
     .select()
