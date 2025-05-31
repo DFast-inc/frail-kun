@@ -44,6 +44,7 @@ import {
   countApplicableItems,
 } from "@/lib/oralFunctionAssessmentJudge";
 import ManagementGuidanceRecordSheet from "@/components/ManagementGuidanceRecordSheet";
+import { clinicDetect } from "@/lib/clinicDetect";
 
 export default async function PatientDetailPage({
   params,
@@ -52,16 +53,19 @@ export default async function PatientDetailPage({
 }) {
   const patientId = await params.patientId;
 
+  console.log("患者ID:", patientId);
+
   // サーバー側で患者データ取得
   const supabase = await createSupabaseServerClient();
-  const session = await supabase.auth.getSession();
-  const clinic_id = session.data.session?.user.user_metadata.clinic_id;
+  const { clinic_id } = await clinicDetect();
   const { data: patientData, error } = await supabase
     .from("patients")
     .select("*")
     .eq("clinic_id", clinic_id)
     .eq("id", patientId)
     .single();
+
+  console.log(patientData, error);
 
   if (error || !patientData) {
     // データが見つからない場合は一覧にリダイレクト

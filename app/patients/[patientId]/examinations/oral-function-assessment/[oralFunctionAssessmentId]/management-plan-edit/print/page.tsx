@@ -1,5 +1,6 @@
 import { createSupabaseServerClient } from "@/lib/supabaseClient";
 import ManagementPlanEditPrintClient from "./ManagementPlanEditPrintClient";
+import { clinicDetect } from "@/lib/clinicDetect";
 
 type PageProps = {
   params: {
@@ -12,8 +13,7 @@ export default async function ManagementPlanEditPrintPage({
   params,
 }: PageProps) {
   const supabase = await createSupabaseServerClient();
-  const session = await supabase.auth.getSession();
-  const clinic_id = session.data.session?.user.user_metadata.clinic_id;
+  const { clinic_id } = await clinicDetect();
 
   // oral_function_examデータ取得
   const { data: exam, error: examError } = await supabase
