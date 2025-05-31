@@ -38,7 +38,9 @@ export default function ManagementPlanEditClient({
       <Card className="p-8">
         <h2 className="text-2xl font-bold mb-6">口腔機能管理計画書作成</h2>
         <div className="mb-4">
-          <Link href={`/patients/${patientId}/examinations/oral-function-assessment/${oralFunctionAssessmentId}/management-plan-edit/print`}>
+          <Link
+            href={`/patients/${patientId}/examinations/oral-function-assessment/${oralFunctionAssessmentId}/management-plan-edit/print`}
+          >
             <Button variant="default" className="font-bold">
               印刷
             </Button>
@@ -46,10 +48,12 @@ export default function ManagementPlanEditClient({
         </div>
         <Card className="mb-8 bg-gray-50 border flex flex-wrap gap-6 items-center p-4">
           <div>
-            <span className="font-semibold text-gray-700">患者名:</span> <span>{patient?.name ?? ""}</span>
+            <span className="font-semibold text-gray-700">患者名:</span>{" "}
+            <span>{patient?.name ?? ""}</span>
           </div>
           <div>
-            <span className="font-semibold text-gray-700">年齢:</span> <span>{calcAge(patient?.birthday)}</span>
+            <span className="font-semibold text-gray-700">年齢:</span>{" "}
+            <span>{calcAge(patient?.birthday)}</span>
           </div>
           <div>
             <span className="font-semibold text-gray-700">性別:</span>
@@ -62,7 +66,8 @@ export default function ManagementPlanEditClient({
             </span>
           </div>
           <div>
-            <span className="font-semibold text-gray-700">検査日:</span> <span>{exam?.exam_date ?? ""}</span>
+            <span className="font-semibold text-gray-700">検査日:</span>{" "}
+            <span>{exam?.exam_date ?? ""}</span>
           </div>
         </Card>
         <OralFunctionManagementPlanForm />

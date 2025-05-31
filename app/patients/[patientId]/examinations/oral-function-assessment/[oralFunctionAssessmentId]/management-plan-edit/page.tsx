@@ -9,8 +9,8 @@ type PageProps = {
 };
 
 export default async function ManagementPlanEditPage({ params }: PageProps) {
-  const supabase = createSupabaseServerClient();
-          const session = await supabase.auth.getSession()
+  const supabase = await createSupabaseServerClient();
+  const session = await supabase.auth.getSession();
   const clinic_id = session.data.session?.user.user_metadata.clinic_id;
 
   // oral_function_examデータ取得

@@ -2,12 +2,12 @@
 
 import { createSupabaseServerClient } from "@/lib/supabaseClient";
 import { PatientFormData } from "@/components/PatientForm";
+import { clinicDetect } from "@/lib/clinicDetect";
 
 export async function updatePatient(patientId: string, data: PatientFormData) {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
 
-  // clinic_idは本番では必須。ここではnullで仮置き（必要に応じて患者情報取得・clinic_id付与を追加）
-  const clinic_id = null;
+  const { clinic_id } = await clinicDetect();
 
   const { error } = await supabase
     .from("patients")

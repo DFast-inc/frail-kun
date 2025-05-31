@@ -8,9 +8,11 @@ type PageProps = {
   };
 };
 
-export default async function ManagementPlanEditPrintPage({ params }: PageProps) {
-  const supabase = createSupabaseServerClient();
-          const session = await supabase.auth.getSession()
+export default async function ManagementPlanEditPrintPage({
+  params,
+}: PageProps) {
+  const supabase = await createSupabaseServerClient();
+  const session = await supabase.auth.getSession();
   const clinic_id = session.data.session?.user.user_metadata.clinic_id;
 
   // oral_function_examデータ取得

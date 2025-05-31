@@ -1,11 +1,15 @@
-import { createSupabaseServerClient } from "@/lib/supabaseClient"
-import ExaminationDetailClient from "@/components/ExaminationDetailClient"
+import { createSupabaseServerClient } from "@/lib/supabaseClient";
+import ExaminationDetailClient from "@/components/ExaminationDetailClient";
+import { clinicDetect } from "@/lib/clinicDetect";
 
-export default async function ExaminationDetailPage({ params }: { params: Promise<{ patientId: string; oralFunctionAssessmentId: string }> }) {
+export default async function ExaminationDetailPage({
+  params,
+}: {
+  params: Promise<{ patientId: string; oralFunctionAssessmentId: string }>;
+}) {
   const { patientId, oralFunctionAssessmentId } = await params;
-  const supabase = createSupabaseServerClient()
-          const session = await supabase.auth.getSession()
-  const clinic_id = session.data.session?.user.user_metadata.clinic_id;
+  const supabase = await createSupabaseServerClient();
+  const { clinic_id } = await clinicDetect();
   const { data: exam, error } = await supabase
     .from("oral_function_exam")
     .select("*")

@@ -2,8 +2,8 @@ import { PatientEditClient } from "./PatientEditClient";
 import { PatientFormData } from "@/components/PatientForm";
 
 type PageProps = {
-  params: { patientId: string }
-}
+  params: { patientId: string };
+};
 
 export default function EditPatientPage({ params }: PageProps) {
   const patientId = params.patientId;
@@ -21,9 +21,6 @@ export default function EditPatientPage({ params }: PageProps) {
   };
 
   return (
-    <PatientEditClient
-      patientId={patientId}
-      initialValues={initialValues}
-    />
+    <PatientEditClient patientId={patientId} initialValues={initialValues} />
   );
 }

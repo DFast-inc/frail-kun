@@ -1,8 +1,8 @@
 import { PhysicalAssessmentNewClient } from "./PhysicalAssessmentNewClient";
 
 type PageProps = {
-  params: { patientId: string }
-}
+  params: { patientId: string };
+};
 
 export default function NewPhysicalAssessmentPage({ params }: PageProps) {
   // 仮の患者情報（本番はDBから取得すること）

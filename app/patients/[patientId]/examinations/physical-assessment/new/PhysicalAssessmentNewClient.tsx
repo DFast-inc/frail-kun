@@ -1,22 +1,22 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { toast } from "@/components/ui/use-toast"
-import { createPhysicalAssessment } from "./actions"
+import type React from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/components/ui/use-toast";
+import { createPhysicalAssessment } from "./actions";
 
 type Props = {
-  patientId: string
-  patientName: string
-  patientAge: number
-  patientGender: string
-}
+  patientId: string;
+  patientName: string;
+  patientAge: number;
+  patientGender: string;
+};
 
 export function PhysicalAssessmentNewClient({
   patientId,
@@ -24,7 +24,7 @@ export function PhysicalAssessmentNewClient({
   patientAge,
   patientGender,
 }: Props) {
-  const router = useRouter()
+  const router = useRouter();
 
   const [formData, setFormData] = useState({
     basicMeasurements: {
@@ -64,25 +64,28 @@ export function PhysicalAssessmentNewClient({
       fallRisk: "",
       notes: "",
     },
-  })
+  });
 
   // BMIの自動計算
   useEffect(() => {
-    if (formData.basicMeasurements.height && formData.basicMeasurements.weight) {
-      const height = Number.parseFloat(formData.basicMeasurements.height) / 100
-      const weight = Number.parseFloat(formData.basicMeasurements.weight)
+    if (
+      formData.basicMeasurements.height &&
+      formData.basicMeasurements.weight
+    ) {
+      const height = Number.parseFloat(formData.basicMeasurements.height) / 100;
+      const weight = Number.parseFloat(formData.basicMeasurements.weight);
       if (height > 0 && weight > 0) {
-        const bmi = (weight / (height * height)).toFixed(1)
+        const bmi = (weight / (height * height)).toFixed(1);
         setFormData((prev) => ({
           ...prev,
           basicMeasurements: {
             ...prev.basicMeasurements,
             bmi,
           },
-        }))
+        }));
       }
     }
-  }, [formData.basicMeasurements.height, formData.basicMeasurements.weight])
+  }, [formData.basicMeasurements.height, formData.basicMeasurements.weight]);
 
   const handleChange = (category: string, field: string, value: string) => {
     setFormData((prev) => ({
@@ -91,21 +94,28 @@ export function PhysicalAssessmentNewClient({
         ...prev[category as keyof typeof prev],
         [field]: value,
       },
-    }))
-  }
+    }));
+  };
 
-  const handleNestedChange = (category: string, nestedCategory: string, field: string, value: string) => {
+  const handleNestedChange = (
+    category: string,
+    nestedCategory: string,
+    field: string,
+    value: string
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [category]: {
         ...prev[category as keyof typeof prev],
         [nestedCategory]: {
-          ...prev[category as keyof typeof prev][nestedCategory as keyof (typeof prev)[keyof typeof prev]],
+          ...prev[category as keyof typeof prev][
+            nestedCategory as keyof (typeof prev)[keyof typeof prev]
+          ],
           [field]: value,
         },
       },
-    }))
-  }
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,7 +146,7 @@ export function PhysicalAssessmentNewClient({
     });
 
     router.push(`/patients/${patientId}`);
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -174,7 +184,9 @@ export function PhysicalAssessmentNewClient({
                   type="number"
                   step="0.1"
                   value={formData.basicMeasurements.height}
-                  onChange={(e) => handleChange("basicMeasurements", "height", e.target.value)}
+                  onChange={(e) =>
+                    handleChange("basicMeasurements", "height", e.target.value)
+                  }
                   placeholder="例: 165.0"
                   className="text-lg py-6"
                 />
@@ -189,7 +201,9 @@ export function PhysicalAssessmentNewClient({
                   type="number"
                   step="0.1"
                   value={formData.basicMeasurements.weight}
-                  onChange={(e) => handleChange("basicMeasurements", "weight", e.target.value)}
+                  onChange={(e) =>
+                    handleChange("basicMeasurements", "weight", e.target.value)
+                  }
                   placeholder="例: 60.0"
                   className="text-lg py-6"
                 />
@@ -206,7 +220,9 @@ export function PhysicalAssessmentNewClient({
                   readOnly
                   className="text-lg py-6 bg-gray-50"
                 />
-                <p className="text-sm text-muted-foreground">身長と体重から自動計算されます</p>
+                <p className="text-sm text-muted-foreground">
+                  身長と体重から自動計算されます
+                </p>
               </div>
             </div>
 
@@ -220,7 +236,13 @@ export function PhysicalAssessmentNewClient({
                   type="number"
                   step="0.1"
                   value={formData.basicMeasurements.bodyFatPercentage}
-                  onChange={(e) => handleChange("basicMeasurements", "bodyFatPercentage", e.target.value)}
+                  onChange={(e) =>
+                    handleChange(
+                      "basicMeasurements",
+                      "bodyFatPercentage",
+                      e.target.value
+                    )
+                  }
                   placeholder="例: 25.0"
                   className="text-lg py-6"
                 />
@@ -235,7 +257,13 @@ export function PhysicalAssessmentNewClient({
                   type="number"
                   step="0.1"
                   value={formData.basicMeasurements.muscleMass}
-                  onChange={(e) => handleChange("basicMeasurements", "muscleMass", e.target.value)}
+                  onChange={(e) =>
+                    handleChange(
+                      "basicMeasurements",
+                      "muscleMass",
+                      e.target.value
+                    )
+                  }
                   placeholder="例: 45.0"
                   className="text-lg py-6"
                 />
@@ -250,11 +278,19 @@ export function PhysicalAssessmentNewClient({
                   type="number"
                   step="0.1"
                   value={formData.basicMeasurements.muscleQualityScore}
-                  onChange={(e) => handleChange("basicMeasurements", "muscleQualityScore", e.target.value)}
+                  onChange={(e) =>
+                    handleChange(
+                      "basicMeasurements",
+                      "muscleQualityScore",
+                      e.target.value
+                    )
+                  }
                   placeholder="例: 80.0"
                   className="text-lg py-6"
                 />
-                <p className="text-sm text-muted-foreground">体組成計による筋質点数</p>
+                <p className="text-sm text-muted-foreground">
+                  体組成計による筋質点数
+                </p>
               </div>
             </div>
 
@@ -265,7 +301,9 @@ export function PhysicalAssessmentNewClient({
               <Textarea
                 id="basicMeasurements-notes"
                 value={formData.basicMeasurements.notes}
-                onChange={(e) => handleChange("basicMeasurements", "notes", e.target.value)}
+                onChange={(e) =>
+                  handleChange("basicMeasurements", "notes", e.target.value)
+                }
                 placeholder="その他特記事項があればご記入ください"
                 className="text-lg min-h-[100px]"
               />
@@ -289,5 +327,5 @@ export function PhysicalAssessmentNewClient({
         </div>
       </form>
     </div>
-  )
+  );
 }

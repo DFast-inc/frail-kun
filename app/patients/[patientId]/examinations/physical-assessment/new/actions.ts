@@ -13,8 +13,10 @@ type CreatePhysicalAssessmentInput = {
   notes: string;
 };
 
-export async function createPhysicalAssessment(input: CreatePhysicalAssessmentInput) {
-  const supabase = createSupabaseServerClient();
+export async function createPhysicalAssessment(
+  input: CreatePhysicalAssessmentInput
+) {
+  const supabase = await createSupabaseServerClient();
 
   // clinic_idは患者情報から取得するのが理想だが、ここではnullで仮置き（本番は必須）
   // 必要に応じて患者情報取得・clinic_id付与ロジックを追加すること
@@ -27,9 +29,13 @@ export async function createPhysicalAssessment(input: CreatePhysicalAssessmentIn
     height: input.height ? Number(input.height) : null,
     weight: input.weight ? Number(input.weight) : null,
     bmi: input.bmi ? Number(input.bmi) : null,
-    body_fat_percentage: input.bodyFatPercentage ? Number(input.bodyFatPercentage) : null,
+    body_fat_percentage: input.bodyFatPercentage
+      ? Number(input.bodyFatPercentage)
+      : null,
     muscle_mass: input.muscleMass ? Number(input.muscleMass) : null,
-    muscle_quality_score: input.muscleQualityScore ? Number(input.muscleQualityScore) : null,
+    muscle_quality_score: input.muscleQualityScore
+      ? Number(input.muscleQualityScore)
+      : null,
     basic_notes: input.notes,
   });
 

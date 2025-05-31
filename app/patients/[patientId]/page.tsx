@@ -1,14 +1,35 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import { createSupabaseServerClient } from "@/lib/supabaseClient";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ClipboardList, Edit, Dumbbell, Plus, ArrowLeft, ChevronDown, ChevronUp, User } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  ClipboardList,
+  Edit,
+  Dumbbell,
+  Plus,
+  ArrowLeft,
+  ChevronDown,
+  ChevronUp,
+  User,
+} from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import PatientInfoAccordion from "@/components/PatientInfoAccordion";
 import {
   OralFunctionExamData,
@@ -24,14 +45,23 @@ import {
 } from "@/lib/oralFunctionAssessmentJudge";
 import ManagementGuidanceRecordSheet from "@/components/ManagementGuidanceRecordSheet";
 
-export default async function PatientDetailPage({ params }: { params: { patientId: string } }) {
+export default async function PatientDetailPage({
+  params,
+}: {
+  params: { patientId: string };
+}) {
   const patientId = await params.patientId;
 
   // サーバー側で患者データ取得
-  const supabase = createSupabaseServerClient();
-      const session = await supabase.auth.getSession()
+  const supabase = await createSupabaseServerClient();
+  const session = await supabase.auth.getSession();
   const clinic_id = session.data.session?.user.user_metadata.clinic_id;
-  const { data: patientData, error } = await supabase.from("patients").select("*").eq("clinic_id",clinic_id).eq("id", patientId).single();
+  const { data: patientData, error } = await supabase
+    .from("patients")
+    .select("*")
+    .eq("clinic_id", clinic_id)
+    .eq("id", patientId)
+    .single();
 
   if (error || !patientData) {
     // データが見つからない場合は一覧にリダイレクト
@@ -45,72 +75,159 @@ export default async function PatientDetailPage({ params }: { params: { patientI
     .eq("patient_id", patientId)
     .order("exam_date", { ascending: false });
 
-      // console.log("患者データ:", oralExams);
+  // console.log("患者データ:", oralExams);
 
   // サンプルデータ形式に変換＋診断名生成
   const examinationData = (oralExams ?? []).map((exam: any) => {
     const data: OralFunctionExamData = {
       oralHygiene: {
-        tongueFrontLeft: exam.tongue_front_left !== null && exam.tongue_front_left !== undefined ? Number(exam.tongue_front_left) : undefined,
-        tongueFrontCenter: exam.tongue_front_center !== null && exam.tongue_front_center !== undefined ? Number(exam.tongue_front_center) : undefined,
-        tongueFrontRight: exam.tongue_front_right !== null && exam.tongue_front_right !== undefined ? Number(exam.tongue_front_right) : undefined,
-        tongueMiddleLeft: exam.tongue_middle_left !== null && exam.tongue_middle_left !== undefined ? Number(exam.tongue_middle_left) : undefined,
-        tongueMiddleCenter: exam.tongue_middle_center !== null && exam.tongue_middle_center !== undefined ? Number(exam.tongue_middle_center) : undefined,
-        tongueMiddleRight: exam.tongue_middle_right !== null && exam.tongue_middle_right !== undefined ? Number(exam.tongue_middle_right) : undefined,
-        tongueBackLeft: exam.tongue_back_left !== null && exam.tongue_back_left !== undefined ? Number(exam.tongue_back_left) : undefined,
-        tongueBackCenter: exam.tongue_back_center !== null && exam.tongue_back_center !== undefined ? Number(exam.tongue_back_center) : undefined,
-        tongueBackRight: exam.tongue_back_right !== null && exam.tongue_back_right !== undefined ? Number(exam.tongue_back_right) : undefined,
+        tongueFrontLeft:
+          exam.tongue_front_left !== null &&
+          exam.tongue_front_left !== undefined
+            ? Number(exam.tongue_front_left)
+            : undefined,
+        tongueFrontCenter:
+          exam.tongue_front_center !== null &&
+          exam.tongue_front_center !== undefined
+            ? Number(exam.tongue_front_center)
+            : undefined,
+        tongueFrontRight:
+          exam.tongue_front_right !== null &&
+          exam.tongue_front_right !== undefined
+            ? Number(exam.tongue_front_right)
+            : undefined,
+        tongueMiddleLeft:
+          exam.tongue_middle_left !== null &&
+          exam.tongue_middle_left !== undefined
+            ? Number(exam.tongue_middle_left)
+            : undefined,
+        tongueMiddleCenter:
+          exam.tongue_middle_center !== null &&
+          exam.tongue_middle_center !== undefined
+            ? Number(exam.tongue_middle_center)
+            : undefined,
+        tongueMiddleRight:
+          exam.tongue_middle_right !== null &&
+          exam.tongue_middle_right !== undefined
+            ? Number(exam.tongue_middle_right)
+            : undefined,
+        tongueBackLeft:
+          exam.tongue_back_left !== null && exam.tongue_back_left !== undefined
+            ? Number(exam.tongue_back_left)
+            : undefined,
+        tongueBackCenter:
+          exam.tongue_back_center !== null &&
+          exam.tongue_back_center !== undefined
+            ? Number(exam.tongue_back_center)
+            : undefined,
+        tongueBackRight:
+          exam.tongue_back_right !== null &&
+          exam.tongue_back_right !== undefined
+            ? Number(exam.tongue_back_right)
+            : undefined,
       },
       oralDryness: {
         evaluationMethod: exam.oral_dryness_method ?? "method1",
-        mucusValue: exam.mucus_value !== null && exam.mucus_value !== undefined ? Number(exam.mucus_value) : undefined,
-        gauzeWeight: exam.gauze_weight !== null && exam.gauze_weight !== undefined ? Number(exam.gauze_weight) : undefined,
+        mucusValue:
+          exam.mucus_value !== null && exam.mucus_value !== undefined
+            ? Number(exam.mucus_value)
+            : undefined,
+        gauzeWeight:
+          exam.gauze_weight !== null && exam.gauze_weight !== undefined
+            ? Number(exam.gauze_weight)
+            : undefined,
       },
       bitingForce: {
         evaluationMethod: exam.biting_force_method ?? "method1",
         pressureScaleType: exam.pressure_scale_type ?? "pressScale2",
         useFilter: exam.use_filter ?? "noFilter",
-        occlusionForce: exam.occlusion_force !== null && exam.occlusion_force !== undefined ? Number(exam.occlusion_force) : undefined,
-        remainingTeeth: exam.remaining_teeth !== null && exam.remaining_teeth !== undefined ? Number(exam.remaining_teeth) : undefined,
+        occlusionForce:
+          exam.occlusion_force !== null && exam.occlusion_force !== undefined
+            ? Number(exam.occlusion_force)
+            : undefined,
+        remainingTeeth:
+          exam.remaining_teeth !== null && exam.remaining_teeth !== undefined
+            ? Number(exam.remaining_teeth)
+            : undefined,
       },
       tongueMovement: {
-        paSound: exam.pa_sound !== null && exam.pa_sound !== undefined ? Number(exam.pa_sound) : undefined,
-        taSound: exam.ta_sound !== null && exam.ta_sound !== undefined ? Number(exam.ta_sound) : undefined,
-        kaSound: exam.ka_sound !== null && exam.ka_sound !== undefined ? Number(exam.ka_sound) : undefined,
+        paSound:
+          exam.pa_sound !== null && exam.pa_sound !== undefined
+            ? Number(exam.pa_sound)
+            : undefined,
+        taSound:
+          exam.ta_sound !== null && exam.ta_sound !== undefined
+            ? Number(exam.ta_sound)
+            : undefined,
+        kaSound:
+          exam.ka_sound !== null && exam.ka_sound !== undefined
+            ? Number(exam.ka_sound)
+            : undefined,
       },
       tonguePressure: {
-        value: exam.tongue_pressure_value !== null && exam.tongue_pressure_value !== undefined ? Number(exam.tongue_pressure_value) : undefined,
+        value:
+          exam.tongue_pressure_value !== null &&
+          exam.tongue_pressure_value !== undefined
+            ? Number(exam.tongue_pressure_value)
+            : undefined,
       },
       chewingFunction: {
         evaluationMethod: exam.chewing_function_method ?? "method1",
-        glucoseConcentration: exam.glucose_concentration !== null && exam.glucose_concentration !== undefined ? Number(exam.glucose_concentration) : undefined,
-        masticatoryScore: exam.masticatory_score !== null && exam.masticatory_score !== undefined ? Number(exam.masticatory_score) : undefined,
+        glucoseConcentration:
+          exam.glucose_concentration !== null &&
+          exam.glucose_concentration !== undefined
+            ? Number(exam.glucose_concentration)
+            : undefined,
+        masticatoryScore:
+          exam.masticatory_score !== null &&
+          exam.masticatory_score !== undefined
+            ? Number(exam.masticatory_score)
+            : undefined,
       },
       swallowingFunction: {
         evaluationMethod: exam.swallowing_function_method ?? "eat10",
-        eat10Score: exam.eat10_score !== null && exam.eat10_score !== undefined ? Number(exam.eat10_score) : undefined,
-        seireiScore: exam.seirei_score !== null && exam.seirei_score !== undefined ? Number(exam.seirei_score) : undefined,
+        eat10Score:
+          exam.eat10_score !== null && exam.eat10_score !== undefined
+            ? Number(exam.eat10_score)
+            : undefined,
+        seireiScore:
+          exam.seirei_score !== null && exam.seirei_score !== undefined
+            ? Number(exam.seirei_score)
+            : undefined,
       },
     };
     // console.log("検査データ:", data);
-    const {abnormalCount,bitingForceScore,chewingFunctionScore,oralDrynessScore,oralHygieneScore,swallowingFunctionScore,tongueMotorScore,tonguePressureScore } = countApplicableItems(data);
-    return {
-      id: exam.id,
-      date: exam.exam_date,
-      diagnosis: `口腔機能低下症（該当項目: ${abnormalCount}/7）`,
-      scores:{      bitingForceScore,
+    const {
+      abnormalCount,
+      bitingForceScore,
       chewingFunctionScore,
       oralDrynessScore,
       oralHygieneScore,
       swallowingFunctionScore,
       tongueMotorScore,
-      tonguePressureScore,},
+      tonguePressureScore,
+    } = countApplicableItems(data);
+    return {
+      id: exam.id,
+      date: exam.exam_date,
+      diagnosis: `口腔機能低下症（該当項目: ${abnormalCount}/7）`,
+      scores: {
+        bitingForceScore,
+        chewingFunctionScore,
+        oralDrynessScore,
+        oralHygieneScore,
+        swallowingFunctionScore,
+        tongueMotorScore,
+        tonguePressureScore,
+      },
       raw: exam,
     };
   });
 
   // 比較ロジック: date昇順で並べ替えてから比較
-  const sortedExams = [...examinationData].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const sortedExams = [...examinationData].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
   const compareData = sortedExams.map((item, idx, arr) => {
     // oral_function_examの管理指導記録用フィールドも含める
     const base = {
@@ -146,13 +263,34 @@ export default async function PatientDetailPage({ params }: { params: { patientI
     };
     return {
       ...base,
-      bitingForce: compare(item.scores.bitingForceScore, prev.scores.bitingForceScore),
-      chewingFunction: compare(item.scores.chewingFunctionScore, prev.scores.chewingFunctionScore),
-      oralDryness: compare(item.scores.oralDrynessScore, prev.scores.oralDrynessScore),
-      oralHygiene: compare(item.scores.oralHygieneScore, prev.scores.oralHygieneScore),
-      swallowingFunction: compare(item.scores.swallowingFunctionScore, prev.scores.swallowingFunctionScore),
-      tongueMotor: compare(item.scores.tongueMotorScore, prev.scores.tongueMotorScore),
-      tonguePressure: compare(item.scores.tonguePressureScore, prev.scores.tonguePressureScore),
+      bitingForce: compare(
+        item.scores.bitingForceScore,
+        prev.scores.bitingForceScore
+      ),
+      chewingFunction: compare(
+        item.scores.chewingFunctionScore,
+        prev.scores.chewingFunctionScore
+      ),
+      oralDryness: compare(
+        item.scores.oralDrynessScore,
+        prev.scores.oralDrynessScore
+      ),
+      oralHygiene: compare(
+        item.scores.oralHygieneScore,
+        prev.scores.oralHygieneScore
+      ),
+      swallowingFunction: compare(
+        item.scores.swallowingFunctionScore,
+        prev.scores.swallowingFunctionScore
+      ),
+      tongueMotor: compare(
+        item.scores.tongueMotorScore,
+        prev.scores.tongueMotorScore
+      ),
+      tonguePressure: compare(
+        item.scores.tonguePressureScore,
+        prev.scores.tonguePressureScore
+      ),
     };
   });
 
@@ -164,48 +302,122 @@ export default async function PatientDetailPage({ params }: { params: { patientI
     const exam = examinationData[0].raw;
     const data: OralFunctionExamData = {
       oralHygiene: {
-        tongueFrontLeft: exam.tongue_front_left !== null && exam.tongue_front_left !== undefined ? Number(exam.tongue_front_left) : undefined,
-        tongueFrontCenter: exam.tongue_front_center !== null && exam.tongue_front_center !== undefined ? Number(exam.tongue_front_center) : undefined,
-        tongueFrontRight: exam.tongue_front_right !== null && exam.tongue_front_right !== undefined ? Number(exam.tongue_front_right) : undefined,
-        tongueMiddleLeft: exam.tongue_middle_left !== null && exam.tongue_middle_left !== undefined ? Number(exam.tongue_middle_left) : undefined,
-        tongueMiddleCenter: exam.tongue_middle_center !== null && exam.tongue_middle_center !== undefined ? Number(exam.tongue_middle_center) : undefined,
-        tongueMiddleRight: exam.tongue_middle_right !== null && exam.tongue_middle_right !== undefined ? Number(exam.tongue_middle_right) : undefined,
-        tongueBackLeft: exam.tongue_back_left !== null && exam.tongue_back_left !== undefined ? Number(exam.tongue_back_left) : undefined,
-        tongueBackCenter: exam.tongue_back_center !== null && exam.tongue_back_center !== undefined ? Number(exam.tongue_back_center) : undefined,
-        tongueBackRight: exam.tongue_back_right !== null && exam.tongue_back_right !== undefined ? Number(exam.tongue_back_right) : undefined,
+        tongueFrontLeft:
+          exam.tongue_front_left !== null &&
+          exam.tongue_front_left !== undefined
+            ? Number(exam.tongue_front_left)
+            : undefined,
+        tongueFrontCenter:
+          exam.tongue_front_center !== null &&
+          exam.tongue_front_center !== undefined
+            ? Number(exam.tongue_front_center)
+            : undefined,
+        tongueFrontRight:
+          exam.tongue_front_right !== null &&
+          exam.tongue_front_right !== undefined
+            ? Number(exam.tongue_front_right)
+            : undefined,
+        tongueMiddleLeft:
+          exam.tongue_middle_left !== null &&
+          exam.tongue_middle_left !== undefined
+            ? Number(exam.tongue_middle_left)
+            : undefined,
+        tongueMiddleCenter:
+          exam.tongue_middle_center !== null &&
+          exam.tongue_middle_center !== undefined
+            ? Number(exam.tongue_middle_center)
+            : undefined,
+        tongueMiddleRight:
+          exam.tongue_middle_right !== null &&
+          exam.tongue_middle_right !== undefined
+            ? Number(exam.tongue_middle_right)
+            : undefined,
+        tongueBackLeft:
+          exam.tongue_back_left !== null && exam.tongue_back_left !== undefined
+            ? Number(exam.tongue_back_left)
+            : undefined,
+        tongueBackCenter:
+          exam.tongue_back_center !== null &&
+          exam.tongue_back_center !== undefined
+            ? Number(exam.tongue_back_center)
+            : undefined,
+        tongueBackRight:
+          exam.tongue_back_right !== null &&
+          exam.tongue_back_right !== undefined
+            ? Number(exam.tongue_back_right)
+            : undefined,
       },
       oralDryness: {
         evaluationMethod: exam.oral_dryness_method ?? "method1",
-        mucusValue: exam.mucus_value !== null && exam.mucus_value !== undefined ? Number(exam.mucus_value) : undefined,
-        gauzeWeight: exam.gauze_weight !== null && exam.gauze_weight !== undefined ? Number(exam.gauze_weight) : undefined,
+        mucusValue:
+          exam.mucus_value !== null && exam.mucus_value !== undefined
+            ? Number(exam.mucus_value)
+            : undefined,
+        gauzeWeight:
+          exam.gauze_weight !== null && exam.gauze_weight !== undefined
+            ? Number(exam.gauze_weight)
+            : undefined,
       },
       bitingForce: {
         evaluationMethod: exam.biting_force_method ?? "method1",
         pressureScaleType: exam.pressure_scale_type ?? "pressScale2",
         useFilter: exam.use_filter ?? "noFilter",
-        occlusionForce: exam.occlusion_force !== null && exam.occlusion_force !== undefined ? Number(exam.occlusion_force) : undefined,
-        remainingTeeth: exam.remaining_teeth !== null && exam.remaining_teeth !== undefined ? Number(exam.remaining_teeth) : undefined,
+        occlusionForce:
+          exam.occlusion_force !== null && exam.occlusion_force !== undefined
+            ? Number(exam.occlusion_force)
+            : undefined,
+        remainingTeeth:
+          exam.remaining_teeth !== null && exam.remaining_teeth !== undefined
+            ? Number(exam.remaining_teeth)
+            : undefined,
       },
       tongueMovement: {
-        paSound: exam.pa_sound !== null && exam.pa_sound !== undefined ? Number(exam.pa_sound) : undefined,
-        taSound: exam.ta_sound !== null && exam.ta_sound !== undefined ? Number(exam.ta_sound) : undefined,
-        kaSound: exam.ka_sound !== null && exam.ka_sound !== undefined ? Number(exam.ka_sound) : undefined,
+        paSound:
+          exam.pa_sound !== null && exam.pa_sound !== undefined
+            ? Number(exam.pa_sound)
+            : undefined,
+        taSound:
+          exam.ta_sound !== null && exam.ta_sound !== undefined
+            ? Number(exam.ta_sound)
+            : undefined,
+        kaSound:
+          exam.ka_sound !== null && exam.ka_sound !== undefined
+            ? Number(exam.ka_sound)
+            : undefined,
       },
       tonguePressure: {
-        value: exam.tongue_pressure_value !== null && exam.tongue_pressure_value !== undefined ? Number(exam.tongue_pressure_value) : undefined,
+        value:
+          exam.tongue_pressure_value !== null &&
+          exam.tongue_pressure_value !== undefined
+            ? Number(exam.tongue_pressure_value)
+            : undefined,
       },
       chewingFunction: {
         evaluationMethod: exam.chewing_function_method ?? "method1",
-        glucoseConcentration: exam.glucose_concentration !== null && exam.glucose_concentration !== undefined ? Number(exam.glucose_concentration) : undefined,
-        masticatoryScore: exam.masticatory_score !== null && exam.masticatory_score !== undefined ? Number(exam.masticatory_score) : undefined,
+        glucoseConcentration:
+          exam.glucose_concentration !== null &&
+          exam.glucose_concentration !== undefined
+            ? Number(exam.glucose_concentration)
+            : undefined,
+        masticatoryScore:
+          exam.masticatory_score !== null &&
+          exam.masticatory_score !== undefined
+            ? Number(exam.masticatory_score)
+            : undefined,
       },
       swallowingFunction: {
         evaluationMethod: exam.swallowing_function_method ?? "eat10",
-        eat10Score: exam.eat10_score !== null && exam.eat10_score !== undefined ? Number(exam.eat10_score) : undefined,
-        seireiScore: exam.seirei_score !== null && exam.seirei_score !== undefined ? Number(exam.seirei_score) : undefined,
+        eat10Score:
+          exam.eat10_score !== null && exam.eat10_score !== undefined
+            ? Number(exam.eat10_score)
+            : undefined,
+        seireiScore:
+          exam.seirei_score !== null && exam.seirei_score !== undefined
+            ? Number(exam.seirei_score)
+            : undefined,
       },
     };
-    const {abnormalCount} = countApplicableItems(data);
+    const { abnormalCount } = countApplicableItems(data);
     healthScore = Math.round(((7 - abnormalCount) / 7) * 100);
     if (healthScore > 70) {
       healthStatus = "良好";
@@ -231,11 +443,12 @@ export default async function PatientDetailPage({ params }: { params: { patientI
   ];
 
   // Supabaseから全身機能評価データを取得
-  const { data: physicalAssessments, error: physicalAssessmentError } = await supabase
-    .from("physical_assessment")
-    .select("*")
-    .eq("patient_id", patientId)
-    .order("assessment_date", { ascending: false });
+  const { data: physicalAssessments, error: physicalAssessmentError } =
+    await supabase
+      .from("physical_assessment")
+      .select("*")
+      .eq("patient_id", patientId)
+      .order("assessment_date", { ascending: false });
 
   const physicalAssessmentData = (physicalAssessments ?? []).map((a: any) => ({
     id: a.id,
@@ -243,7 +456,9 @@ export default async function PatientDetailPage({ params }: { params: { patientI
     height: a.height,
     weight: a.weight,
     bmi: a.bmi,
-    gripStrength: `右: ${a.grip_strength_right ?? "-"} / 左: ${a.grip_strength_left ?? "-"}`,
+    gripStrength: `右: ${a.grip_strength_right ?? "-"} / 左: ${
+      a.grip_strength_left ?? "-"
+    }`,
     walkingSpeed: a.walking_speed,
     frailtyStatus: a.frailty_status,
     // 必要に応じて他のカラムも追加
@@ -275,20 +490,24 @@ export default async function PatientDetailPage({ params }: { params: { patientI
                     {healthStatus}
                   </span>
                   <div className="ml-3 flex items-center">
-                    <span className="text-sm text-gray-500 mr-2">健康スコア:</span>
+                    <span className="text-sm text-gray-500 mr-2">
+                      健康スコア:
+                    </span>
                     <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
                       <div
                         className={`h-full ${
                           healthScore > 70
                             ? "bg-green-500"
                             : healthScore > 50
-                              ? "bg-yellow-500"
-                              : "bg-red-500"
+                            ? "bg-yellow-500"
+                            : "bg-red-500"
                         }`}
                         style={{ width: `${healthScore}%` }}
                       ></div>
                     </div>
-                    <span className="ml-2 text-sm font-medium">{healthScore}/100</span>
+                    <span className="ml-2 text-sm font-medium">
+                      {healthScore}/100
+                    </span>
                   </div>
                 </div>
               </div>
@@ -303,16 +522,20 @@ export default async function PatientDetailPage({ params }: { params: { patientI
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuItem asChild>
-<Link href={`/patients/${patientId}/examinations/oral-function-assessment/new`}>
-  <ClipboardList className="mr-2 h-5 w-5" />
-  <span>口腔機能検査</span>
-</Link>
+                <Link
+                  href={`/patients/${patientId}/examinations/oral-function-assessment/new`}
+                >
+                  <ClipboardList className="mr-2 h-5 w-5" />
+                  <span>口腔機能検査</span>
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-<Link href={`/patients/${patientId}/examinations/physical-assessment/new`}>
-  <Dumbbell className="mr-2 h-5 w-5" />
-  <span>全身機能検査</span>
-</Link>
+                <Link
+                  href={`/patients/${patientId}/examinations/physical-assessment/new`}
+                >
+                  <Dumbbell className="mr-2 h-5 w-5" />
+                  <span>全身機能検査</span>
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -331,7 +554,7 @@ export default async function PatientDetailPage({ params }: { params: { patientI
                 <ClipboardList className="mr-2 h-5 w-5" />
                 口腔機能検査
               </TabsTrigger>
-              <TabsTrigger value="physical" >
+              <TabsTrigger value="physical">
                 <Dumbbell className="mr-2 h-5 w-5" />
                 全身機能評価
               </TabsTrigger>
@@ -347,24 +570,38 @@ export default async function PatientDetailPage({ params }: { params: { patientI
                   </TableHeader>
                   <TableBody>
                     {examinationData.map((exam) => (
-<Link href={`/patients/${patientId}/examinations/oral-function-assessment/${exam.id}`} key={exam.id} passHref legacyBehavior>
-  <TableRow className="cursor-pointer hover:bg-blue-50">
-    <TableCell className="text-lg font-medium">{exam.date}</TableCell>
-    <TableCell className="text-lg">{exam.diagnosis}</TableCell>
-  </TableRow>
-</Link>
+                      <Link
+                        href={`/patients/${patientId}/examinations/oral-function-assessment/${exam.id}`}
+                        key={exam.id}
+                        passHref
+                        legacyBehavior
+                      >
+                        <TableRow className="cursor-pointer hover:bg-blue-50">
+                          <TableCell className="text-lg font-medium">
+                            {exam.date}
+                          </TableCell>
+                          <TableCell className="text-lg">
+                            {exam.diagnosis}
+                          </TableCell>
+                        </TableRow>
+                      </Link>
                     ))}
                   </TableBody>
                 </Table>
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-lg text-muted-foreground">検査記録がありません</p>
-<Link href={`/patients/${patientId}/examinations/oral-function-assessment/new`} className="mt-4 inline-block">
-  <Button size="lg" className="text-lg">
-    <ClipboardList className="mr-2 h-5 w-5" />
-    新規検査を実施
-  </Button>
-</Link>
+                  <p className="text-lg text-muted-foreground">
+                    検査記録がありません
+                  </p>
+                  <Link
+                    href={`/patients/${patientId}/examinations/oral-function-assessment/new`}
+                    className="mt-4 inline-block"
+                  >
+                    <Button size="lg" className="text-lg">
+                      <ClipboardList className="mr-2 h-5 w-5" />
+                      新規検査を実施
+                    </Button>
+                  </Link>
                 </div>
               )}
             </TabsContent>
@@ -381,30 +618,49 @@ export default async function PatientDetailPage({ params }: { params: { patientI
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-{physicalAssessmentData.map((assessment) => (
-  <Link href={`/patients/${patientId}/examinations/physical-assessment/${assessment.id}`} key={assessment.id} passHref legacyBehavior>
-    <TableRow className="cursor-pointer hover:bg-blue-50">
-      <TableCell className="text-lg font-medium">{assessment.date}</TableCell>
-      <TableCell className="text-lg">
-        {assessment.height}cm / {assessment.weight}kg / BMI: {assessment.bmi}
-      </TableCell>
-      <TableCell className="text-lg">{assessment.gripStrength}</TableCell>
-      <TableCell className="text-lg">{assessment.walkingSpeed} m/秒</TableCell>
-      <TableCell className="text-lg">{assessment.frailtyStatus}</TableCell>
-    </TableRow>
-  </Link>
-))}
+                    {physicalAssessmentData.map((assessment) => (
+                      <Link
+                        href={`/patients/${patientId}/examinations/physical-assessment/${assessment.id}`}
+                        key={assessment.id}
+                        passHref
+                        legacyBehavior
+                      >
+                        <TableRow className="cursor-pointer hover:bg-blue-50">
+                          <TableCell className="text-lg font-medium">
+                            {assessment.date}
+                          </TableCell>
+                          <TableCell className="text-lg">
+                            {assessment.height}cm / {assessment.weight}kg / BMI:{" "}
+                            {assessment.bmi}
+                          </TableCell>
+                          <TableCell className="text-lg">
+                            {assessment.gripStrength}
+                          </TableCell>
+                          <TableCell className="text-lg">
+                            {assessment.walkingSpeed} m/秒
+                          </TableCell>
+                          <TableCell className="text-lg">
+                            {assessment.frailtyStatus}
+                          </TableCell>
+                        </TableRow>
+                      </Link>
+                    ))}
                   </TableBody>
                 </Table>
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-lg text-muted-foreground">全身機能評価の記録がありません</p>
-<Link href={`/patients/${patientId}/examinations/physical-assessment/new`} className="mt-4 inline-block">
-  <Button size="lg" className="text-lg">
-    <Dumbbell className="mr-2 h-5 w-5" />
-    新規評価を実施
-  </Button>
-</Link>
+                  <p className="text-lg text-muted-foreground">
+                    全身機能評価の記録がありません
+                  </p>
+                  <Link
+                    href={`/patients/${patientId}/examinations/physical-assessment/new`}
+                    className="mt-4 inline-block"
+                  >
+                    <Button size="lg" className="text-lg">
+                      <Dumbbell className="mr-2 h-5 w-5" />
+                      新規評価を実施
+                    </Button>
+                  </Link>
                 </div>
               )}
             </TabsContent>
@@ -414,7 +670,10 @@ export default async function PatientDetailPage({ params }: { params: { patientI
       {/* 管理指導記録簿 枠組み */}
       <div className="mt-8">
         <div className="flex justify-end mb-2">
-          <Link href={`/patients/${patientId}/management-guidance-record/print`} passHref>
+          <Link
+            href={`/patients/${patientId}/management-guidance-record/print`}
+            passHref
+          >
             <Button size="sm" variant="outline">
               印刷ページへ
             </Button>

@@ -38,7 +38,9 @@ export default function ManagementPlanEditPrintClient({
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
-      const data = localStorage.getItem(`oralFunctionManagementPlan_${oralFunctionAssessmentId}`);
+      const data = localStorage.getItem(
+        `oralFunctionManagementPlan_${oralFunctionAssessmentId}`
+      );
       if (data) {
         setLocalPlan(JSON.parse(data));
       }
@@ -67,7 +69,9 @@ export default function ManagementPlanEditPrintClient({
   return (
     <div>
       <div className="no-print" style={{ marginBottom: "16px" }}>
-        <Link href={`/patients/${patientId}/examinations/oral-function-assessment/${oralFunctionAssessmentId}/management-plan-edit`}>
+        <Link
+          href={`/patients/${patientId}/examinations/oral-function-assessment/${oralFunctionAssessmentId}/management-plan-edit`}
+        >
           <button
             type="button"
             className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition"
@@ -134,7 +138,8 @@ export default function ManagementPlanEditPrintClient({
                   {localPlan
                     ? [
                         ...(localPlan.basicDiseaseList || []),
-                        ...(localPlan.basicDiseaseOtherChecked && localPlan.basicDiseaseOther
+                        ...(localPlan.basicDiseaseOtherChecked &&
+                        localPlan.basicDiseaseOther
                           ? [localPlan.basicDiseaseOther]
                           : []),
                       ].join("・") || ""
@@ -153,16 +158,21 @@ export default function ManagementPlanEditPrintClient({
               </tr>
               <tr>
                 <th>3. 肺炎の既往</th>
-                <td>{localPlan ? localPlan.pneumoniaHistory : getValue("pneumoniaHistory")}</td>
+                <td>
+                  {localPlan
+                    ? localPlan.pneumoniaHistory
+                    : getValue("pneumoniaHistory")}
+                </td>
               </tr>
               <tr>
                 <th>4. 栄養状態</th>
                 <td>
-                  体重：{localPlan ? localPlan.weight : getValue("weight")} Kg， 身長：
+                  体重：{localPlan ? localPlan.weight : getValue("weight")} Kg，
+                  身長：
                   {localPlan ? localPlan.height : getValue("height")} m
                   <br />
-                  体格指数（BMI）：{localPlan ? localPlan.bmi : getValue("bmi")}　
-                  {localPlan ? localPlan.bmiStatus : getValue("bmiStatus")}
+                  体格指数（BMI）：{localPlan ? localPlan.bmi : getValue("bmi")}
+                  　{localPlan ? localPlan.bmiStatus : getValue("bmiStatus")}
                 </td>
               </tr>
               <tr>
@@ -170,7 +180,13 @@ export default function ManagementPlanEditPrintClient({
                 <td>
                   {localPlan
                     ? localPlan.weightChange === "あり"
-                      ? `あり（${localPlan.weightChangePeriod}ヶ月, ${localPlan.weightChangeAmount}kg, ${localPlan.weightChangeDirection === "増" ? "増加" : "減少"})`
+                      ? `あり（${localPlan.weightChangePeriod}ヶ月, ${
+                          localPlan.weightChangeAmount
+                        }kg, ${
+                          localPlan.weightChangeDirection === "増"
+                            ? "増加"
+                            : "減少"
+                        })`
                       : "なし"
                     : getValue("weightChange")}
                 </td>
@@ -207,78 +223,71 @@ export default function ManagementPlanEditPrintClient({
               <tr>
                 <th>1. 口腔内の衛生状態</th>
                 <td>
-                  {oralResult.oralHygiene.value.tci}（{oralResult.oralHygiene.normalRange}）
+                  {oralResult.oralHygiene.value.tci}（
+                  {oralResult.oralHygiene.normalRange}）
                 </td>
-                <td>
-                  {oralResult.oralHygiene.status}
-                </td>
+                <td>{oralResult.oralHygiene.status}</td>
               </tr>
               <tr>
                 <th>2. 口腔内の乾燥程度</th>
                 <td>
-                  {oralResult.oralDryness.value}（{oralResult.oralDryness.normalRange}）
+                  {oralResult.oralDryness.value}（
+                  {oralResult.oralDryness.normalRange}）
                 </td>
-                <td>
-                  {oralResult.oralDryness.status}
-                </td>
+                <td>{oralResult.oralDryness.status}</td>
               </tr>
               <tr>
                 <th>3. 咬む力の程度</th>
                 <td>
-                  {oralResult.bitingForce.value}（{oralResult.bitingForce.normalRange}）
+                  {oralResult.bitingForce.value}（
+                  {oralResult.bitingForce.normalRange}）
                 </td>
-                <td>
-                  {oralResult.bitingForce.status}
-                </td>
+                <td>{oralResult.bitingForce.status}</td>
               </tr>
               <tr>
                 <th>4. 舌口唇運動機能</th>
                 <td>
-                  {oralResult.tongueMotor.value}（{oralResult.tongueMotor.normalRange}）
+                  {oralResult.tongueMotor.value}（
+                  {oralResult.tongueMotor.normalRange}）
                 </td>
-                <td>
-                  {oralResult.tongueMotor.status}
-                </td>
+                <td>{oralResult.tongueMotor.status}</td>
               </tr>
               <tr>
                 <th>5. 舌圧</th>
                 <td>
-                  {oralResult.tonguePressure.value}（{oralResult.tonguePressure.normalRange}）
+                  {oralResult.tonguePressure.value}（
+                  {oralResult.tonguePressure.normalRange}）
                 </td>
-                <td>
-                  {oralResult.tonguePressure.status}
-                </td>
+                <td>{oralResult.tonguePressure.status}</td>
               </tr>
               <tr>
                 <th>6. 咀嚼機能</th>
                 <td>
-                  {oralResult.chewingFunction.value}（{oralResult.chewingFunction.normalRange}）
+                  {oralResult.chewingFunction.value}（
+                  {oralResult.chewingFunction.normalRange}）
                 </td>
-                <td>
-                  {oralResult.chewingFunction.status}
-                </td>
+                <td>{oralResult.chewingFunction.status}</td>
               </tr>
               <tr>
                 <th>7. 嚥下機能</th>
                 <td>
-                  {oralResult.swallowingFunction.value}（{oralResult.swallowingFunction.normalRange}）
+                  {oralResult.swallowingFunction.value}（
+                  {oralResult.swallowingFunction.normalRange}）
                 </td>
-                <td>
-                  {oralResult.swallowingFunction.status}
-                </td>
+                <td>{oralResult.swallowingFunction.status}</td>
               </tr>
               <tr>
                 <th>8. 口腔内・義歯の状態</th>
-                <td colSpan={2}>
-                  {exam.oralStatus ?? ""}
-                </td>
+                <td colSpan={2}>{exam.oralStatus ?? ""}</td>
               </tr>
             </tbody>
           </table>
         </div>
 
         {/* 管理計画書部分 */}
-        <OralFunctionManagementPlanPrint examinationId={oralFunctionAssessmentId} />
+        <OralFunctionManagementPlanPrint
+          examinationId={oralFunctionAssessmentId}
+        />
       </div>
     </div>
   );
