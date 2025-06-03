@@ -1,4 +1,5 @@
 import React from "react";
+import TongueU from "@/components/icons/TongueU";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -82,19 +83,24 @@ const OralHygieneSection: React.FC<Props> = ({
       <CardContent className="space-y-6 pt-6 bg-white">
         <div className="mt-6">
           <h3 className="text-xl font-bold mb-3">検査結果入力</h3>
-          <div className="space-y-6">
-            {/* 舌後方部 */}
-            <div className="space-y-2">
-              <h4 className="text-lg font-medium">舌後方部</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {["tongueBackLeft", "tongueBackCenter", "tongueBackRight"].map(
-                  (field, idx) => (
+          <div className="relative">
+            <TongueU className="absolute inset-0 w-full h-full text-red-600 opacity-20 pointer-events-none" />
+            <div className="space-y-6 relative z-10">
+              {/* 舌後方部 */}
+              <div className="space-y-2">
+                <h4 className="text-lg font-medium">舌後方部</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[
+                    "tongueBackRight",
+                    "tongueBackCenter",
+                    "tongueBackLeft",
+                  ].map((field, idx) => (
                     <div
                       key={field}
                       className="space-y-2 border p-4 rounded-lg"
                     >
                       <Label className="text-lg">
-                        {["左側", "中央", "右側"][idx]}
+                        {["右側", "中央", "左側"][idx]}
                       </Label>
                       <div className="flex flex-row gap-2 w-full">
                         {[0, 1, 2].map((score) => {
@@ -132,137 +138,143 @@ const OralHygieneSection: React.FC<Props> = ({
                         })}
                       </div>
                     </div>
-                  )
-                )}
-              </div>
-            </div>
-            {/* 舌中央部 */}
-            <div className="space-y-2">
-              <h4 className="text-lg font-medium">舌中央部</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {[
-                  "tongueMiddleLeft",
-                  "tongueMiddleCenter",
-                  "tongueMiddleRight",
-                ].map((field, idx) => (
-                  <div key={field} className="space-y-2 border p-4 rounded-lg">
-                    <Label className="text-lg">
-                      {["左側", "中央", "右側"][idx]}
-                    </Label>
-                    <div className="flex flex-row gap-2 w-full">
-                      {[0, 1, 2].map((score) => {
-                        const checked =
-                          value[field as keyof OralHygieneValue] ===
-                          String(score);
-                        return (
-                          <label
-                            key={score}
-                            className={`flex-1 w-full text-center cursor-pointer px-4 py-2 rounded-lg border transition select-none text-lg
-          ${
-            checked
-              ? "bg-blue-600 text-white shadow-inner"
-              : "bg-white border-gray-300"
-          }
-          active:scale-95
-        `}
-                          >
-                            <input
-                              type="radio"
-                              name={field}
-                              value={score}
-                              checked={checked}
-                              onChange={() =>
-                                onChange(
-                                  field as keyof OralHygieneValue,
-                                  String(score)
-                                )
-                              }
-                              className="sr-only"
-                            />
-                            {score}
-                          </label>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* 舌前方部 */}
-            <div className="space-y-2">
-              <h4 className="text-lg font-medium">舌前方部</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {[
-                  "tongueFrontLeft",
-                  "tongueFrontCenter",
-                  "tongueFrontRight",
-                ].map((field, idx) => (
-                  <div key={field} className="space-y-2 border p-4 rounded-lg">
-                    <Label className="text-lg">
-                      {["左側", "中央", "右側"][idx]}
-                    </Label>
-                    <div className="flex flex-row gap-2 w-full">
-                      {[0, 1, 2].map((score) => {
-                        const checked =
-                          value[field as keyof OralHygieneValue] ===
-                          String(score);
-                        return (
-                          <label
-                            key={score}
-                            className={`flex-1 w-full text-center cursor-pointer px-4 py-2 rounded-lg border transition select-none text-lg
-          ${
-            checked
-              ? "bg-blue-600 text-white shadow-inner"
-              : "bg-white border-gray-300"
-          }
-          active:scale-95
-        `}
-                          >
-                            <input
-                              type="radio"
-                              name={field}
-                              value={score}
-                              checked={checked}
-                              onChange={() =>
-                                onChange(
-                                  field as keyof OralHygieneValue,
-                                  String(score)
-                                )
-                              }
-                              className="sr-only"
-                            />
-                            {score}
-                          </label>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* 合計スコア・TCI・判定 */}
-            <div className="mt-6 p-4 border rounded-lg bg-gray-50">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-lg font-medium">
-                    合計スコア: {totalScore}
-                  </p>
-                  <p className="text-lg font-medium">
-                    TCI: {tci}%{" "}
-                    <span className="text-sm text-muted-foreground ml-2">
-                      {"※ TCI ≧ 50 → 低下（✕）、TCI < 50 → 正常（〇）"}
-                    </span>
-                  </p>
+                  ))}
                 </div>
-                <div className="text-xl font-bold">
-                  判定:{" "}
-                  {totalScore >= 9 ? (
-                    <span className="text-red-500">低下（✕）</span>
-                  ) : (
-                    <span className="text-green-500">正常（〇）</span>
-                  )}
+              </div>
+              {/* 舌中央部 */}
+              <div className="space-y-2">
+                <h4 className="text-lg font-medium">舌中央部</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[
+                    "tongueMiddleRight",
+                    "tongueMiddleLeft",
+                    "tongueMiddleCenter",
+                  ].map((field, idx) => (
+                    <div
+                      key={field}
+                      className="space-y-2 border p-4 rounded-lg"
+                    >
+                      <Label className="text-lg">
+                        {["右側", "中央", "左側"][idx]}
+                      </Label>
+                      <div className="flex flex-row gap-2 w-full">
+                        {[0, 1, 2].map((score) => {
+                          const checked =
+                            value[field as keyof OralHygieneValue] ===
+                            String(score);
+                          return (
+                            <label
+                              key={score}
+                              className={`flex-1 w-full text-center cursor-pointer px-4 py-2 rounded-lg border transition select-none text-lg
+          ${
+            checked
+              ? "bg-blue-600 text-white shadow-inner"
+              : "bg-white border-gray-300"
+          }
+          active:scale-95
+        `}
+                            >
+                              <input
+                                type="radio"
+                                name={field}
+                                value={score}
+                                checked={checked}
+                                onChange={() =>
+                                  onChange(
+                                    field as keyof OralHygieneValue,
+                                    String(score)
+                                  )
+                                }
+                                className="sr-only"
+                              />
+                              {score}
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 舌前方部 */}
+              <div className="space-y-2">
+                <h4 className="text-lg font-medium">舌前方部</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[
+                    "tongueFrontRight",
+                    "tongueFrontCenter",
+                    "tongueFrontLeft",
+                  ].map((field, idx) => (
+                    <div
+                      key={field}
+                      className="space-y-2 border p-4 rounded-lg"
+                    >
+                      <Label className="text-lg">
+                        {["右側", "中央", "左側"][idx]}
+                      </Label>
+                      <div className="flex flex-row gap-2 w-full">
+                        {[0, 1, 2].map((score) => {
+                          const checked =
+                            value[field as keyof OralHygieneValue] ===
+                            String(score);
+                          return (
+                            <label
+                              key={score}
+                              className={`flex-1 w-full text-center cursor-pointer px-4 py-2 rounded-lg border transition select-none text-lg
+          ${
+            checked
+              ? "bg-blue-600 text-white shadow-inner"
+              : "bg-white border-gray-300"
+          }
+          active:scale-95
+        `}
+                            >
+                              <input
+                                type="radio"
+                                name={field}
+                                value={score}
+                                checked={checked}
+                                onChange={() =>
+                                  onChange(
+                                    field as keyof OralHygieneValue,
+                                    String(score)
+                                  )
+                                }
+                                className="sr-only"
+                              />
+                              {score}
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 合計スコア・TCI・判定 */}
+              <div className="mt-6 p-4 border rounded-lg bg-gray-50">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-lg font-medium">
+                      合計スコア: {totalScore}
+                    </p>
+                    <p className="text-lg font-medium">
+                      TCI: {tci}%{" "}
+                      <span className="text-sm text-muted-foreground ml-2">
+                        {"※ TCI ≧ 50 → 低下（✕）、TCI < 50 → 正常（〇）"}
+                      </span>
+                    </p>
+                  </div>
+                  <div className="text-xl font-bold">
+                    判定:{" "}
+                    {totalScore >= 9 ? (
+                      <span className="text-red-500">低下（✕）</span>
+                    ) : (
+                      <span className="text-green-500">正常（〇）</span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
