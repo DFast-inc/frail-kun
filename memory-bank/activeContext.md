@@ -4,6 +4,7 @@
 - **口腔機能検査（TCI/舌苔指数）の9ブロック化・合計スコア/TCI/判定ロジックの共通化・UI修正**
 - **口腔機能検査新規登録・編集ページ（new/page.tsx, edit/page.tsx）の7分割コンポーネント化・UI/ロジック共通化**
 - **NumericKeyboard（電卓型ソフトウェアキーボード）をOralDrynessSection, OralBitingForceSection, TonguePressureSection, ChewingFunctionSectionに展開し、バリデーション・先頭0除去・入力制御をTongueMovementSectionと統一。口腔衛生状態・嚥下機能以外の全検査で共通化完了。**
++ **口腔乾燥・舌圧評価セクションを「3回入力→平均値算出」コンポーネントにリファクタリングし、平均値のみDB保存に対応。**
 - **管理指導記録簿枠組みUIの追加（/patients/[id]ページ）・印刷専用ページ新設・遷移ボタン追加**
 - **管理指導記録簿の一括保存UI/UXへの刷新（各列の保存ボタン廃止・一括保存ボタン新設）**
 - **管理計画書印刷ページ（/patients/[patientId]/examinations/oral-function-assessment/[oralFunctionAssessmentId]/management-plan-edit/print）の「口腔機能の状態」テーブルをoralFunctionAssessmentJudge.tsのtoResultStruct共通ロジックに統一**

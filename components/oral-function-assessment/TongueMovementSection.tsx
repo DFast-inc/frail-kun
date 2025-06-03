@@ -167,28 +167,28 @@ const TongueMovementSection: React.FC<Props> = ({
             </div>
           </div>
         </div>
-        {!isMobile && (
-          <NumericKeyboard
-            onInput={(key: string) => {
-              if (!focusedField) return;
-              const field = focusedField;
-              const current = value[field] || "";
-              let newVal: string;
-              if (key === "backspace") {
-                newVal = current.slice(0, -1);
-              } else if (/^[1-9]$/.test(key) && current === "0") {
-                newVal = key;
-              } else {
-                newVal = current + key;
-              }
-              if (VALID_NUMERIC.test(newVal)) {
-                onChange(field, newVal);
-              }
-            }}
-            className="mt-4"
-          />
-        )}
       </CardContent>
+      {!isMobile && (
+        <NumericKeyboard
+          onInput={(key: string) => {
+            if (!focusedField) return;
+            const field = focusedField;
+            const current = value[field] || "";
+            let newVal: string;
+            if (key === "backspace") {
+              newVal = current.slice(0, -1);
+            } else if (/^[1-9]$/.test(key) && current === "0") {
+              newVal = key;
+            } else {
+              newVal = current + key;
+            }
+            if (VALID_NUMERIC.test(newVal)) {
+              onChange(field, newVal);
+            }
+          }}
+          className="mt-4"
+        />
+      )}
     </Card>
   );
 };

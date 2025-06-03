@@ -29,7 +29,7 @@ const NumericKeyboard: React.FC<NumericKeyboardProps> = ({
   className = "",
 }) => {
   return (
-    <div className={`grid grid-cols-3 gap-2 ${className}`}>
+    <div className={`grid grid-cols-3 gap-2 p-7 ${className}`}>
       {keys.map((key) => {
         const label = key === "backspace" ? "←" : key;
         return (

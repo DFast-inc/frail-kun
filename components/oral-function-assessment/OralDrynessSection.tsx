@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,9 +42,22 @@ const OralDrynessSection: React.FC<Props> = ({
   openSheet,
   setOpenSheet,
 }) => {
-  const [focusedField, setFocusedField] = useState<
-    "mucusValue" | "gauzeWeight" | null
-  >(null);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [mucus1, setMucus1] = useState<string>("");
+  const [mucus2, setMucus2] = useState<string>("");
+  const [mucus3, setMucus3] = useState<string>("");
+  const [mucusAvg, setMucusAvg] = useState<string>("");
+  useEffect(() => {
+    const nums = [
+      parseFloat(mucus1) || 0,
+      parseFloat(mucus2) || 0,
+      parseFloat(mucus3) || 0,
+    ];
+    const avg = nums.reduce((a, b) => a + b, 0) / 3;
+    const avgStr = isNaN(avg) ? "" : avg.toFixed(1);
+    setMucusAvg(avgStr);
+    if (avgStr) onChange("mucusValue", avgStr);
+  }, [mucus1, mucus2, mucus3]);
   const isMobile = useIsMobile();
   return (
     <Card className="border-2">
@@ -94,44 +107,69 @@ const OralDrynessSection: React.FC<Props> = ({
 
             {value.evaluationMethod === "method1" ? (
               <div className="space-y-4 mt-6 p-4 border rounded-lg">
-                <Label htmlFor="mucusValue" className="text-lg">
-                  口腔湿潤度測定器の値
-                </Label>
-                <Input
-                  id="mucusValue"
-                  type="text"
-                  value={value.mucusValue}
-                  readOnly
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    if (VALID_NUMERIC.test(v)) {
-                      onChange("mucusValue", v);
-                    }
-                  }}
-                  onFocus={() => setFocusedField("mucusValue")}
-                  placeholder="例: 28.5"
-                  className="text-lg py-6"
-                />
-                <p className="text-lg text-muted-foreground">
-                  基準値: 27.0以上が正常
-                </p>
-                {value.mucusValue && (
-                  <div className="mt-4 p-4 border rounded-lg bg-gray-50">
-                    <div className="flex justify-between items-center">
-                      <p className="text-lg font-medium">
-                        湿潤度値: {value.mucusValue}
-                      </p>
-                      <div className="text-xl font-bold">
-                        判定:{" "}
-                        {Number(value.mucusValue) < 27.0 ? (
-                          <span className="text-red-500">低下（✕）</span>
-                        ) : (
-                          <span className="text-green-500">正常（〇）</span>
-                        )}
+                <Label className="text-lg">口腔湿潤度測定器の値（3回）</Label>
+                <div className="grid grid-cols-3 gap-4 mt-2">
+                  {[
+                    { label: "1回目", val: mucus1, setter: setMucus1 },
+                    { label: "2回目", val: mucus2, setter: setMucus2 },
+                    { label: "3回目", val: mucus3, setter: setMucus3 },
+                  ].map((item, idx) => (
+                    <div key={idx} className="flex flex-col space-y-2">
+                      <Label className="text-base">{item.label}</Label>
+                      <Input
+                        type="text"
+                        value={item.val}
+                        readOnly
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          if (VALID_NUMERIC.test(v)) {
+                            item.setter(v);
+                          }
+                        }}
+                        onFocus={() =>
+                          setFocusedField(
+                            idx === 0
+                              ? "mucus1"
+                              : idx === 1
+                              ? "mucus2"
+                              : "mucus3"
+                          )
+                        }
+                        placeholder="数値を入力"
+                        className="text-lg py-4"
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4">
+                  <Label className="text-lg">平均値</Label>
+                  <Input
+                    type="text"
+                    value={mucusAvg}
+                    readOnly
+                    className="text-lg py-6"
+                  />
+                  <p className="text-lg text-muted-foreground">
+                    基準値: 27.0以上が正常
+                  </p>
+                  {mucusAvg && (
+                    <div className="mt-4 p-4 border rounded-lg bg-gray-50">
+                      <div className="flex justify-between items-center">
+                        <p className="text-lg font-medium">
+                          湿潤度平均値: {mucusAvg}
+                        </p>
+                        <div className="text-xl font-bold">
+                          判定:{" "}
+                          {Number(mucusAvg) < 27.0 ? (
+                            <span className="text-red-500">低下（✕）</span>
+                          ) : (
+                            <span className="text-green-500">正常（〇）</span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             ) : (
               <div className="space-y-4 mt-6 p-4 border rounded-lg">
@@ -182,8 +220,23 @@ const OralDrynessSection: React.FC<Props> = ({
         <NumericKeyboard
           onInput={(key: string) => {
             if (!focusedField) return;
-            const field = focusedField;
-            const current = value[field] || "";
+            let current = "";
+            let setter: (v: string) => void;
+            if (focusedField === "gauzeWeight") {
+              current = value.gauzeWeight || "";
+              setter = (v) => onChange("gauzeWeight", v);
+            } else if (focusedField === "mucus1") {
+              current = mucus1;
+              setter = setMucus1;
+            } else if (focusedField === "mucus2") {
+              current = mucus2;
+              setter = setMucus2;
+            } else if (focusedField === "mucus3") {
+              current = mucus3;
+              setter = setMucus3;
+            } else {
+              return;
+            }
             let newVal: string;
             if (key === "backspace") {
               newVal = current.slice(0, -1);
@@ -193,7 +246,7 @@ const OralDrynessSection: React.FC<Props> = ({
               newVal = current + key;
             }
             if (VALID_NUMERIC.test(newVal)) {
-              onChange(field, newVal);
+              setter(newVal);
             }
           }}
           className="mt-4"
