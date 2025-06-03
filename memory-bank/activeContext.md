@@ -22,6 +22,7 @@
 - **Supabase認証・ルートガードの導入（middlewareによる/patients・/settings配下のプロテクト、loginページServer Component化、lib/supabaseClient.tsサーバー専用化）**
 
 ## 最近の変更・進捗
+- **SwallowingFunctionSection（嚥下機能評価）をEAT-10の10問アンケート形式＋トグル風ボタンUIで実装し、内部ステートで合計スコアを自動計算・表示・判定を行う**
 - **OralHygieneSection.tsxの舌前方部・中央部・後方部すべてのスコアボタンを「横並び・flex-1・中央寄せ・押し込み感」に統一。label＋input[type=radio]＋Tailwindでカスタムラジオボタンを実装し、shadcn/uiのRadioGroupは使わず独自実装。クリック領域拡大・UX向上・現場要望に対応。**
 - **口腔機能検査（TCI/舌苔指数）のロジックを6ブロック→9ブロック（舌前方・中央部・後方部×左中央右）に統一。合計スコア・TCI計算式・判定基準（TCI≧50→低下（✕）、TCI≦50→正常（〇））を正規化。**
 - **lib/oralFunctionAssessmentJudge.tsのtoResultStruct/judgeOralHygieneStatus等を修正し、全画面で共通ロジックを利用。**
@@ -52,7 +53,7 @@
 - **Supabase認証・ルートガードをNext.js 15構成で導入。/patients・/settings配下はmiddlewareでセッション必須、loginページはServer Component＋Clientラッパー構成、lib/supabaseClient.tsはサーバー専用に分離**
 - その他、従来の進捗も維持
 
-- **[NEW] TongueMovementSection にソフトウェアキーボードの数学的バリデーション（正規表現）と先頭0置換対応を追加**
+- **[NEW] TeveeeMcvemettion にソフ にソフトウェンキ規換ードの数学的バリデーショ応（正規現）と先頭0置換対応追加
 
 ## 次のステップ
 - 管理指導記録簿枠組みUI・印刷ページのデータ連携・編集機能の拡張

@@ -1,9 +1,9 @@
 "use client";
-import type React from "react"
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { FileText, Calendar, TrendingUp, User, Heart, Eye } from "lucide-react"
+import type React from "react";
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { FileText, Calendar, TrendingUp, User, Heart, Eye } from "lucide-react";
 
 /**
  * 管理指導記録簿の枠組みUI（リッチデザイン版）
@@ -11,53 +11,94 @@ import { FileText, Calendar, TrendingUp, User, Heart, Eye } from "lucide-react"
 /** oral_function_examの件数分だけ列を動的に描画する */
 
 const oralFunctionItems = [
-  { id: 1, name: "栄養・体重", icon: Heart, color: "bg-gray-100 text-gray-700" },
+  {
+    id: 1,
+    name: "栄養・体重",
+    icon: Heart,
+    color: "bg-gray-100 text-gray-700",
+  },
   { id: 2, name: "口腔衛生", icon: Eye, color: "bg-gray-100 text-gray-700" },
-  { id: 3, name: "口腔乾燥", icon: FileText, color: "bg-gray-100 text-gray-700" },
-  { id: 4, name: "咬合・義歯", icon: TrendingUp, color: "bg-gray-100 text-gray-700" },
+  {
+    id: 3,
+    name: "口腔乾燥",
+    icon: FileText,
+    color: "bg-gray-100 text-gray-700",
+  },
+  {
+    id: 4,
+    name: "咬合・義歯",
+    icon: TrendingUp,
+    color: "bg-gray-100 text-gray-700",
+  },
   { id: 5, name: "口腔機能", icon: User, color: "bg-gray-100 text-gray-700" },
   { id: 6, name: "舌機能", icon: Calendar, color: "bg-gray-100 text-gray-700" },
-  { id: 7, name: "咀嚼機能", icon: FileText, color: "bg-gray-100 text-gray-700" },
-]
+  {
+    id: 7,
+    name: "咀嚼機能",
+    icon: FileText,
+    color: "bg-gray-100 text-gray-700",
+  },
+];
 
 const observationItems = [
   { id: 1, name: "全身状態", color: "bg-gray-100 text-gray-700" },
   { id: 2, name: "口腔機能", color: "bg-gray-100 text-gray-700" },
   { id: 3, name: "その他", color: "bg-gray-100 text-gray-700" },
-]
+];
 
-export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) => {
-
+export const ManagementGuidanceRecordSheet = ({
+  compareData,
+}: {
+  compareData: any;
+}) => {
   // 評価値→ラベル変換
-  const evalLabel = (v: number) => v === 1 ? "改善" : v === 2 ? "著変なし" : v === 3 ? "悪化" : "";
+  const evalLabel = (v: number) =>
+    v === 1 ? "改善" : v === 2 ? "著変なし" : v === 3 ? "悪化" : "";
 
   // 所見・管理内容フォームの状態管理
-  const [formState, setFormState] = useState<{ [examId: string]: { generalCondition: string, oralFunction: string, other: string, managementContent: string } }>(
-    () => {
-      // 初期値: compareDataから生成
-      const initial: { [examId: string]: { generalCondition: string, oralFunction: string, other: string, managementContent: string } } = {};
-      (compareData || []).forEach((d: any) => {
-        initial[d.id] = {
-          generalCondition: d.generalConditionNote || "",
-          oralFunction: d.oralFunctionNote || "",
-          other: d.otherNote || "",
-          managementContent: d.managementContentNote || "",
-        };
-      });
-      return initial;
-    }
-  );
+  const [formState, setFormState] = useState<{
+    [examId: string]: {
+      generalCondition: string;
+      oralFunction: string;
+      other: string;
+      managementContent: string;
+    };
+  }>(() => {
+    // 初期値: compareDataから生成
+    const initial: {
+      [examId: string]: {
+        generalCondition: string;
+        oralFunction: string;
+        other: string;
+        managementContent: string;
+      };
+    } = {};
+    (compareData || []).forEach((d: any) => {
+      initial[d.id] = {
+        generalCondition: d.generalConditionNote || "",
+        oralFunction: d.oralFunctionNote || "",
+        other: d.otherNote || "",
+        managementContent: d.managementContentNote || "",
+      };
+    });
+    return initial;
+  });
 
-  const handleChange = (examId: string, field: "generalCondition" | "oralFunction" | "other" | "managementContent", value: string) => {
-    setFormState(prev => ({
+  const handleChange = (
+    examId: string,
+    field: "generalCondition" | "oralFunction" | "other" | "managementContent",
+    value: string
+  ) => {
+    setFormState((prev) => ({
       ...prev,
-      [examId]: { ...prev[examId], [field]: value }
+      [examId]: { ...prev[examId], [field]: value },
     }));
   };
 
   // 保存ボタン押下時のAPI Route呼び出し
   const handleSave = async (examId: string) => {
-    const { generalCondition, oralFunction, other, managementContent } = formState[examId] || {};
+    const { generalCondition, oralFunction, other, managementContent } =
+      formState[examId] || {};
     const res = await fetch("/api/management-guidance-record", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -78,16 +119,19 @@ export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) =
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <Card className="max-w-7xl mx-auto shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
-        <CardHeader className="text-center space-y-4 bg-gray-800 text-white rounded-t-lg">
-          <div className="flex items-center justify-center gap-3">
-            <FileText className="w-8 h-8" />
-            <CardTitle className="text-3xl font-bold tracking-wide">管理指導記録簿</CardTitle>
+    <div className="min-h-screen bg-gray-50">
+      <Card className="">
+        <CardHeader className="text-center space-y-4 bg-blue-50 rounded-t-lg">
+          <div className="flex items-start justify-start gap-3">
+            <CardTitle className="text-3xl font-bold tracking-wide">
+              管理指導記録簿
+            </CardTitle>
           </div>
-          <div className="flex items-center justify-center gap-2 text-gray-300">
+          <div className="flex items-center justify-start gap-2 ">
             <TrendingUp className="w-4 h-4" />
-            <span className="text-sm font-medium">評価（1：改善　2：著変なし　3：悪化）</span>
+            <span className="text-sm font-medium">
+              評価（1：改善　2：著変なし　3：悪化）
+            </span>
           </div>
         </CardHeader>
 
@@ -122,7 +166,10 @@ export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) =
                 </tr>
                 <tr className="bg-slate-50">
                   {compareData.map((d: any, i: number) => (
-                    <th key={i} className="border border-slate-200 p-3 bg-gray-100">
+                    <th
+                      key={i}
+                      className="border border-slate-200 p-3 bg-gray-100"
+                    >
                       <Badge variant="outline" className="text-xs">
                         {`評価${i + 1}`}
                       </Badge>
@@ -131,15 +178,23 @@ export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) =
                 </tr>
                 <tr className="bg-white">
                   {compareData.map((d: any, i: number) => (
-                    <th key={i} className="border border-slate-200 p-2 text-xs font-medium text-slate-600 bg-slate-50">
+                    <th
+                      key={i}
+                      className="border border-slate-200 p-2 text-xs font-medium text-slate-600 bg-slate-50"
+                    >
                       <div className="space-y-1">
-                        <div className="font-semibold text-slate-700">{`評価${i + 1}`}</div>
+                        <div className="font-semibold text-slate-700">{`評価${
+                          i + 1
+                        }`}</div>
                         <div className="text-xs text-slate-500">
                           {(() => {
-                            const dateObj = d && d.date ? new Date(d.date) : null;
+                            const dateObj =
+                              d && d.date ? new Date(d.date) : null;
                             return (
                               <div>
-                                年: {dateObj ? dateObj.getFullYear() : "_____"} 月: {dateObj ? dateObj.getMonth() + 1 : "_____"} 日: {dateObj ? dateObj.getDate() : "_____"}
+                                年: {dateObj ? dateObj.getFullYear() : "_____"}{" "}
+                                月: {dateObj ? dateObj.getMonth() + 1 : "_____"}{" "}
+                                日: {dateObj ? dateObj.getDate() : "_____"}
                               </div>
                             );
                           })()}
@@ -152,7 +207,10 @@ export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) =
               <tbody>
                 {/* 口腔機能の状態 */}
                 {oralFunctionItems.map((item, index) => (
-                  <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
+                  <tr
+                    key={item.id}
+                    className="hover:bg-gray-50 transition-colors duration-200"
+                  >
                     {index === 0 && (
                       <td
                         className="border border-slate-200 p-4 font-bold text-slate-700 bg-gray-100"
@@ -176,29 +234,37 @@ export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) =
                         <div className={`p-2 rounded-lg ${item.color}`}>
                           <item.icon className="w-4 h-4" />
                         </div>
-                        <span className="font-medium text-slate-700">{item.name}</span>
+                        <span className="font-medium text-slate-700">
+                          {item.name}
+                        </span>
                       </div>
                     </td>
                     {compareData.map((d: any, i: number) => {
                       // oralFunctionItemsのnameとcompareDataのkeyのマッピング
                       const scoreKeyMap: { [key: string]: string } = {
                         "栄養・体重": "bitingForce",
-                        "口腔衛生": "oralHygiene",
-                        "口腔乾燥": "oralDryness",
+                        口腔衛生: "oralHygiene",
+                        口腔乾燥: "oralDryness",
                         "咬合・義歯": "bitingForce",
-                        "口腔機能": "swallowingFunction",
-                        "舌機能": "tongueMotor",
-                        "咀嚼機能": "chewingFunction",
+                        口腔機能: "swallowingFunction",
+                        舌機能: "tongueMotor",
+                        咀嚼機能: "chewingFunction",
                       };
                       const scoreKey = scoreKeyMap[item.name] || "";
-                      const value = d && typeof d[scoreKey] === "number" ? d[scoreKey] : "_____";
+                      const value =
+                        d && typeof d[scoreKey] === "number"
+                          ? d[scoreKey]
+                          : "_____";
                       return (
                         <td
                           key={i}
                           className="border border-slate-200 p-3 hover:bg-gray-50 transition-colors duration-150"
                         >
                           <div className="w-full h-8 rounded border-2 border-dashed border-slate-300 hover:border-gray-400 transition-colors duration-150 flex items-center justify-center">
-                            評価: {typeof value === "number" ? `${value} ${evalLabel(value)}` : "_____"}
+                            評価:{" "}
+                            {typeof value === "number"
+                              ? `${value} ${evalLabel(value)}`
+                              : "_____"}
                           </div>
                         </td>
                       );
@@ -208,7 +274,10 @@ export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) =
 
                 {/* 所見 */}
                 {observationItems.map((item, index) => (
-                  <tr key={`obs-${item.id}`} className="hover:bg-gray-50 transition-colors duration-200">
+                  <tr
+                    key={`obs-${item.id}`}
+                    className="hover:bg-gray-50 transition-colors duration-200"
+                  >
                     {index === 0 && (
                       <td
                         className="border border-slate-200 p-4 font-bold text-slate-700 bg-gray-100"
@@ -232,7 +301,9 @@ export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) =
                         <div className={`p-2 rounded-lg ${item.color}`}>
                           <FileText className="w-4 h-4" />
                         </div>
-                        <span className="font-medium text-slate-700">{item.name}</span>
+                        <span className="font-medium text-slate-700">
+                          {item.name}
+                        </span>
                       </div>
                     </td>
                     {compareData.map((d: any, i: number) => {
@@ -251,7 +322,9 @@ export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) =
                             <textarea
                               className="w-full h-10 rounded border border-slate-300 p-1 text-xs"
                               value={formState[examId]?.[field] || ""}
-                              onChange={e => handleChange(examId, field, e.target.value)}
+                              onChange={(e) =>
+                                handleChange(examId, field, e.target.value)
+                              }
                               placeholder={`${item.name}を入力`}
                             />
                           ) : (
@@ -265,7 +338,10 @@ export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) =
 
                 {/* 管理内容 */}
                 <tr className="bg-gray-50 hover:bg-gray-100 transition-colors duration-200">
-                  <td className="border border-slate-200 p-4 font-bold text-slate-700 bg-gray-200" colSpan={2}>
+                  <td
+                    className="border border-slate-200 p-4 font-bold text-slate-700 bg-gray-200"
+                    colSpan={2}
+                  >
                     <div className="flex items-center gap-3">
                       <div className="p-2 rounded-lg bg-gray-300 text-gray-800">
                         <TrendingUp className="w-5 h-5" />
@@ -285,7 +361,13 @@ export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) =
                             <textarea
                               className="w-full h-10 rounded border border-slate-300 p-1 text-xs"
                               value={formState[examId]?.managementContent || ""}
-                              onChange={e => handleChange(examId, "managementContent", e.target.value)}
+                              onChange={(e) =>
+                                handleChange(
+                                  examId,
+                                  "managementContent",
+                                  e.target.value
+                                )
+                              }
                               placeholder="管理内容を入力"
                             />
                           </div>
@@ -306,13 +388,15 @@ export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) =
               className="px-6 py-2 bg-blue-600 text-white rounded font-bold hover:bg-blue-700 transition"
               onClick={async () => {
                 // 一括保存ロジック
-                const updates = Object.entries(formState).map(([examId, values]) => ({
-                  id: examId,
-                  general_condition_note: values.generalCondition,
-                  oral_function_note: values.oralFunction,
-                  other_note: values.other,
-                  management_content_note: values.managementContent,
-                }));
+                const updates = Object.entries(formState).map(
+                  ([examId, values]) => ({
+                    id: examId,
+                    general_condition_note: values.generalCondition,
+                    oral_function_note: values.oralFunction,
+                    other_note: values.other,
+                    management_content_note: values.managementContent,
+                  })
+                );
                 let success = true;
                 let errorMsg = "";
                 for (const update of updates) {
@@ -345,7 +429,9 @@ export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) =
             <div className="flex items-center justify-between text-sm text-slate-600">
               <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4" />
-                <span>記録作成日: {new Date().toLocaleDateString("ja-JP")}</span>
+                <span>
+                  記録作成日: {new Date().toLocaleDateString("ja-JP")}
+                </span>
               </div>
               <div className="flex items-center gap-4">
                 <Badge variant="secondary" className="flex items-center gap-1">
@@ -358,7 +444,7 @@ export const ManagementGuidanceRecordSheet = ({compareData}:{compareData:any}) =
         </CardContent>
       </Card>
     </div>
-  )
-}
+  );
+};
 
-export default ManagementGuidanceRecordSheet
+export default ManagementGuidanceRecordSheet;

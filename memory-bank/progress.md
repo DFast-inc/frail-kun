@@ -1,4 +1,5 @@
 ## 現在動作しているもの
+- **[NEW] SwallowingFunctionSection（嚥下機能評価）をEAT-10の10問アンケート形式＋トグル風ボタンUIで実装し、内部ステートで合計スコアを自動計算・表示・判定を行う**
 - **[NEW] TongueMovementSection にソフトウェアキーボードの数値バリデーションと先頭0置換対応を追加**
 - **[NEW] NumericKeyboard（電卓型ソフトウェアキーボード）をOralDrynessSection, OralBitingForceSection, TonguePressureSection, ChewingFunctionSectionに展開し、バリデーション・先頭0除去・入力制御をTongueMovementSectionと統一。口腔衛生状態・嚥下機能以外の全検査で共通化完了。**
 - **[NEW] OralHygieneSection.tsxの舌前方部・中央部・後方部すべてのスコアボタンを「横並び・flex-1・中央寄せ・押し込み感」に統一。label＋input[type=radio]＋Tailwindでカスタムラジオボタンを実装し、shadcn/uiのRadioGroupは使わず独自実装。クリック領域拡大・UX向上・現場要望に対応。**

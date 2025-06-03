@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,6 +39,35 @@ const SwallowingFunctionSection: React.FC<Props> = ({
   openSheet,
   setOpenSheet,
 }) => {
+  const eat10Questions = [
+    "この3ヵ月の間に、飲み込みの問題が原因で、体重が減少しましたか？",
+    "この3ヵ月の間に、飲み込みの問題が原因で、自宅や病院／施設での食事以外は食べたくないと思ったことはありますか？",
+    "液体を飲み込む時に、余分な努力が必要だ",
+    "固形物を飲み込む時に、余分な努力が必要だ",
+    "錠剤を飲み込む時に、余分な努力が必要だ",
+    "飲み込むことが苦痛だ",
+    "食べる喜びが飲み込みによって影響を受けている",
+    "飲み込む時に、食べ物がのどに引っかかる",
+    "食べる時に咳が出る",
+    "飲み込むことはストレスが多い",
+  ];
+  const eat10Options = [
+    "0点：体重は減少していない",
+    "1点：よくわからない",
+    "2点：この3ヵ月間で、0～1kg体重が減少した",
+    "3点：この3ヵ月間で、1～3kg体重が減少した",
+    "4点：この3ヵ月で、3kg以上体重が減少した",
+  ];
+  const [eat10Answers, setEat10Answers] = useState<number[]>(Array(10).fill(0));
+  useEffect(() => {
+    const total = eat10Answers.reduce((sum, v) => sum + v, 0);
+    onChange("eat10Score", total.toString());
+  }, [eat10Answers]);
+  const handleEat10Change = (index: number, score: number) => {
+    const newAnswers = [...eat10Answers];
+    newAnswers[index] = score;
+    setEat10Answers(newAnswers);
+  };
   return (
     <Card className="border-2">
       <CardHeader className="bg-blue-100 rounded-t-lg flex flex-row justify-between items-center">
@@ -89,40 +118,51 @@ const SwallowingFunctionSection: React.FC<Props> = ({
 
             {value.evaluationMethod === "eat10" ? (
               <div className="space-y-4 mt-6 p-4 border rounded-lg">
-                <Label htmlFor="eat10Score" className="text-lg">
-                  EAT-10 スコア
-                </Label>
-                <Input
-                  id="eat10Score"
-                  type="number"
-                  step="1"
-                  min="0"
-                  max="40"
-                  value={value.eat10Score}
-                  onChange={(e) => onChange("eat10Score", e.target.value)}
-                  placeholder="例: 5"
-                  className="text-lg py-6"
-                />
-                <p className="text-lg text-muted-foreground">
-                  基準値: 3点未満が正常
-                </p>
-                {value.eat10Score && (
-                  <div className="mt-4 p-4 border rounded-lg bg-gray-50">
-                    <div className="flex justify-between items-center">
-                      <p className="text-lg font-medium">
-                        EAT-10 スコア: {value.eat10Score}
-                      </p>
-                      <div className="text-xl font-bold">
-                        判定:{" "}
-                        {Number(value.eat10Score) >= 3 ? (
-                          <span className="text-red-500">低下（✕）</span>
-                        ) : (
-                          <span className="text-green-500">正常（〇）</span>
-                        )}
-                      </div>
+                {eat10Questions.map((question, idx) => (
+                  <div key={idx} className="mb-4">
+                    <p className="text-lg font-medium mb-2">
+                      Q{idx + 1}. {question}
+                    </p>
+                    <div className="flex space-x-4">
+                      {eat10Options.map((label, optIdx) => (
+                        <label
+                          key={optIdx}
+                          className={`flex-1 w-full text-center cursor-pointer px-4 py-2 rounded-lg border transition select-none text-lg ${
+                            eat10Answers[idx] === optIdx
+                              ? "bg-blue-600 text-white shadow-inner"
+                              : "bg-white border-gray-300"
+                          } active:scale-95`}
+                        >
+                          <input
+                            type="radio"
+                            name={`eat10-${idx}`}
+                            value={optIdx}
+                            checked={eat10Answers[idx] === optIdx}
+                            onChange={() => handleEat10Change(idx, optIdx)}
+                            className="sr-only"
+                          />
+                          <span className="text-lg">{label}</span>
+                        </label>
+                      ))}
                     </div>
                   </div>
-                )}
+                ))}
+                <div className="mt-4 p-4 border rounded-lg bg-gray-50">
+                  <div className="flex justify-between items-center">
+                    <p className="text-lg font-medium">
+                      EAT-10 合計スコア:{" "}
+                      {eat10Answers.reduce((sum, v) => sum + v, 0)}
+                    </p>
+                    <div className="text-xl font-bold">
+                      判定:{" "}
+                      {eat10Answers.reduce((sum, v) => sum + v, 0) >= 3 ? (
+                        <span className="text-red-500">低下（✕）</span>
+                      ) : (
+                        <span className="text-green-500">正常（〇）</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="space-y-4 mt-6 p-4 border rounded-lg">

@@ -88,10 +88,8 @@ export default function ManagementPlanEditPrintClient({
           maxWidth: "1000px",
           margin: "0 auto",
           background: "#fff",
-          padding: "32px",
           fontFamily: "serif",
           color: "#222",
-          border: "1px solid #ccc",
         }}
       >
         <style>{`

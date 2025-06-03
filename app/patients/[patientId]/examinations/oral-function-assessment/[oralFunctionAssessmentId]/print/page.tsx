@@ -12,7 +12,7 @@ import { clinicDetect } from "@/lib/clinicDetect";
 // A4印刷用のスタイルをインラインで定義
 const a4Style = `
 @media print {
-  @page { size: A4; margin: 20mm; }
+  @page { size: A4; margin: 0mm; padding-right: 1.5rem; }
   html, body { width: 210mm; height: 297mm; }
 }
 .print-a4 {
@@ -23,7 +23,7 @@ const a4Style = `
   font-size: 12pt;
   font-family: 'Noto Sans JP', sans-serif;
   margin: 0 auto;
-  padding: 0;
+  padding: 1rem;
 }
 .print-table {
   width: 100%;
@@ -51,122 +51,6 @@ const a4Style = `
   font-size: 11pt;
 }
 `;
-
-// 検査項目定義（画像に基づく）
-const items = [
-  {
-    group: "① 口腔衛生状態不良",
-    tests: [
-      {
-        label: "舌苔の付着程度",
-        criteria: "50%以上",
-        unit: "%",
-        key: "plaque_control",
-        judgedKey: "tongueCoating",
-      },
-    ],
-  },
-  {
-    group: "② 口腔乾燥",
-    tests: [
-      {
-        label: "口腔粘膜湿潤度",
-        criteria: "27未満",
-        unit: "",
-        key: "mucus_value",
-        judgedKey: "oralMucosaWetness",
-      },
-      {
-        label: "唾液量",
-        criteria: "2g/2分以下",
-        unit: "",
-        key: "gauze_weight",
-        judgedKey: "salivaAmount",
-      },
-    ],
-  },
-  {
-    group: "③ 咬合力低下",
-    tests: [
-      {
-        label: "咬合力検査",
-        criteria: "200N未満",
-        unit: "N",
-        key: "occlusion_force",
-        judgedKey: "bitingForce",
-      },
-      {
-        label: "残存歯数",
-        criteria: "20本未満",
-        unit: "本",
-        key: "remaining_teeth",
-        judgedKey: "remainingTeeth",
-      },
-    ],
-  },
-  {
-    group: "④舌口唇運動機能低下",
-    tests: [
-      {
-        label: "オーラルディアドコキネシス",
-        criteria: "どれか1つでも6回/秒未満",
-        unit: "/pa//ta//ka/回/秒",
-        key: "pa_sound",
-        judgedKey: "oralDiadochokinesis",
-      },
-    ],
-  },
-  {
-    group: "④ 低舌圧",
-    tests: [
-      {
-        label: "舌圧検査",
-        criteria: "30kPa未満",
-        unit: "kPa",
-        key: "tongue_pressure_value",
-        judgedKey: "tonguePressure",
-      },
-    ],
-  },
-  {
-    group: "⑤ 咀嚼機能低下",
-    tests: [
-      {
-        label: "咀嚼能力検査",
-        criteria: "100mg/dL未満",
-        unit: "mg/dL",
-        key: "glucose_concentration",
-        judgedKey: "chewingAbility",
-      },
-      {
-        label: "咀嚼能力スコア法",
-        criteria: "スコア0,1,2",
-        unit: "",
-        key: "masticatory_score",
-        judgedKey: "chewingScore",
-      },
-    ],
-  },
-  {
-    group: "⑥ 嚥下機能低下",
-    tests: [
-      {
-        label: "嚥下スクリーニング検査（EAT-10）",
-        criteria: "3点以上",
-        unit: "点",
-        key: "eat10_score",
-        judgedKey: "eat10",
-      },
-      {
-        label: "自記式質問票（聖隷式嚥下質問紙）",
-        criteria: "3項目以上該当",
-        unit: "",
-        key: "seirei_score",
-        judgedKey: "questionnaire",
-      },
-    ],
-  },
-];
 
 // 日付フォーマット
 function formatDate(dateStr?: string) {

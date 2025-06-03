@@ -470,7 +470,7 @@ export default async function ManagementGuidanceRecordPrintPage({
   // 既存デザイン・UIは一切変更しない
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center py-8 print:bg-white">
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center print:bg-white">
       {/* 印刷用タイトル */}
       <h1 className="text-2xl font-bold mb-6 print:text-black print:mb-4 print:text-center">
         管理指導記録簿

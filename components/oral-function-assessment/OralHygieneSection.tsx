@@ -83,28 +83,28 @@ const OralHygieneSection: React.FC<Props> = ({
         <div className="mt-6">
           <h3 className="text-xl font-bold mb-3">検査結果入力</h3>
           <div className="space-y-6">
-            {/* 舌前方部 */}
+            {/* 舌後方部 */}
             <div className="space-y-2">
-              <h4 className="text-lg font-medium">舌前方部</h4>
+              <h4 className="text-lg font-medium">舌後方部</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {[
-                  "tongueFrontLeft",
-                  "tongueFrontCenter",
-                  "tongueFrontRight",
-                ].map((field, idx) => (
-                  <div key={field} className="space-y-2 border p-4 rounded-lg">
-                    <Label className="text-lg">
-                      {["左側", "中央", "右側"][idx]}
-                    </Label>
-                    <div className="flex flex-row gap-2 w-full">
-                      {[0, 1, 2].map((score) => {
-                        const checked =
-                          value[field as keyof OralHygieneValue] ===
-                          String(score);
-                        return (
-                          <label
-                            key={score}
-                            className={`flex-1 w-full text-center cursor-pointer px-4 py-2 rounded-lg border transition select-none text-lg
+                {["tongueBackLeft", "tongueBackCenter", "tongueBackRight"].map(
+                  (field, idx) => (
+                    <div
+                      key={field}
+                      className="space-y-2 border p-4 rounded-lg"
+                    >
+                      <Label className="text-lg">
+                        {["左側", "中央", "右側"][idx]}
+                      </Label>
+                      <div className="flex flex-row gap-2 w-full">
+                        {[0, 1, 2].map((score) => {
+                          const checked =
+                            value[field as keyof OralHygieneValue] ===
+                            String(score);
+                          return (
+                            <label
+                              key={score}
+                              className={`flex-1 w-full text-center cursor-pointer px-4 py-2 rounded-lg border transition select-none text-lg
           ${
             checked
               ? "bg-blue-600 text-white shadow-inner"
@@ -112,27 +112,28 @@ const OralHygieneSection: React.FC<Props> = ({
           }
           active:scale-95
         `}
-                          >
-                            <input
-                              type="radio"
-                              name={field}
-                              value={score}
-                              checked={checked}
-                              onChange={() =>
-                                onChange(
-                                  field as keyof OralHygieneValue,
-                                  String(score)
-                                )
-                              }
-                              className="sr-only"
-                            />
-                            {score}
-                          </label>
-                        );
-                      })}
+                            >
+                              <input
+                                type="radio"
+                                name={field}
+                                value={score}
+                                checked={checked}
+                                onChange={() =>
+                                  onChange(
+                                    field as keyof OralHygieneValue,
+                                    String(score)
+                                  )
+                                }
+                                className="sr-only"
+                              />
+                              {score}
+                            </label>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                )}
               </div>
             </div>
             {/* 舌中央部 */}
@@ -187,28 +188,29 @@ const OralHygieneSection: React.FC<Props> = ({
                 ))}
               </div>
             </div>
-            {/* 舌後方部 */}
+
+            {/* 舌前方部 */}
             <div className="space-y-2">
-              <h4 className="text-lg font-medium">舌後方部</h4>
+              <h4 className="text-lg font-medium">舌前方部</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {["tongueBackLeft", "tongueBackCenter", "tongueBackRight"].map(
-                  (field, idx) => (
-                    <div
-                      key={field}
-                      className="space-y-2 border p-4 rounded-lg"
-                    >
-                      <Label className="text-lg">
-                        {["左側", "中央", "右側"][idx]}
-                      </Label>
-                      <div className="flex flex-row gap-2 w-full">
-                        {[0, 1, 2].map((score) => {
-                          const checked =
-                            value[field as keyof OralHygieneValue] ===
-                            String(score);
-                          return (
-                            <label
-                              key={score}
-                              className={`flex-1 w-full text-center cursor-pointer px-4 py-2 rounded-lg border transition select-none text-lg
+                {[
+                  "tongueFrontLeft",
+                  "tongueFrontCenter",
+                  "tongueFrontRight",
+                ].map((field, idx) => (
+                  <div key={field} className="space-y-2 border p-4 rounded-lg">
+                    <Label className="text-lg">
+                      {["左側", "中央", "右側"][idx]}
+                    </Label>
+                    <div className="flex flex-row gap-2 w-full">
+                      {[0, 1, 2].map((score) => {
+                        const checked =
+                          value[field as keyof OralHygieneValue] ===
+                          String(score);
+                        return (
+                          <label
+                            key={score}
+                            className={`flex-1 w-full text-center cursor-pointer px-4 py-2 rounded-lg border transition select-none text-lg
           ${
             checked
               ? "bg-blue-600 text-white shadow-inner"
@@ -216,30 +218,30 @@ const OralHygieneSection: React.FC<Props> = ({
           }
           active:scale-95
         `}
-                            >
-                              <input
-                                type="radio"
-                                name={field}
-                                value={score}
-                                checked={checked}
-                                onChange={() =>
-                                  onChange(
-                                    field as keyof OralHygieneValue,
-                                    String(score)
-                                  )
-                                }
-                                className="sr-only"
-                              />
-                              {score}
-                            </label>
-                          );
-                        })}
-                      </div>
+                          >
+                            <input
+                              type="radio"
+                              name={field}
+                              value={score}
+                              checked={checked}
+                              onChange={() =>
+                                onChange(
+                                  field as keyof OralHygieneValue,
+                                  String(score)
+                                )
+                              }
+                              className="sr-only"
+                            />
+                            {score}
+                          </label>
+                        );
+                      })}
                     </div>
-                  )
-                )}
+                  </div>
+                ))}
               </div>
             </div>
+
             {/* 合計スコア・TCI・判定 */}
             <div className="mt-6 p-4 border rounded-lg bg-gray-50">
               <div className="flex justify-between items-center">
