@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +11,9 @@ import {
 } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import NumericKeyboard from "@/components/ui/NumericKeyboard";
+import { useIsMobile } from "@/components/ui/use-mobile";
+const VALID_NUMERIC = /^(?:0|[1-9]\d*)(?:\.\d*)?$|^$/;
 import {
   Select,
   SelectContent,
@@ -39,6 +42,10 @@ const OralDrynessSection: React.FC<Props> = ({
   openSheet,
   setOpenSheet,
 }) => {
+  const [focusedField, setFocusedField] = useState<
+    "mucusValue" | "gauzeWeight" | null
+  >(null);
+  const isMobile = useIsMobile();
   return (
     <Card className="border-2">
       <CardHeader className="bg-blue-100 rounded-t-lg flex flex-row justify-between items-center">
@@ -92,10 +99,16 @@ const OralDrynessSection: React.FC<Props> = ({
                 </Label>
                 <Input
                   id="mucusValue"
-                  type="number"
-                  step="0.1"
+                  type="text"
                   value={value.mucusValue}
-                  onChange={(e) => onChange("mucusValue", e.target.value)}
+                  readOnly
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (VALID_NUMERIC.test(v)) {
+                      onChange("mucusValue", v);
+                    }
+                  }}
+                  onFocus={() => setFocusedField("mucusValue")}
                   placeholder="例: 28.5"
                   className="text-lg py-6"
                 />
@@ -127,10 +140,16 @@ const OralDrynessSection: React.FC<Props> = ({
                 </Label>
                 <Input
                   id="gauzeWeight"
-                  type="number"
-                  step="0.1"
+                  type="text"
                   value={value.gauzeWeight}
-                  onChange={(e) => onChange("gauzeWeight", e.target.value)}
+                  readOnly
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (VALID_NUMERIC.test(v)) {
+                      onChange("gauzeWeight", v);
+                    }
+                  }}
+                  onFocus={() => setFocusedField("gauzeWeight")}
                   placeholder="例: 2.5"
                   className="text-lg py-6"
                 />
@@ -159,6 +178,27 @@ const OralDrynessSection: React.FC<Props> = ({
           </div>
         </div>
       </CardContent>
+      {!isMobile && (
+        <NumericKeyboard
+          onInput={(key: string) => {
+            if (!focusedField) return;
+            const field = focusedField;
+            const current = value[field] || "";
+            let newVal: string;
+            if (key === "backspace") {
+              newVal = current.slice(0, -1);
+            } else if (/^[1-9]$/.test(key) && current === "0") {
+              newVal = key;
+            } else {
+              newVal = current + key;
+            }
+            if (VALID_NUMERIC.test(newVal)) {
+              onChange(field, newVal);
+            }
+          }}
+          className="mt-4"
+        />
+      )}
     </Card>
   );
 };

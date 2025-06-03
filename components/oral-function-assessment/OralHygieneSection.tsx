@@ -96,32 +96,41 @@ const OralHygieneSection: React.FC<Props> = ({
                     <Label className="text-lg">
                       {["左側", "中央", "右側"][idx]}
                     </Label>
-                    <RadioGroup
-                      value={value[field as keyof OralHygieneValue] || "0"}
-                      onValueChange={(v) =>
-                        onChange(field as keyof OralHygieneValue, v)
-                      }
-                      className="flex gap-4"
-                    >
-                      {[0, 1, 2].map((score) => (
-                        <div
-                          key={score}
-                          className="flex items-center space-x-2"
-                        >
-                          <RadioGroupItem
-                            value={String(score)}
-                            id={`${field}-${score}`}
-                            className="h-5 w-5"
-                          />
-                          <Label
-                            htmlFor={`${field}-${score}`}
-                            className="text-lg"
+                    <div className="flex flex-row gap-2 w-full">
+                      {[0, 1, 2].map((score) => {
+                        const checked =
+                          value[field as keyof OralHygieneValue] ===
+                          String(score);
+                        return (
+                          <label
+                            key={score}
+                            className={`flex-1 w-full text-center cursor-pointer px-4 py-2 rounded-lg border transition select-none text-lg
+          ${
+            checked
+              ? "bg-blue-600 text-white shadow-inner"
+              : "bg-white border-gray-300"
+          }
+          active:scale-95
+        `}
                           >
+                            <input
+                              type="radio"
+                              name={field}
+                              value={score}
+                              checked={checked}
+                              onChange={() =>
+                                onChange(
+                                  field as keyof OralHygieneValue,
+                                  String(score)
+                                )
+                              }
+                              className="sr-only"
+                            />
                             {score}
-                          </Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
+                          </label>
+                        );
+                      })}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -139,32 +148,41 @@ const OralHygieneSection: React.FC<Props> = ({
                     <Label className="text-lg">
                       {["左側", "中央", "右側"][idx]}
                     </Label>
-                    <RadioGroup
-                      value={value[field as keyof OralHygieneValue] || "0"}
-                      onValueChange={(v) =>
-                        onChange(field as keyof OralHygieneValue, v)
-                      }
-                      className="flex gap-4"
-                    >
-                      {[0, 1, 2].map((score) => (
-                        <div
-                          key={score}
-                          className="flex items-center space-x-2"
-                        >
-                          <RadioGroupItem
-                            value={String(score)}
-                            id={`${field}-${score}`}
-                            className="h-5 w-5"
-                          />
-                          <Label
-                            htmlFor={`${field}-${score}`}
-                            className="text-lg"
+                    <div className="flex flex-row gap-2 w-full">
+                      {[0, 1, 2].map((score) => {
+                        const checked =
+                          value[field as keyof OralHygieneValue] ===
+                          String(score);
+                        return (
+                          <label
+                            key={score}
+                            className={`flex-1 w-full text-center cursor-pointer px-4 py-2 rounded-lg border transition select-none text-lg
+          ${
+            checked
+              ? "bg-blue-600 text-white shadow-inner"
+              : "bg-white border-gray-300"
+          }
+          active:scale-95
+        `}
                           >
+                            <input
+                              type="radio"
+                              name={field}
+                              value={score}
+                              checked={checked}
+                              onChange={() =>
+                                onChange(
+                                  field as keyof OralHygieneValue,
+                                  String(score)
+                                )
+                              }
+                              className="sr-only"
+                            />
                             {score}
-                          </Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
+                          </label>
+                        );
+                      })}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -182,32 +200,41 @@ const OralHygieneSection: React.FC<Props> = ({
                       <Label className="text-lg">
                         {["左側", "中央", "右側"][idx]}
                       </Label>
-                      <RadioGroup
-                        value={value[field as keyof OralHygieneValue] || "0"}
-                        onValueChange={(v) =>
-                          onChange(field as keyof OralHygieneValue, v)
-                        }
-                        className="flex gap-4"
-                      >
-                        {[0, 1, 2].map((score) => (
-                          <div
-                            key={score}
-                            className="flex items-center space-x-2"
-                          >
-                            <RadioGroupItem
-                              value={String(score)}
-                              id={`${field}-${score}`}
-                              className="h-5 w-5"
-                            />
-                            <Label
-                              htmlFor={`${field}-${score}`}
-                              className="text-lg"
+                      <div className="flex flex-row gap-2 w-full">
+                        {[0, 1, 2].map((score) => {
+                          const checked =
+                            value[field as keyof OralHygieneValue] ===
+                            String(score);
+                          return (
+                            <label
+                              key={score}
+                              className={`flex-1 w-full text-center cursor-pointer px-4 py-2 rounded-lg border transition select-none text-lg
+          ${
+            checked
+              ? "bg-blue-600 text-white shadow-inner"
+              : "bg-white border-gray-300"
+          }
+          active:scale-95
+        `}
                             >
+                              <input
+                                type="radio"
+                                name={field}
+                                value={score}
+                                checked={checked}
+                                onChange={() =>
+                                  onChange(
+                                    field as keyof OralHygieneValue,
+                                    String(score)
+                                  )
+                                }
+                                className="sr-only"
+                              />
                               {score}
-                            </Label>
-                          </div>
-                        ))}
-                      </RadioGroup>
+                            </label>
+                          );
+                        })}
+                      </div>
                     </div>
                   )
                 )}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +11,9 @@ import {
 } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import NumericKeyboard from "@/components/ui/NumericKeyboard";
+import { useIsMobile } from "@/components/ui/use-mobile";
+const VALID_NUMERIC = /^(?:0|[1-9]\d*)(?:\.\d*)?$|^$/;
 
 type TonguePressureValue = {
   value: string;
@@ -30,6 +33,8 @@ const TonguePressureSection: React.FC<Props> = ({
   openSheet,
   setOpenSheet,
 }) => {
+  const [focusedField, setFocusedField] = useState<"value" | null>(null);
+  const isMobile = useIsMobile();
   return (
     <Card className="border-2">
       <CardHeader className="bg-blue-100 rounded-t-lg flex flex-row justify-between items-center">
@@ -60,9 +65,16 @@ const TonguePressureSection: React.FC<Props> = ({
           <div className="space-y-4">
             <Label className="text-lg">舌圧</Label>
             <Input
-              type="number"
+              type="text"
               value={value.value}
-              onChange={(e) => onChange("value", e.target.value)}
+              readOnly
+              onChange={(e) => {
+                const v = e.target.value;
+                if (VALID_NUMERIC.test(v)) {
+                  onChange("value", v);
+                }
+              }}
+              onFocus={() => setFocusedField("value")}
               placeholder="舌圧を入力"
               className="text-lg py-6"
             />
@@ -72,6 +84,27 @@ const TonguePressureSection: React.FC<Props> = ({
           </div>
         </div>
       </CardContent>
+      {!isMobile && (
+        <NumericKeyboard
+          onInput={(key: string) => {
+            if (!focusedField) return;
+            const field = focusedField;
+            const current = value[field] || "";
+            let newVal: string;
+            if (key === "backspace") {
+              newVal = current.slice(0, -1);
+            } else if (/^[1-9]$/.test(key) && current === "0") {
+              newVal = key;
+            } else {
+              newVal = current + key;
+            }
+            if (VALID_NUMERIC.test(newVal)) {
+              onChange(field, newVal);
+            }
+          }}
+          className="mt-4"
+        />
+      )}
     </Card>
   );
 };

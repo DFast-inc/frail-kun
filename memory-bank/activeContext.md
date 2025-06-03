@@ -1,6 +1,9 @@
 ## 現在の作業フォーカス
 - 口腔機能検査・全身機能評価・管理計画書作成のUI/UXリファイン
+- **OralHygieneSection.tsxのラジオボタンUX改善（クリック領域拡大・押し込み感・横並び・均等幅）**
 - **口腔機能検査（TCI/舌苔指数）の9ブロック化・合計スコア/TCI/判定ロジックの共通化・UI修正**
+- **口腔機能検査新規登録・編集ページ（new/page.tsx, edit/page.tsx）の7分割コンポーネント化・UI/ロジック共通化**
+- **NumericKeyboard（電卓型ソフトウェアキーボード）をOralDrynessSection, OralBitingForceSection, TonguePressureSection, ChewingFunctionSectionに展開し、バリデーション・先頭0除去・入力制御をTongueMovementSectionと統一。口腔衛生状態・嚥下機能以外の全検査で共通化完了。**
 - **管理指導記録簿枠組みUIの追加（/patients/[id]ページ）・印刷専用ページ新設・遷移ボタン追加**
 - **管理指導記録簿の一括保存UI/UXへの刷新（各列の保存ボタン廃止・一括保存ボタン新設）**
 - **管理計画書印刷ページ（/patients/[patientId]/examinations/oral-function-assessment/[oralFunctionAssessmentId]/management-plan-edit/print）の「口腔機能の状態」テーブルをoralFunctionAssessmentJudge.tsのtoResultStruct共通ロジックに統一**
@@ -19,6 +22,7 @@
 - **Supabase認証・ルートガードの導入（middlewareによる/patients・/settings配下のプロテクト、loginページServer Component化、lib/supabaseClient.tsサーバー専用化）**
 
 ## 最近の変更・進捗
+- **OralHygieneSection.tsxの舌前方部・中央部・後方部すべてのスコアボタンを「横並び・flex-1・中央寄せ・押し込み感」に統一。label＋input[type=radio]＋Tailwindでカスタムラジオボタンを実装し、shadcn/uiのRadioGroupは使わず独自実装。クリック領域拡大・UX向上・現場要望に対応。**
 - **口腔機能検査（TCI/舌苔指数）のロジックを6ブロック→9ブロック（舌前方・中央部・後方部×左中央右）に統一。合計スコア・TCI計算式・判定基準（TCI≧50→低下（✕）、TCI≦50→正常（〇））を正規化。**
 - **lib/oralFunctionAssessmentJudge.tsのtoResultStruct/judgeOralHygieneStatus等を修正し、全画面で共通ロジックを利用。**
 - **components/ExaminationDetailClient.tsxのUIも9ブロック・合計スコア・TCI・判定が正しく表示されるよう修正。**
@@ -26,7 +30,7 @@
 - **動作確認にはログインが必要なため、UI確認はユーザー側で実施。**
 - **患者編集ページ（/patients/[patientId]/edit）をServer Component＋Client Component分離し、update処理をServer Action（actions.ts）に分離。UI/UX・バリデーション・トースト等はClient側で維持し、Next.js 15＋Supabase推奨構成にリファクタリング。**
 - **全身機能評価新規登録ページ（/patients/[patientId]/examinations/physical-assessment/new）をServer Component＋Client Component分離し、insert処理をServer Action（actions.ts）に分離。UI/UX・バリデーション・トースト等はClient側で維持し、Next.js 15＋Supabase推奨構成にリファクタリング。**
-- **口腔機能検査編集ページ（/patients/[patientId]/examinations/oral-function-assessment/[oralFunctionAssessmentId]/edit/page.tsx）の既存データ取得（select）もServer Action（fetchOralFunctionExam, fetchPatientData）に分離し、Client Componentから直接サーバー専用supabaseクライアントを呼ばないNext.js 15推奨構成にリファクタリング。UI/UX・入力ロジック・バリデーション・トースト等は一切変更せず、型エラー・ランタイムエラーも解消。**
+- **口腔機能検査編集ページ（/patients/[patientId]/examinations/oral-function-assessment/[oralFunctionAssessmentId]/edit/page.tsx）を7分割コンポーネント（OralHygieneSection等）で再構成し、new/page.tsxとUI/ロジックを完全共通化。旧実装のCard等は全削除。**
 - **口腔機能検査新規登録ページ（/patients/[patientId]/examinations/oral-function-assessment/new/page.tsx）のSupabase insert処理をServer Action（actions.ts）に分離し、UI/UX・入力ロジック・バリデーション・トースト・一時保存・タブUI等は一切変更せず、Next.js 15＋Supabaseの推奨構成にリファクタリング。params.patientIdの型エラーも最小限の修正で解消。**
 - **新規患者登録ページ（/patients/new）を完全Server Component化し、Server Action＋Formパターンでサーバー専用supabaseクライアント（lib/supabaseClient.ts）を利用する構成に刷新。use client・useRouter・useCreatePatient・PatientForm.tsx等のクライアントロジックを全廃止し、バリデーション・エラー処理もサーバー側で一元化。Next.js 15の推奨パターンに完全準拠。**
 - **管理指導記録簿枠組みUIをcomponents/ManagementGuidanceRecordSheet.tsxとして新規作成し、/patients/[id]ページに追加**
@@ -48,8 +52,11 @@
 - **Supabase認証・ルートガードをNext.js 15構成で導入。/patients・/settings配下はmiddlewareでセッション必須、loginページはServer Component＋Clientラッパー構成、lib/supabaseClient.tsはサーバー専用に分離**
 - その他、従来の進捗も維持
 
+- **[NEW] TongueMovementSection にソフトウェアキーボードの数学的バリデーション（正規表現）と先頭0置換対応を追加**
+
 ## 次のステップ
 - 管理指導記録簿枠組みUI・印刷ページのデータ連携・編集機能の拡張
+- **今回のラジオボタンUI/UXパターンを他セクションにも展開、現場フィードバックを反映**
 - 他画面・他用途への判定ロジック再利用、判定基準の柔軟な拡張、UI/UX仕様のさらなる最適化
 - 患者編集画面の更なるUX改善・バリデーション強化・エラーハンドリングの拡充
 - karte_noバリデーション・重複チェック・エラー詳細表示の実装
@@ -58,50 +65,3 @@
 - 必要に応じてAPI連携・保存・印刷連携の強化
 - 他セクションのUI/UX最適化
 - 実装進捗・課題・学びを随時activeContext.mdに記録
-
-## アクティブな意思決定・考慮事項
-- **Next.js 15＋Supabase公式UI＋middleware認証の完全連携には、クライアント側で@supabase/auth-helpers-nextjsのcreatePagesBrowserClient()を使い、storage: 'cookie'（デフォルト）で初期化すること。**
-- **AuthClient.tsxではsupabase.auth.onAuthStateChange＋getSession併用で、ログイン直後のリダイレクトを確実に行うパターンを採用。**
-- **Next.jsのmiddleware（middleware.ts）は必ずプロジェクトのルート直下（/middleware.ts）に配置すること。/app/middleware.ts等サブディレクトリでは一切認識されない。認証ガードやルートガードの動作不全時はまず配置場所を確認する。**
-- **患者編集ページ（/patients/[patientId]/edit）も、updateはServer Action経由・サーバー専用supabaseクライアント利用、UI/UX・バリデーション・トースト等はClient Componentで一元管理するパターンを徹底。**
-- **全身機能評価新規登録ページ（/patients/[patientId]/examinations/physical-assessment/new）も、insertはServer Action経由・サーバー専用supabaseクライアント利用、UI/UX・バリデーション・トースト等はClient Componentで一元管理するパターンを徹底。**
-- **口腔機能検査編集ページ（edit/page.tsx）は既存データ取得（select）もServer Action（fetchOralFunctionExam, fetchPatientData）経由で実行し、Client Componentから直接サーバー専用supabaseクライアントを呼ばない構成に統一。UI/UX・ロジックは一切変更せず、Next.js 15推奨パターンを徹底。**
-- **口腔機能検査新規登録ページ（oral-function-assessment/new/page.tsx）はUI/UX・入力ロジック・バリデーション・トースト等は一切変更せず、Supabase insertのみServer Action（actions.ts）経由で実行する構成に統一。lib/supabaseClient.tsのサーバー専用クライアントを利用。**
-- **新規患者登録ページ（/patients/new）は完全Server Component化・Server Action＋Formパターン・サーバー専用supabaseクライアント利用・バリデーション/エラー処理もサーバー側で一元化し、Next.js 15の推奨パターンに完全準拠する方針に統一**
-- **管理計画書・詳細ページ・n/7表示など全ての画面でtoResultStruct共通ロジックを使い、supabase値→同一出力・同一判定・同一基準値・同一日付を保証する**
-- **患者詳細ページ遷移は必ず患者ID（id）ベースで行う**
-- **年齢はpatientsテーブルの誕生日から常に自動計算して表示**
-- **React keyはid優先で一意性を担保し、karte_noがnullでもバグが起きないようにする**
-- **見出しやボタンのレイアウトはflex・min-w・max-w等で横並びを維持**
-- 口腔機能検査データの型変換・判定ロジックは「スコア・測定値はnumber型で保持」「文字列項目のみString化」「型定義もnumber型に修正」を徹底
-- **性別（gender）はDB値（male/female）はそのまま、画面表記のみ「男性」「女性」に変換して表示する**
-- **口腔乾燥・咬合力低下・咀嚼機能低下・嚥下機能低下の「該当基準」欄は、oralFunctionAssessmentJudge.tsのgetAllCriteriaDetails APIで全方法・基準値を取得し、printページで常時改行区切りで表示するパターンを全画面で徹底**
-- **compareDataによる評価推移ロジックと、数字＋ラベル表示のUIパターンを全画面で徹底**
-- **管理指導記録簿の一括保存UI/UX・API一括更新設計を全画面で徹底**
-- **認証・ルートガードはNext.js 15のmiddleware＋Server Component構成で統一。lib/supabaseClient.tsはサーバー専用、クライアントは直接supabase-jsを使う。loginページはServer Component＋Clientラッパー構成で安全に分離**
-- その他、従来の意思決定も維持
-
-## 重要なパターン・知見
-- **TCI/舌苔指数の9ブロック化・合計スコア/TCI/判定ロジックの共通化・UI修正は、lib/oralFunctionAssessmentJudge.tsのtoResultStruct/judgeOralHygieneStatusを全画面で利用することで実現。**
-- **TypeScript型エラーはtypeof/プロパティ存在チェックで安全に解消。**
-- **動作確認は認証後に実施する運用とし、開発時はUI/ロジックの一貫性を重視。**
-- **Next.js 15＋Supabase公式UI＋middleware認証の完全連携には、クライアント側で@supabase/auth-helpers-nextjsのcreatePagesBrowserClient()（引数なし、storage: 'cookie'デフォルト）で初期化し、Auth UIにはこのクライアントを渡す。**
-- **AuthClient.tsxのuseEffectでsupabase.auth.onAuthStateChange＋getSession併用により、ログイン直後のリダイレクトを確実に行う。これにより「ログイン直後に/patientsへ遷移しない」問題を根本解消。**
-- **Next.jsのmiddleware（middleware.ts）は必ずプロジェクトのルート直下（/middleware.ts）に配置すること。サブディレクトリでは一切認識されない。今回、/app/middleware.ts→/middleware.tsへ移動したことで認証ガードが正常動作するようになった。**
-- **患者編集ページ（/patients/[patientId]/edit）も、updateはServer Action分離・サーバー専用supabaseクライアント利用パターンを徹底。Client ComponentのUI/UX・バリデーション・トースト等は一元管理。**
-- **全身機能評価新規登録ページ（/patients/[patientId]/examinations/physical-assessment/new）も、insertはServer Action分離・サーバー専用supabaseクライアント利用パターンを徹底。Client ComponentのUI/UX・バリデーション・トースト等は一元管理。**
-- **口腔機能検査編集ページ（edit/page.tsx）は既存データ取得（select）もServer Action分離・サーバー専用supabaseクライアント利用パターンを徹底。Client ComponentのUI/UX・ローカルロジックは一切変更せず、全てのDBアクセスをServer Action経由で実行。**
-- **口腔機能検査新規登録ページ（oral-function-assessment/new/page.tsx）はClient ComponentのUI/UX・ローカルロジックは一切変更せず、Supabase insertのみServer Action分離・サーバー専用supabaseクライアント利用パターンを徹底。**
-- **新規患者登録ページ（/patients/new）は完全Server Component化・Server Action＋Formパターン・サーバー専用supabaseクライアント利用・バリデーション/エラー処理もサーバー側で一元化するパターンを徹底**
-- **/printページ等、特定ページで印刷時にUI要素を制御する場合はTailwindのprint:hidden＋ルーティング判定（pathname.includes('/print')）を組み合わせることで柔軟に対応可能**
-- **判定ロジック・基準値・表示値の一元管理はoralFunctionAssessmentJudge.tsのtoResultStructで実現。今後の拡張・他画面再利用も容易**
-- **該当基準の全方法・基準値一元管理はoralFunctionAssessmentJudge.tsのgetAllCriteriaDetails APIで実現。printページ等で全ての方法・基準値を常時改行区切りで表示することで現場運用・拡張性・一貫性を担保。**
-- 年齢計算は常にDBの誕生日から算出し、propsやキャッシュ値に依存しない
-- React keyはid優先・karte_no・name・index等を組み合わせて一意性を担保
-- UI/UXの崩れはflex, min-w, max-w, whitespace-nowrap等で堅牢に防ぐ
-- OralFunctionExamData型・データ変換・判定ロジックのnumber型統一パターンを確立。今後の拡張・他画面再利用も容易
-- **性別表記はmale/female→「男性」「女性」へ画面側で変換するパターンを全画面で徹底**
-- **compareDataによる評価推移ロジックと、数字＋ラベル表示のUIパターンを全画面で徹底**
-- **管理指導記録簿の一括保存UI/UX・API一括更新設計を全画面で徹底**
-- **認証UIはServer Component＋Clientラッパー構成で安全に分離。lib/supabaseClient.tsはサーバー専用。**
-- その他、従来のパターンも維持
