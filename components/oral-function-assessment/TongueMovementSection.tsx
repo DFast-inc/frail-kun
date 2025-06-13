@@ -37,7 +37,7 @@ const TongueMovementSection: React.FC<Props> = ({
 }) => {
   const [focusedField, setFocusedField] = useState<
     keyof TongueMovementValue | null
-  >(null);
+  >("paSound");
   const isMobile = useIsMobile();
   return (
     <Card className="border-2">

@@ -46,7 +46,7 @@ const OralBitingForceSection: React.FC<Props> = ({
 }) => {
   const [focusedField, setFocusedField] = useState<
     "occlusionForce" | "remainingTeeth" | null
-  >(null);
+  >("occlusionForce");
   const isMobile = useIsMobile();
   return (
     <Card className="border-2">

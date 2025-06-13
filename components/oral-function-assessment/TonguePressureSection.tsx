@@ -33,7 +33,7 @@ const TonguePressureSection: React.FC<Props> = ({
   openSheet,
   setOpenSheet,
 }) => {
-  const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [focusedField, setFocusedField] = useState<string | null>("press1");
   const [press1, setPress1] = useState<string>("");
   const [press2, setPress2] = useState<string>("");
   const [press3, setPress3] = useState<string>("");

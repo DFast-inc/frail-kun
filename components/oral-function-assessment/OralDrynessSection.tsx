@@ -42,7 +42,7 @@ const OralDrynessSection: React.FC<Props> = ({
   openSheet,
   setOpenSheet,
 }) => {
-  const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [focusedField, setFocusedField] = useState<string | null>("mucus1");
   const [mucus1, setMucus1] = useState<string>("");
   const [mucus2, setMucus2] = useState<string>("");
   const [mucus3, setMucus3] = useState<string>("");

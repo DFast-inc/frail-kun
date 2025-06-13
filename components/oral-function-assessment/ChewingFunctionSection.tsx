@@ -44,7 +44,7 @@ const ChewingFunctionSection: React.FC<Props> = ({
 }) => {
   const [focusedField, setFocusedField] = useState<
     "glucoseConcentration" | "masticatoryScore" | null
-  >(null);
+  >("glucoseConcentration");
   const isMobile = useIsMobile();
   return (
     <Card className="border-2">
