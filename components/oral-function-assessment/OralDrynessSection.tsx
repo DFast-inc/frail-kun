@@ -143,12 +143,13 @@ const OralDrynessSection: React.FC<Props> = ({
                 </div>
                 <div className="mt-4">
                   <Label className="text-lg">平均値</Label>
-                  <Input
+                  {/* <Input
                     type="text"
                     value={mucusAvg}
                     readOnly
+                    hidden
                     className="text-lg py-6"
-                  />
+                  /> */}
                   <p className="text-lg text-muted-foreground">
                     基準値: 27.0以上が正常
                   </p>

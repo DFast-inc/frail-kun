@@ -110,12 +110,12 @@ const TonguePressureSection: React.FC<Props> = ({
             </div>
             <div className="mt-4">
               <Label className="text-lg">平均値</Label>
-              <Input
+              {/* <Input
                 type="text"
                 value={pressAvg}
                 readOnly
                 className="text-lg py-6"
-              />
+              /> */}
               <p className="text-lg text-muted-foreground">
                 基準値: 30kPa以上が正常
               </p>
