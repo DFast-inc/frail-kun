@@ -84,6 +84,7 @@ export default function NewExaminationPage() {
     swallowingFunction: {
       evaluationMethod: "eat10",
       eat10Score: "",
+      eat10Answers: Array(10).fill("0"), // 初期値は全て0
       seireiScore: "",
       notes: "",
     },

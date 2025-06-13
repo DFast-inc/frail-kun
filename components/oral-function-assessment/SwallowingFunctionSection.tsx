@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,13 +22,17 @@ import {
 type SwallowingFunctionValue = {
   evaluationMethod: string;
   eat10Score: string;
+  eat10Answers: string[];
   seireiScore: string;
   notes: string;
 };
 
 type Props = {
   value: SwallowingFunctionValue;
-  onChange: (field: keyof SwallowingFunctionValue, value: string) => void;
+  onChange: (
+    field: keyof SwallowingFunctionValue,
+    value: string | string[]
+  ) => void;
   openSheet: string | null;
   setOpenSheet: (sheet: string | null) => void;
 };
@@ -72,16 +76,18 @@ const SwallowingFunctionSection: React.FC<Props> = ({
     "【3点】\nよく出る",
     "【4点】\nいつも出る",
   ];
-  const [eat10Answers, setEat10Answers] = useState<number[]>(Array(10).fill(0));
-  useEffect(() => {
-    const total = eat10Answers.reduce((sum, v) => sum + v, 0);
-    onChange("eat10Score", total.toString());
-  }, [eat10Answers]);
+
+  // 回答変更時は親に伝える
   const handleEat10Change = (index: number, score: number) => {
-    const newAnswers = [...eat10Answers];
-    newAnswers[index] = score;
-    setEat10Answers(newAnswers);
+    const answers = Array.isArray(value.eat10Answers)
+      ? [...value.eat10Answers]
+      : Array(10).fill("0");
+    answers[index] = score.toString();
+    onChange("eat10Answers", answers);
+    const total = answers.reduce((sum, v) => sum + Number(v), 0);
+    onChange("eat10Score", total.toString());
   };
+
   return (
     <Card className="border-2">
       <CardHeader className="bg-blue-100 rounded-t-lg flex flex-row justify-between items-center">
@@ -148,7 +154,7 @@ const SwallowingFunctionSection: React.FC<Props> = ({
                         <label
                           key={optIdx}
                           className={`flex-1 w-full text-center cursor-pointer px-4 py-2 rounded-lg border transition select-none text-lg ${
-                            eat10Answers[idx] === optIdx
+                            Number((value.eat10Answers?.[idx]) ?? "0") === optIdx
                               ? "bg-blue-600 text-white shadow-inner"
                               : "bg-white border-gray-300"
                           } active:scale-95`}
@@ -157,7 +163,7 @@ const SwallowingFunctionSection: React.FC<Props> = ({
                             type="radio"
                             name={`eat10-${idx}`}
                             value={optIdx}
-                            checked={eat10Answers[idx] === optIdx}
+                            checked={Number((value.eat10Answers?.[idx]) ?? "0") === optIdx}
                             onChange={() => handleEat10Change(idx, optIdx)}
                             className="sr-only"
                           />
@@ -173,11 +179,11 @@ const SwallowingFunctionSection: React.FC<Props> = ({
                   <div className="flex justify-between items-center">
                     <p className="text-lg font-medium">
                       EAT-10 合計スコア:{" "}
-                      {eat10Answers.reduce((sum, v) => sum + v, 0)}
+                      {(value.eat10Answers ?? []).reduce((sum, v) => sum + Number(v), 0)}
                     </p>
                     <div className="text-xl font-bold">
                       判定:{" "}
-                      {eat10Answers.reduce((sum, v) => sum + v, 0) >= 3 ? (
+                      {(value.eat10Answers ?? []).reduce((sum, v) => sum + Number(v), 0) >= 3 ? (
                         <span className="text-red-500">低下（✕）</span>
                       ) : (
                         <span className="text-green-500">正常（〇）</span>
