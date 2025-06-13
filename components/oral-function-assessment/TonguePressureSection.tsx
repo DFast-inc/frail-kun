@@ -17,6 +17,9 @@ const VALID_NUMERIC = /^(?:0|[1-9]\d*)(?:\.\d*)?$|^$/;
 
 type TonguePressureValue = {
   value: string;
+  press1: string;
+  press2: string;
+  press3: string;
   notes: string;
 };
 
@@ -34,21 +37,19 @@ const TonguePressureSection: React.FC<Props> = ({
   setOpenSheet,
 }) => {
   const [focusedField, setFocusedField] = useState<string | null>("press1");
-  const [press1, setPress1] = useState<string>("");
-  const [press2, setPress2] = useState<string>("");
-  const [press3, setPress3] = useState<string>("");
+
   const [pressAvg, setPressAvg] = useState<string>("");
   useEffect(() => {
     const nums = [
-      parseFloat(press1) || 0,
-      parseFloat(press2) || 0,
-      parseFloat(press3) || 0,
+      parseFloat(value.press1) || 0,
+      parseFloat(value.press2) || 0,
+      parseFloat(value.press3) || 0,
     ];
     const avg = nums.reduce((a, b) => a + b, 0) / 3;
     const avgStr = isNaN(avg) ? "" : avg.toFixed(1);
     setPressAvg(avgStr);
     if (avgStr) onChange("value", avgStr);
-  }, [press1, press2, press3]);
+  }, [value.press1, value.press2, value.press3]);
   const isMobile = useIsMobile();
   return (
     <Card className="border-2">
@@ -81,20 +82,21 @@ const TonguePressureSection: React.FC<Props> = ({
             <Label className="text-lg">舌圧（3回）</Label>
             <div className="grid grid-cols-3 gap-4 mt-2">
               {[
-                { label: "1回目", val: press1, setter: setPress1 },
-                { label: "2回目", val: press2, setter: setPress2 },
-                { label: "3回目", val: press3, setter: setPress3 },
+                { label: "1回目", val: value.press1 },
+                { label: "2回目", val: value.press2 },
+                { label: "3回目", val: value.press3 },
               ].map((item, idx) => (
                 <div key={idx} className="flex flex-col space-y-2">
                   <Label className="text-base">{item.label}</Label>
                   <Input
                     type="text"
-                    value={item.val}
+                    value={item.val || ""}
                     readOnly
                     onChange={(e) => {
                       const v = e.target.value;
                       if (VALID_NUMERIC.test(v)) {
-                        item.setter(v);
+                        // item.setter(v);
+                        onChange(`press${idx + 1}`, v);
                       }
                     }}
                     onFocus={() =>
@@ -145,14 +147,14 @@ const TonguePressureSection: React.FC<Props> = ({
             let current = "";
             let setter: (v: string) => void;
             if (focusedField === "press1") {
-              current = press1;
-              setter = setPress1;
+              current = value.press1 || "";
+              setter = (v) => onChange("press1", v);
             } else if (focusedField === "press2") {
-              current = press2;
-              setter = setPress2;
+              current = value.press2 || "";
+              setter = (v) => onChange("press2", v);
             } else if (focusedField === "press3") {
-              current = press3;
-              setter = setPress3;
+              current = value.press3 || "";
+              setter = (v) => onChange("press3", v);
             } else {
               return;
             }
@@ -164,6 +166,7 @@ const TonguePressureSection: React.FC<Props> = ({
             } else {
               newVal = current + key;
             }
+            console.log("New value after input:", newVal);
             if (VALID_NUMERIC.test(newVal)) {
               setter(newVal);
             }

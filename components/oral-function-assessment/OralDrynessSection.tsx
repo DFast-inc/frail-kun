@@ -24,6 +24,9 @@ import {
 
 type OralDrynessValue = {
   evaluationMethod: string;
+  mucus1: string;
+  mucus2: string;
+  mucus3: string;
   mucusValue: string;
   gauzeWeight: string;
   notes: string;
@@ -43,21 +46,19 @@ const OralDrynessSection: React.FC<Props> = ({
   setOpenSheet,
 }) => {
   const [focusedField, setFocusedField] = useState<string | null>("mucus1");
-  const [mucus1, setMucus1] = useState<string>("");
-  const [mucus2, setMucus2] = useState<string>("");
-  const [mucus3, setMucus3] = useState<string>("");
+
   const [mucusAvg, setMucusAvg] = useState<string>("");
   useEffect(() => {
     const nums = [
-      parseFloat(mucus1) || 0,
-      parseFloat(mucus2) || 0,
-      parseFloat(mucus3) || 0,
+      parseFloat(value.mucus1) || 0,
+      parseFloat(value.mucus2) || 0,
+      parseFloat(value.mucus3) || 0,
     ];
     const avg = nums.reduce((a, b) => a + b, 0) / 3;
     const avgStr = isNaN(avg) ? "" : avg.toFixed(1);
     setMucusAvg(avgStr);
     if (avgStr) onChange("mucusValue", avgStr);
-  }, [mucus1, mucus2, mucus3]);
+  }, [value.mucus1, value.mucus2, value.mucus3]);
   const isMobile = useIsMobile();
   return (
     <Card className="border-2">
@@ -110,20 +111,20 @@ const OralDrynessSection: React.FC<Props> = ({
                 <Label className="text-lg">口腔湿潤度測定器の値（3回）</Label>
                 <div className="grid grid-cols-3 gap-4 mt-2">
                   {[
-                    { label: "1回目", val: mucus1, setter: setMucus1 },
-                    { label: "2回目", val: mucus2, setter: setMucus2 },
-                    { label: "3回目", val: mucus3, setter: setMucus3 },
+                    { label: "1回目", val: value.mucus1 },
+                    { label: "2回目", val: value.mucus2 },
+                    { label: "3回目", val: value.mucus3 },
                   ].map((item, idx) => (
                     <div key={idx} className="flex flex-col space-y-2">
                       <Label className="text-base">{item.label}</Label>
                       <Input
                         type="text"
-                        value={item.val}
+                        value={item.val || ""}
                         readOnly
                         onChange={(e) => {
                           const v = e.target.value;
                           if (VALID_NUMERIC.test(v)) {
-                            item.setter(v);
+                            onChange(`mucus${idx + 1}`, v);
                           }
                         }}
                         onFocus={() =>
@@ -221,20 +222,22 @@ const OralDrynessSection: React.FC<Props> = ({
         <NumericKeyboard
           onInput={(key: string) => {
             if (!focusedField) return;
+
             let current = "";
             let setter: (v: string) => void;
             if (focusedField === "gauzeWeight") {
               current = value.gauzeWeight || "";
               setter = (v) => onChange("gauzeWeight", v);
             } else if (focusedField === "mucus1") {
-              current = mucus1;
-              setter = setMucus1;
+              console.log(value.mucus1);
+              current = value.mucus1 || "";
+              setter = (v) => onChange("mucus1", v);
             } else if (focusedField === "mucus2") {
-              current = mucus2;
-              setter = setMucus2;
+              current = value.mucus2 || "";
+              setter = (v) => onChange("mucus2", v);
             } else if (focusedField === "mucus3") {
-              current = mucus3;
-              setter = setMucus3;
+              current = value.mucus3 || "";
+              setter = (v) => onChange("mucus3", v);
             } else {
               return;
             }
@@ -246,6 +249,7 @@ const OralDrynessSection: React.FC<Props> = ({
             } else {
               newVal = current + key;
             }
+            console.log("Key pressed:", newVal);
             if (VALID_NUMERIC.test(newVal)) {
               setter(newVal);
             }

@@ -47,6 +47,9 @@ export default function NewExaminationPage() {
     },
     oralDryness: {
       evaluationMethod: "method1",
+      mucus1: "",
+      mucus2: "",
+      mucus3: "",
       mucusValue: "",
       gauzeWeight: "",
       notes: "",
@@ -67,6 +70,9 @@ export default function NewExaminationPage() {
     },
     tonguePressure: {
       value: "",
+      press1: "",
+      press2: "",
+      press3: "",
       notes: "",
     },
     chewingFunction: {
