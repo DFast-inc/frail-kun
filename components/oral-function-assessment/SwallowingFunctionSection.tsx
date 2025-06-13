@@ -51,12 +51,26 @@ const SwallowingFunctionSection: React.FC<Props> = ({
     "食べる時に咳が出る",
     "飲み込むことはストレスが多い",
   ];
-  const eat10Options = [
-    "0点：体重は減少していない",
-    "1点：よくわからない",
-    "2点：この3ヵ月間で、0～1kg体重が減少した",
-    "3点：この3ヵ月間で、1～3kg体重が減少した",
-    "4点：この3ヵ月で、3kg以上体重が減少した",
+  const eat10OptionsDefault = [
+    "【0点】\n全くそうは感じないまたは、そういう問題はない",
+    "【1点】\nめったにそうは思わなかった",
+    "【2点】\nときどきそう思うことがあった",
+    "【3点】\nよくそう思った",
+    "【4点】\nいつもそう思った",
+  ];
+  const eat10OptionsWeight = [
+    "【0点】\n体重は減少していない",
+    "【1点】\nよくわからない",
+    "【2点】\nこの3ヵ月間で、0～1kg体重が減少した",
+    "【3点】\nこの3ヵ月間で、1～3kg体重が減少した",
+    "【4点】\nこの3ヵ月で、3kg以上体重が減少した",
+  ];
+  const eat10OptionsCough = [
+    "【0点】\n全く出ない",
+    "【1点】\n滅多に出ない",
+    "【2点】\nときどき出ることがある",
+    "【3点】\nよく出る",
+    "【4点】\nいつも出る",
   ];
   const [eat10Answers, setEat10Answers] = useState<number[]>(Array(10).fill(0));
   useEffect(() => {
@@ -124,7 +138,13 @@ const SwallowingFunctionSection: React.FC<Props> = ({
                       Q{idx + 1}. {question}
                     </p>
                     <div className="flex space-x-4">
-                      {eat10Options.map((label, optIdx) => (
+                      {/* 質問番号1,9のみ別選択肢 */}
+                      {(idx === 0
+                        ? eat10OptionsWeight
+                        : idx === 8
+                        ? eat10OptionsCough
+                        : eat10OptionsDefault
+                      ).map((label, optIdx) => (
                         <label
                           key={optIdx}
                           className={`flex-1 w-full text-center cursor-pointer px-4 py-2 rounded-lg border transition select-none text-lg ${
@@ -141,7 +161,9 @@ const SwallowingFunctionSection: React.FC<Props> = ({
                             onChange={() => handleEat10Change(idx, optIdx)}
                             className="sr-only"
                           />
-                          <span className="text-lg">{label}</span>
+                          <span className="text-lg whitespace-pre-line">
+                            {label}
+                          </span>
                         </label>
                       ))}
                     </div>
