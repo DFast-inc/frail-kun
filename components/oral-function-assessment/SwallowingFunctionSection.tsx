@@ -154,7 +154,7 @@ const SwallowingFunctionSection: React.FC<Props> = ({
                         <label
                           key={optIdx}
                           className={`flex-1 w-full text-center cursor-pointer px-4 py-2 rounded-lg border transition select-none text-lg ${
-                            Number((value.eat10Answers?.[idx]) ?? "0") === optIdx
+                            Number(value.eat10Answers?.[idx] ?? "0") === optIdx
                               ? "bg-blue-600 text-white shadow-inner"
                               : "bg-white border-gray-300"
                           } active:scale-95`}
@@ -163,7 +163,10 @@ const SwallowingFunctionSection: React.FC<Props> = ({
                             type="radio"
                             name={`eat10-${idx}`}
                             value={optIdx}
-                            checked={Number((value.eat10Answers?.[idx]) ?? "0") === optIdx}
+                            checked={
+                              Number(value.eat10Answers?.[idx] ?? "0") ===
+                              optIdx
+                            }
                             onChange={() => handleEat10Change(idx, optIdx)}
                             className="sr-only"
                           />
@@ -179,11 +182,17 @@ const SwallowingFunctionSection: React.FC<Props> = ({
                   <div className="flex justify-between items-center">
                     <p className="text-lg font-medium">
                       EAT-10 合計スコア:{" "}
-                      {(value.eat10Answers ?? []).reduce((sum, v) => sum + Number(v), 0)}
+                      {(value.eat10Answers ?? []).reduce(
+                        (sum, v) => sum + Number(v),
+                        0
+                      )}
                     </p>
                     <div className="text-xl font-bold">
                       判定:{" "}
-                      {(value.eat10Answers ?? []).reduce((sum, v) => sum + Number(v), 0) >= 3 ? (
+                      {(value.eat10Answers ?? []).reduce(
+                        (sum, v) => sum + Number(v),
+                        0
+                      ) >= 3 ? (
                         <span className="text-red-500">低下（✕）</span>
                       ) : (
                         <span className="text-green-500">正常（〇）</span>

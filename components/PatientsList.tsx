@@ -5,7 +5,14 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { UserPlus, Search } from "lucide-react";
 import type React from "react";
 
@@ -28,13 +35,10 @@ type PatientsListProps = {
   loading: boolean;
 };
 
-export default function PatientsList({
-  patients,
-  loading,
-}: PatientsListProps) {
+export default function PatientsList({ patients, loading }: PatientsListProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const filteredPatients = patients.filter((patient) =>
-    patient.name.toLowerCase().includes(searchTerm.toLowerCase()),
+    patient.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // 年齢計算関数
@@ -54,7 +58,20 @@ export default function PatientsList({
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-        <h1 className="text-3xl font-bold whitespace-nowrap min-w-[8rem] flex-shrink-0">患者一覧</h1>
+        <h1 className="text-3xl font-bold whitespace-nowrap min-w-[8rem] w-full">
+          <div className="flex items-center gap-4">
+            患者一覧
+            <div className="flex items-center gap-2 w-full">
+              <Search className="h-5 w-5 text-muted-foreground" />
+              <Input
+                placeholder="患者名で検索..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="text-lg py-6"
+              />
+            </div>
+          </div>
+        </h1>
         <div className="flex flex-row justify-end items-center w-full max-w-[480px]">
           <div className="flex flex-col items-end w-full">
             <Link href="/patients/new">
@@ -71,26 +88,6 @@ export default function PatientsList({
       </div>
 
       <Card className="border-2">
-        <CardHeader>
-          <CardTitle>患者検索</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-2">
-            <Search className="h-5 w-5 text-muted-foreground" />
-            <Input
-              placeholder="患者名で検索..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="text-lg py-6"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="border-2">
-        <CardHeader>
-          <CardTitle>登録患者一覧</CardTitle>
-        </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
@@ -99,7 +96,7 @@ export default function PatientsList({
                 <TableHead className="text-lg">氏名</TableHead>
                 <TableHead className="text-lg">年齢</TableHead>
                 <TableHead className="text-lg">性別</TableHead>
-                <TableHead className="text-lg">最終来院日</TableHead>
+                <TableHead className="text-lg">最終検査日</TableHead>
                 <TableHead className="text-lg">状態</TableHead>
                 <TableHead className="text-lg">診断</TableHead>
                 <TableHead className="text-lg"></TableHead>
@@ -115,34 +112,48 @@ export default function PatientsList({
               ) : (
                 filteredPatients.map((patient, index) => (
                   <TableRow
-                    key={patient.id ?? patient.karte_no ?? `no_karte_${patient.name}_${index}`}
+                    key={
+                      patient.id ??
+                      patient.karte_no ??
+                      `no_karte_${patient.name}_${index}`
+                    }
                     className="cursor-pointer hover:bg-accent transition"
-                    onClick={() => patient.id ? router.push(`/patients/${patient.id}`) : undefined}
+                    onClick={() =>
+                      patient.id
+                        ? router.push(`/patients/${patient.id}`)
+                        : undefined
+                    }
                     tabIndex={0}
                     role="button"
                     aria-label={`患者 ${patient.name} の詳細ページへ`}
                   >
-                    <TableCell className="text-lg font-medium">{patient.karte_no}</TableCell>
+                    <TableCell className="text-lg font-medium">
+                      {patient.karte_no}
+                    </TableCell>
                     <TableCell className="text-lg">{patient.name}</TableCell>
                     <TableCell className="text-lg">
-                      {calcAge(patient.birthday) !== null ? `${calcAge(patient.birthday)}歳` : "-"}
+                      {calcAge(patient.birthday) !== null
+                        ? `${calcAge(patient.birthday)}歳`
+                        : "-"}
                     </TableCell>
                     <TableCell className="text-lg">
-  {patient.gender === "male"
-    ? "男性"
-    : patient.gender === "female"
-      ? "女性"
-      : patient.gender || "-"}
-</TableCell>
-                    <TableCell className="text-lg">{patient.lastVisit}</TableCell>
+                      {patient.gender === "male"
+                        ? "男性"
+                        : patient.gender === "female"
+                        ? "女性"
+                        : patient.gender || "-"}
+                    </TableCell>
+                    <TableCell className="text-lg">
+                      {patient.lastVisit}
+                    </TableCell>
                     <TableCell className="text-lg">
                       <span
                         className={`px-2 py-1 rounded ${
                           patient.status === "要管理"
                             ? "bg-red-100 text-red-800"
                             : patient.status === "経過観察"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-green-100 text-green-800"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-green-100 text-green-800"
                         }`}
                       >
                         {patient.status}
@@ -153,7 +164,18 @@ export default function PatientsList({
                     </TableCell>
                     <TableCell className="text-lg text-right">
                       <span className="inline-block align-middle">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        <svg
+                          width="24"
+                          height="24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="feather feather-chevron-right"
+                        >
+                          <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
                       </span>
                     </TableCell>
                   </TableRow>

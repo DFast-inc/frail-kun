@@ -74,11 +74,12 @@ export const ManagementGuidanceRecordSheet = ({
       };
     } = {};
     (compareData || []).forEach((d: any) => {
+      console.log("d", d);
       initial[d.id] = {
-        generalCondition: d.generalConditionNote || "",
-        oralFunction: d.oralFunctionNote || "",
-        other: d.otherNote || "",
-        managementContent: d.managementContentNote || "",
+        generalCondition: d.exam.general_condition_note || "",
+        oralFunction: d.exam.oral_function_note || "",
+        other: d.exam.other_note || "",
+        managementContent: d.exam.management_content_note || "",
       };
     });
     return initial;
