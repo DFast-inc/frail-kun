@@ -5,13 +5,13 @@
 // 判定条件定義
 type AssessmentCriteria = {
   [key: string]: {
-    label: string
-    threshold: number
-    operator: ">" | ">=" | "<" | "<=" | "range" | "in"
-    field: string
-    extra?: any
-  }
-}
+    label: string;
+    threshold: number;
+    operator: ">" | ">=" | "<" | "<=" | "range" | "in";
+    field: string;
+    extra?: any;
+  };
+};
 
 // 各検査項目の判定条件
 export const assessmentCriteria: AssessmentCriteria = {
@@ -19,85 +19,96 @@ export const assessmentCriteria: AssessmentCriteria = {
     label: "舌苔の付着程度",
     threshold: 3,
     operator: "<",
-    field: "totalScore"
+    field: "totalScore",
   },
   oralMucosaWetness: {
     label: "口腔粘膜湿潤度",
     threshold: 27,
     operator: ">=",
-    field: "mucusValue"
+    field: "mucusValue",
   },
   salivaAmount: {
     label: "唾液量",
     threshold: 2,
     operator: ">=",
-    field: "gauzeWeight"
+    field: "gauzeWeight",
   },
   bitingForce: {
     label: "咬合力検査",
     threshold: 500,
     operator: ">=",
     field: "occlusionForce",
-    extra: { withFilter: 350 }
+    extra: { withFilter: 350 },
   },
   remainingTeeth: {
     label: "残存歯数",
     threshold: 20,
     operator: ">=",
-    field: "remainingTeeth"
+    field: "remainingTeeth",
   },
   oralDiadochokinesis: {
     label: "オーラルディアドコキネシス",
     threshold: 6.0,
     operator: ">=",
-    field: "minSound"
+    field: "minSound",
   },
   tonguePressure: {
     label: "舌圧検査",
     threshold: 30,
     operator: ">=",
-    field: "value"
+    field: "value",
   },
   chewingAbility: {
     label: "咀嚼能力検査",
     threshold: 100,
     operator: ">=",
-    field: "glucoseConcentration"
+    field: "glucoseConcentration",
   },
   chewingScore: {
     label: "咀嚼能力スコア法",
     threshold: 3,
     operator: ">=",
-    field: "masticatoryScore"
+    field: "masticatoryScore",
   },
   eat10: {
     label: "EAT-10スコア",
     threshold: 3,
     operator: "<",
-    field: "eat10Score"
+    field: "eat10Score",
   },
   questionnaire: {
     label: "聖隷式嚥下質問紙",
     threshold: 2,
     operator: "<",
-    field: "seireiScore"
-  }
-}
+    field: "seireiScore",
+  },
+};
 
 // 統合判定関数
-export function judgeAssessment(type: keyof typeof assessmentCriteria, data: any, options?: any): boolean | undefined {
-  const criteria = assessmentCriteria[type]
-  if (!criteria) throw new Error(`Unknown assessment type: ${type}`)
+export function judgeAssessment(
+  type: keyof typeof assessmentCriteria,
+  data: any,
+  options?: any
+): boolean | undefined {
+  const criteria = assessmentCriteria[type];
+  if (!criteria) throw new Error(`Unknown assessment type: ${type}`);
 
   // 特殊分岐
   if (type === "tongueCoating") {
     // 9点法の合計
     const vals = [
-      data.tongueFrontLeft, data.tongueFrontCenter, data.tongueFrontRight,
-      data.tongueMiddleLeft, data.tongueMiddleCenter, data.tongueMiddleRight,
-      data.tongueBackLeft, data.tongueBackCenter, data.tongueBackRight
+      data.tongueFrontLeft,
+      data.tongueFrontCenter,
+      data.tongueFrontRight,
+      data.tongueMiddleLeft,
+      data.tongueMiddleCenter,
+      data.tongueMiddleRight,
+      data.tongueBackLeft,
+      data.tongueBackCenter,
+      data.tongueBackRight,
     ];
-    if (vals.every(v => v === undefined || v === null || v === "")) return undefined;
+    if (vals.every((v) => v === undefined || v === null || v === ""))
+      return undefined;
     const total =
       Number(data.tongueFrontLeft || 0) +
       Number(data.tongueFrontCenter || 0) +
@@ -107,76 +118,95 @@ export function judgeAssessment(type: keyof typeof assessmentCriteria, data: any
       Number(data.tongueMiddleRight || 0) +
       Number(data.tongueBackLeft || 0) +
       Number(data.tongueBackCenter || 0) +
-      Number(data.tongueBackRight || 0)
-    return total < 3
+      Number(data.tongueBackRight || 0);
+    return total < 3;
   }
   if (type === "oralDiadochokinesis") {
     if (
-      data.paSound === undefined || data.taSound === undefined || data.kaSound === undefined ||
-      data.paSound === "" || data.taSound === "" || data.kaSound === ""
-    ) return undefined;
+      data.paSound === undefined ||
+      data.taSound === undefined ||
+      data.kaSound === undefined ||
+      data.paSound === "" ||
+      data.taSound === "" ||
+      data.kaSound === ""
+    )
+      return undefined;
     // pa, ta, kaのいずれか1つでも6.0未満なら低下
     return (
       Number(data.paSound) >= 6.0 &&
       Number(data.taSound) >= 6.0 &&
       Number(data.kaSound) >= 6.0
-    )
+    );
   }
   if (type === "bitingForce") {
     if (data.evaluationMethod === "method1") {
-      if (data.occlusionForce === undefined || data.occlusionForce === "") return undefined;
-      const value = Number(data.occlusionForce)
+      if (data.occlusionForce === undefined || data.occlusionForce === "")
+        return undefined;
+      const value = Number(data.occlusionForce);
       if (isNaN(value)) return undefined;
       if (data.useFilter === "withFilter") {
-        return value >= 350
+        return value >= 350;
       }
-      return value >= 500
+      return value >= 500;
     } else {
-      if (data.remainingTeeth === undefined || data.remainingTeeth === "") return undefined;
-      const value = Number(data.remainingTeeth)
+      if (data.remainingTeeth === undefined || data.remainingTeeth === "")
+        return undefined;
+      const value = Number(data.remainingTeeth);
       if (isNaN(value)) return undefined;
-      return value >= 20
+      return value >= 20;
     }
   }
   if (type === "chewingAbility") {
-    if (data.glucoseConcentration === undefined || data.glucoseConcentration === "") return undefined;
-    const value = Number(data.glucoseConcentration)
+    if (
+      data.glucoseConcentration === undefined ||
+      data.glucoseConcentration === ""
+    )
+      return undefined;
+    const value = Number(data.glucoseConcentration);
     if (isNaN(value)) return undefined;
-    return value >= 100
+    return value >= 100;
   }
   if (type === "chewingScore") {
-    if (data.masticatoryScore === undefined || data.masticatoryScore === "") return undefined;
-    const value = Number(data.masticatoryScore)
+    if (data.masticatoryScore === undefined || data.masticatoryScore === "")
+      return undefined;
+    const value = Number(data.masticatoryScore);
     if (isNaN(value)) return undefined;
-    return value >= 3
+    return value >= 3;
   }
   if (type === "eat10") {
-    if (data.eat10Score === undefined || data.eat10Score === "") return undefined;
-    const value = Number(data.eat10Score)
+    if (data.eat10Score === undefined || data.eat10Score === "")
+      return undefined;
+    const value = Number(data.eat10Score);
     if (isNaN(value)) return undefined;
-    return value < 3
+    return value < 3;
   }
   if (type === "questionnaire") {
-    if (data.seireiScore === undefined || data.seireiScore === "") return undefined;
-    const value = Number(data.seireiScore)
+    if (data.seireiScore === undefined || data.seireiScore === "")
+      return undefined;
+    const value = Number(data.seireiScore);
     if (isNaN(value)) return undefined;
-    return value < 2
+    return value < 2;
   }
 
   // 通常の閾値判定
-  const value = Number(data[criteria.field])
-  if (data[criteria.field] === undefined || data[criteria.field] === "" || isNaN(value)) return undefined;
+  const value = Number(data[criteria.field]);
+  if (
+    data[criteria.field] === undefined ||
+    data[criteria.field] === "" ||
+    isNaN(value)
+  )
+    return undefined;
   switch (criteria.operator) {
     case ">":
-      return value > criteria.threshold
+      return value > criteria.threshold;
     case ">=":
-      return value >= criteria.threshold
+      return value >= criteria.threshold;
     case "<":
-      return value < criteria.threshold
+      return value < criteria.threshold;
     case "<=":
-      return value <= criteria.threshold
+      return value <= criteria.threshold;
     default:
-      return undefined
+      return undefined;
   }
 }
 
@@ -185,100 +215,114 @@ export function judgeAssessment(type: keyof typeof assessmentCriteria, data: any
 export type OralFunctionExamData = {
   // 口腔衛生状態
   oralHygiene: {
-    tongueFrontLeft: number | undefined
-    tongueFrontCenter: number | undefined
-    tongueFrontRight: number | undefined
-    tongueMiddleLeft: number | undefined
-    tongueMiddleCenter: number | undefined
-    tongueMiddleRight: number | undefined
-    tongueBackLeft: number | undefined
-    tongueBackCenter: number | undefined
-    tongueBackRight: number | undefined
-  }
+    tongueFrontLeft: number | undefined;
+    tongueFrontCenter: number | undefined;
+    tongueFrontRight: number | undefined;
+    tongueMiddleLeft: number | undefined;
+    tongueMiddleCenter: number | undefined;
+    tongueMiddleRight: number | undefined;
+    tongueBackLeft: number | undefined;
+    tongueBackCenter: number | undefined;
+    tongueBackRight: number | undefined;
+  };
   // 口腔乾燥
   oralDryness: {
-    evaluationMethod: "method1" | "method2"
-    mucusValue: number | undefined // method1
-    gauzeWeight: number | undefined // method2
-  }
+    evaluationMethod: "method1" | "method2";
+    mucusValue: number | undefined; // method1
+    gauzeWeight: number | undefined; // method2
+  };
   // 咬合力
   bitingForce: {
-    evaluationMethod: "method1" | "method2"
-    pressureScaleType: "pressScale2" | "pressScale" | "oramo"
-    useFilter: "withFilter" | "noFilter"
-    occlusionForce: number | undefined
-    remainingTeeth: number | undefined
-  }
+    evaluationMethod: "method1" | "method2";
+    pressureScaleType: "pressScale2" | "pressScale" | "oramo";
+    useFilter: "withFilter" | "noFilter";
+    occlusionForce: number | undefined;
+    remainingTeeth: number | undefined;
+  };
   // 舌口唇運動
   tongueMovement: {
-    paSound: number | undefined
-    taSound: number | undefined
-    kaSound: number | undefined
-  }
+    paSound: number | undefined;
+    taSound: number | undefined;
+    kaSound: number | undefined;
+  };
   // 舌圧
   tonguePressure: {
-    value: number | undefined
-  }
+    value: number | undefined;
+  };
   // 咀嚼機能
   chewingFunction: {
-    evaluationMethod: "method1" | "method2"
-    glucoseConcentration: number | undefined // method1
-    masticatoryScore: number | undefined // method2
-  }
+    evaluationMethod: "method1" | "method2";
+    glucoseConcentration: number | undefined; // method1
+    masticatoryScore: number | undefined; // method2
+  };
   // 嚥下機能
   swallowingFunction: {
-    evaluationMethod: "eat10" | "seirei"
-    eat10Score: number | undefined // eat10
-    seireiScore: number | undefined // seirei
-  }
-}
+    evaluationMethod: "eat10" | "seirei";
+    eat10Score: number | undefined; // eat10
+    seireiScore: number | undefined; // seirei
+  };
+};
 
 /** 既存個別関数はラッパー化（将来的に削除予定） */
 
 // 口腔衛生状態（TCI）判定
-export function judgeOralHygiene(data: OralFunctionExamData["oralHygiene"]): boolean | undefined {
-  return judgeAssessment("tongueCoating", data)
+export function judgeOralHygiene(
+  data: OralFunctionExamData["oralHygiene"]
+): boolean | undefined {
+  return judgeAssessment("tongueCoating", data);
 }
 
 // 口腔乾燥判定
-export function judgeOralDryness(data: OralFunctionExamData["oralDryness"]): boolean | undefined {
+export function judgeOralDryness(
+  data: OralFunctionExamData["oralDryness"]
+): boolean | undefined {
   if (data.evaluationMethod === "method1") {
-    return judgeAssessment("oralMucosaWetness", data)
+    return judgeAssessment("oralMucosaWetness", data);
   } else {
-    return judgeAssessment("salivaAmount", data)
+    return judgeAssessment("salivaAmount", data);
   }
 }
 
 // 咬合力判定
-export function judgeBitingForce(data: OralFunctionExamData["bitingForce"]): boolean | undefined {
-  return judgeAssessment("bitingForce", data)
+export function judgeBitingForce(
+  data: OralFunctionExamData["bitingForce"]
+): boolean | undefined {
+  return judgeAssessment("bitingForce", data);
 }
 
 // 舌口唇運動判定
-export function judgeTongueMovement(data: OralFunctionExamData["tongueMovement"]): boolean | undefined {
-  return judgeAssessment("oralDiadochokinesis", data)
+export function judgeTongueMovement(
+  data: OralFunctionExamData["tongueMovement"]
+): boolean | undefined {
+  return judgeAssessment("oralDiadochokinesis", data);
 }
 
 // 舌圧判定
-export function judgeTonguePressure(data: OralFunctionExamData["tonguePressure"]): boolean | undefined {
-  return judgeAssessment("tonguePressure", data)
+export function judgeTonguePressure(
+  data: OralFunctionExamData["tonguePressure"]
+): boolean | undefined {
+  return judgeAssessment("tonguePressure", data);
 }
 
 // 咀嚼機能判定
-export function judgeChewingFunction(data: OralFunctionExamData["chewingFunction"]): boolean | undefined {
+export function judgeChewingFunction(
+  data: OralFunctionExamData["chewingFunction"]
+): boolean | undefined {
   if (data.evaluationMethod === "method1") {
-    return judgeAssessment("chewingAbility", data)
+    return judgeAssessment("chewingAbility", data);
   } else {
-    return judgeAssessment("chewingScore", data)
+    return judgeAssessment("chewingScore", data);
   }
 }
 
 // 嚥下機能判定
-export function judgeSwallowingFunction(data: OralFunctionExamData["swallowingFunction"]): boolean | undefined {
+export function judgeSwallowingFunction(
+  data: OralFunctionExamData["swallowingFunction"]
+): boolean | undefined {
   if (data.evaluationMethod === "eat10") {
-    return judgeAssessment("eat10", data)
+    return judgeAssessment("eat10", data);
   } else {
-    return judgeAssessment("questionnaire", data)
+    return judgeAssessment("questionnaire", data);
   }
 }
 
@@ -290,7 +334,7 @@ export function judgeOralHygieneStatus(scores: number[]) {
   return {
     total,
     tci,
-    isAbnormal: tci >= 50
+    isAbnormal: tci >= 50,
   };
 }
 
@@ -304,7 +348,7 @@ export function judgeOverall(data: OralFunctionExamData): boolean {
     !!judgeTonguePressure(data.tonguePressure) &&
     !!judgeChewingFunction(data.chewingFunction) &&
     !!judgeSwallowingFunction(data.swallowingFunction)
-  )
+  );
 }
 
 /**
@@ -313,45 +357,116 @@ export function judgeOverall(data: OralFunctionExamData): boolean {
 export function toOralFunctionExamData(exam: any): OralFunctionExamData {
   return {
     oralHygiene: {
-      tongueFrontLeft: exam.tongue_front_left !== null && exam.tongue_front_left !== undefined ? Number(exam.tongue_front_left) : undefined,
-      tongueFrontCenter: exam.tongue_front_center !== null && exam.tongue_front_center !== undefined ? Number(exam.tongue_front_center) : undefined,
-      tongueFrontRight: exam.tongue_front_right !== null && exam.tongue_front_right !== undefined ? Number(exam.tongue_front_right) : undefined,
-      tongueMiddleLeft: exam.tongue_middle_left !== null && exam.tongue_middle_left !== undefined ? Number(exam.tongue_middle_left) : undefined,
-      tongueMiddleCenter: exam.tongue_middle_center !== null && exam.tongue_middle_center !== undefined ? Number(exam.tongue_middle_center) : undefined,
-      tongueMiddleRight: exam.tongue_middle_right !== null && exam.tongue_middle_right !== undefined ? Number(exam.tongue_middle_right) : undefined,
-      tongueBackLeft: exam.tongue_back_left !== null && exam.tongue_back_left !== undefined ? Number(exam.tongue_back_left) : undefined,
-      tongueBackCenter: exam.tongue_back_center !== null && exam.tongue_back_center !== undefined ? Number(exam.tongue_back_center) : undefined,
-      tongueBackRight: exam.tongue_back_right !== null && exam.tongue_back_right !== undefined ? Number(exam.tongue_back_right) : undefined,
+      tongueFrontLeft:
+        exam.tongue_front_left !== null && exam.tongue_front_left !== undefined
+          ? Number(exam.tongue_front_left)
+          : undefined,
+      tongueFrontCenter:
+        exam.tongue_front_center !== null &&
+        exam.tongue_front_center !== undefined
+          ? Number(exam.tongue_front_center)
+          : undefined,
+      tongueFrontRight:
+        exam.tongue_front_right !== null &&
+        exam.tongue_front_right !== undefined
+          ? Number(exam.tongue_front_right)
+          : undefined,
+      tongueMiddleLeft:
+        exam.tongue_middle_left !== null &&
+        exam.tongue_middle_left !== undefined
+          ? Number(exam.tongue_middle_left)
+          : undefined,
+      tongueMiddleCenter:
+        exam.tongue_middle_center !== null &&
+        exam.tongue_middle_center !== undefined
+          ? Number(exam.tongue_middle_center)
+          : undefined,
+      tongueMiddleRight:
+        exam.tongue_middle_right !== null &&
+        exam.tongue_middle_right !== undefined
+          ? Number(exam.tongue_middle_right)
+          : undefined,
+      tongueBackLeft:
+        exam.tongue_back_left !== null && exam.tongue_back_left !== undefined
+          ? Number(exam.tongue_back_left)
+          : undefined,
+      tongueBackCenter:
+        exam.tongue_back_center !== null &&
+        exam.tongue_back_center !== undefined
+          ? Number(exam.tongue_back_center)
+          : undefined,
+      tongueBackRight:
+        exam.tongue_back_right !== null && exam.tongue_back_right !== undefined
+          ? Number(exam.tongue_back_right)
+          : undefined,
     },
     oralDryness: {
       evaluationMethod: exam.oral_dryness_method ?? "method1",
-      mucusValue: exam.mucus_value !== null && exam.mucus_value !== undefined ? Number(exam.mucus_value) : undefined,
-      gauzeWeight: exam.gauze_weight !== null && exam.gauze_weight !== undefined ? Number(exam.gauze_weight) : undefined,
+      mucusValue:
+        exam.mucus_value !== null && exam.mucus_value !== undefined
+          ? Number(exam.mucus_value)
+          : undefined,
+      gauzeWeight:
+        exam.gauze_weight !== null && exam.gauze_weight !== undefined
+          ? Number(exam.gauze_weight)
+          : undefined,
     },
     bitingForce: {
       evaluationMethod: exam.biting_force_method ?? "method1",
       pressureScaleType: exam.pressure_scale_type ?? "pressScale2",
       useFilter: exam.use_filter ?? "noFilter",
-      occlusionForce: exam.occlusion_force !== null && exam.occlusion_force !== undefined ? Number(exam.occlusion_force) : undefined,
-      remainingTeeth: exam.remaining_teeth !== null && exam.remaining_teeth !== undefined ? Number(exam.remaining_teeth) : undefined,
+      occlusionForce:
+        exam.occlusion_force !== null && exam.occlusion_force !== undefined
+          ? Number(exam.occlusion_force)
+          : undefined,
+      remainingTeeth:
+        exam.remaining_teeth !== null && exam.remaining_teeth !== undefined
+          ? Number(exam.remaining_teeth)
+          : undefined,
     },
     tongueMovement: {
-      paSound: exam.pa_sound !== null && exam.pa_sound !== undefined ? Number(exam.pa_sound) : undefined,
-      taSound: exam.ta_sound !== null && exam.ta_sound !== undefined ? Number(exam.ta_sound) : undefined,
-      kaSound: exam.ka_sound !== null && exam.ka_sound !== undefined ? Number(exam.ka_sound) : undefined,
+      paSound:
+        exam.pa_sound !== null && exam.pa_sound !== undefined
+          ? Number(exam.pa_sound)
+          : undefined,
+      taSound:
+        exam.ta_sound !== null && exam.ta_sound !== undefined
+          ? Number(exam.ta_sound)
+          : undefined,
+      kaSound:
+        exam.ka_sound !== null && exam.ka_sound !== undefined
+          ? Number(exam.ka_sound)
+          : undefined,
     },
     tonguePressure: {
-      value: exam.tongue_pressure_value !== null && exam.tongue_pressure_value !== undefined ? Number(exam.tongue_pressure_value) : undefined,
+      value:
+        exam.tongue_pressure_value !== null &&
+        exam.tongue_pressure_value !== undefined
+          ? Number(exam.tongue_pressure_value)
+          : undefined,
     },
     chewingFunction: {
       evaluationMethod: exam.chewing_function_method ?? "method1",
-      glucoseConcentration: exam.glucose_concentration !== null && exam.glucose_concentration !== undefined ? Number(exam.glucose_concentration) : undefined,
-      masticatoryScore: exam.masticatory_score !== null && exam.masticatory_score !== undefined ? Number(exam.masticatory_score) : undefined,
+      glucoseConcentration:
+        exam.glucose_concentration !== null &&
+        exam.glucose_concentration !== undefined
+          ? Number(exam.glucose_concentration)
+          : undefined,
+      masticatoryScore:
+        exam.masticatory_score !== null && exam.masticatory_score !== undefined
+          ? Number(exam.masticatory_score)
+          : undefined,
     },
     swallowingFunction: {
       evaluationMethod: exam.swallowing_function_method ?? "eat10",
-      eat10Score: exam.eat10_score !== null && exam.eat10_score !== undefined ? Number(exam.eat10_score) : undefined,
-      seireiScore: exam.seirei_score !== null && exam.seirei_score !== undefined ? Number(exam.seirei_score) : undefined,
+      eat10Score:
+        exam.eat10_score !== null && exam.eat10_score !== undefined
+          ? Number(exam.eat10_score)
+          : undefined,
+      seireiScore:
+        exam.seirei_score !== null && exam.seirei_score !== undefined
+          ? Number(exam.seirei_score)
+          : undefined,
     },
   };
 }
@@ -382,7 +497,7 @@ export function toResultStruct(exam: any) {
         [scores[3], scores[4], scores[5]], // 中央部: 左・中央・右
         [scores[6], scores[7], scores[8]], // 後方部: 左・中央・右
       ];
-      const gridStr = 
+      const gridStr =
         `舌前方\n左: ${grid[0][0]}  中央: ${grid[0][1]}  右: ${grid[0][2]}\n` +
         `舌中央部\n左: ${grid[1][0]}  中央: ${grid[1][1]}  右: ${grid[1][2]}\n` +
         `舌後方部\n左: ${grid[2][0]}  中央: ${grid[2][1]}  右: ${grid[2][2]}`;
@@ -396,7 +511,7 @@ export function toResultStruct(exam: any) {
           total: totalStr,
           tci: tciStr,
           tciValue: tci,
-          plaque: `プラークコントロール: ${exam.plaque_control ?? "-"}`
+          plaque: `プラークコントロール: ${exam.plaque_control ?? "-"}`,
         },
         status,
         name: "口腔衛生状態",
@@ -424,7 +539,11 @@ export function toResultStruct(exam: any) {
     })(),
     bitingForce: {
       score: judgeBitingForce(data.bitingForce) ? 0 : 1,
-      value: `咬合力: ${data.bitingForce.occlusionForce ?? "-"}N / 残存歯数: ${data.bitingForce.remainingTeeth ?? "-"}本 / 器具: ${data.bitingForce.pressureScaleType ?? "-"} / フィルタ: ${data.bitingForce.useFilter ?? "-"}`,
+      value: `咬合力: ${data.bitingForce.occlusionForce ?? "-"}N / 残存歯数: ${
+        data.bitingForce.remainingTeeth ?? "-"
+      }本 / 器具: ${data.bitingForce.pressureScaleType ?? "-"} / フィルタ: ${
+        data.bitingForce.useFilter ?? "-"
+      }`,
       status: judgeBitingForce(data.bitingForce) ? "正常" : "該当",
       name: "咬合力",
       description: "最大咬合力・残存歯数",
@@ -433,7 +552,9 @@ export function toResultStruct(exam: any) {
     },
     tongueMotor: {
       score: judgeTongueMovement(data.tongueMovement) ? 0 : 1,
-      value: `pa: ${data.tongueMovement.paSound ?? "-"} / ta: ${data.tongueMovement.taSound ?? "-"} / ka: ${data.tongueMovement.kaSound ?? "-"}`,
+      value: `pa: ${data.tongueMovement.paSound ?? "-"} / ta: ${
+        data.tongueMovement.taSound ?? "-"
+      } / ka: ${data.tongueMovement.kaSound ?? "-"}`,
       status: judgeTongueMovement(data.tongueMovement) ? "正常" : "該当",
       name: "舌口唇運動機能",
       description: "オーラルディアドコキネシス",
@@ -451,7 +572,9 @@ export function toResultStruct(exam: any) {
     },
     chewingFunction: {
       score: judgeChewingFunction(data.chewingFunction) ? 0 : 1,
-      value: `グルコース濃度: ${data.chewingFunction.glucoseConcentration ?? "-"} / 咀嚼能率スコア: ${data.chewingFunction.masticatoryScore ?? "-"}`,
+      value: `グルコース濃度: ${
+        data.chewingFunction.glucoseConcentration ?? "-"
+      } / 咀嚼能率スコア: ${data.chewingFunction.masticatoryScore ?? "-"}`,
       status: judgeChewingFunction(data.chewingFunction) ? "正常" : "該当",
       name: "咀嚼機能",
       description: "グルコース含有ゼリー法・咀嚼能率スコア",
@@ -461,8 +584,12 @@ export function toResultStruct(exam: any) {
     tonguePressureValue: data.tonguePressure.value ?? "-",
     swallowingFunction: {
       score: judgeSwallowingFunction(data.swallowingFunction) ? 0 : 1,
-      value: `EAT-10: ${data.swallowingFunction.eat10Score ?? "-"} / 聖隷式: ${data.swallowingFunction.seireiScore ?? "-"}`,
-      status: judgeSwallowingFunction(data.swallowingFunction) ? "正常" : "該当",
+      value: `EAT-10: ${data.swallowingFunction.eat10Score ?? "-"} / 聖隷式: ${
+        data.swallowingFunction.seireiScore ?? "-"
+      }`,
+      status: judgeSwallowingFunction(data.swallowingFunction)
+        ? "正常"
+        : "該当",
       name: "嚥下機能",
       description: "EAT-10・聖隷式嚥下質問紙",
       normalRange: "EAT-10: 3点未満, 聖隷式: 2点未満",
@@ -477,23 +604,33 @@ export function toResultStruct(exam: any) {
 export const oralFunctionCriteriaDetails = {
   oralDryness: [
     { method: "口腔湿潤度計測", label: "湿潤度値", threshold: "27.0以上" },
-    { method: "サクソンテスト", label: "ガーゼ重量", threshold: "2g以上" }
+    { method: "サクソンテスト", label: "ガーゼ重量", threshold: "2g以上" },
   ],
   bitingForce: [
-    { method: "最大咬合力", label: "咬合力", threshold: "500N以上（フィルタ有350N以上）" },
-    { method: "残存歯数", label: "残存歯数", threshold: "20本以上" }
+    {
+      method: "最大咬合力",
+      label: "咬合力",
+      threshold: "500N以上（フィルタ有350N以上）",
+    },
+    { method: "残存歯数", label: "残存歯数", threshold: "20本以上" },
   ],
   chewingFunction: [
-    { method: "グルコース含有ゼリー法", label: "グルコース濃度", threshold: "100mg/dL以上" },
-    { method: "咀嚼能率スコア法", label: "スコア", threshold: "3以上" }
+    {
+      method: "グルコース含有ゼリー法",
+      label: "グルコース濃度",
+      threshold: "100mg/dL以上",
+    },
+    { method: "咀嚼能率スコア法", label: "スコア", threshold: "3以上" },
   ],
   swallowingFunction: [
     { method: "EAT-10", label: "EAT-10スコア", threshold: "3点未満" },
-    { method: "聖隷式嚥下質問紙", label: "聖隷スコア", threshold: "2点未満" }
-  ]
+    { method: "聖隷式嚥下質問紙", label: "聖隷スコア", threshold: "2点未満" },
+  ],
 };
 
-export function getAllCriteriaDetails(key: keyof typeof oralFunctionCriteriaDetails) {
+export function getAllCriteriaDetails(
+  key: keyof typeof oralFunctionCriteriaDetails
+) {
   return oralFunctionCriteriaDetails[key];
 }
 
@@ -501,17 +638,17 @@ export function getAllCriteriaDetails(key: keyof typeof oralFunctionCriteriaDeta
 export function countApplicableItems(data: OralFunctionExamData) {
   // toResultStructのscore合計と完全一致させる
   const oralHygieneScore = (() => {
-      // 9ブロック: 舌前方・中央部・後方部 × 左・中央・右
-      const scores = [
-        Number(data.oralHygiene.tongueFrontLeft || 0),
-        Number(data.oralHygiene.tongueFrontCenter || 0),
-        Number(data.oralHygiene.tongueFrontRight || 0),
-        Number(data.oralHygiene.tongueMiddleLeft || 0),
-        Number(data.oralHygiene.tongueMiddleCenter || 0),
-        Number(data.oralHygiene.tongueMiddleRight || 0),
-        Number(data.oralHygiene.tongueBackLeft || 0),
-        Number(data.oralHygiene.tongueBackCenter || 0),
-        Number(data.oralHygiene.tongueBackRight || 0),
+    // 9ブロック: 舌前方・中央部・後方部 × 左・中央・右
+    const scores = [
+      Number(data.oralHygiene.tongueFrontLeft || 0),
+      Number(data.oralHygiene.tongueFrontCenter || 0),
+      Number(data.oralHygiene.tongueFrontRight || 0),
+      Number(data.oralHygiene.tongueMiddleLeft || 0),
+      Number(data.oralHygiene.tongueMiddleCenter || 0),
+      Number(data.oralHygiene.tongueMiddleRight || 0),
+      Number(data.oralHygiene.tongueBackLeft || 0),
+      Number(data.oralHygiene.tongueBackCenter || 0),
+      Number(data.oralHygiene.tongueBackRight || 0),
     ];
     const { isAbnormal } = judgeOralHygieneStatus(scores);
     return isAbnormal ? 1 : 0;
@@ -521,10 +658,25 @@ export function countApplicableItems(data: OralFunctionExamData) {
   const bitingForceScore = judgeBitingForce(data.bitingForce) ? 0 : 1;
   const tongueMotorScore = judgeTongueMovement(data.tongueMovement) ? 0 : 1;
   const tonguePressureScore = judgeTonguePressure(data.tonguePressure) ? 0 : 1;
-  const chewingFunctionScore = judgeChewingFunction(data.chewingFunction) ? 0 : 1;
-  const swallowingFunctionScore = judgeSwallowingFunction(data.swallowingFunction) ? 0 : 1;
+  const chewingFunctionScore = judgeChewingFunction(data.chewingFunction)
+    ? 0
+    : 1;
+  const swallowingFunctionScore = judgeSwallowingFunction(
+    data.swallowingFunction
+  )
+    ? 0
+    : 1;
 
-  return {abnormalCount: [
+  return {
+    abnormalCount: [
+      oralHygieneScore,
+      oralDrynessScore,
+      bitingForceScore,
+      tongueMotorScore,
+      tonguePressureScore,
+      chewingFunctionScore,
+      swallowingFunctionScore,
+    ].reduce((a, b) => a + b, 0),
     oralHygieneScore,
     oralDrynessScore,
     bitingForceScore,
@@ -532,11 +684,5 @@ export function countApplicableItems(data: OralFunctionExamData) {
     tonguePressureScore,
     chewingFunctionScore,
     swallowingFunctionScore,
-  ].reduce((a, b) => a + b, 0),    oralHygieneScore,
-    oralDrynessScore,
-    bitingForceScore,
-    tongueMotorScore,
-    tonguePressureScore,
-    chewingFunctionScore,
-    swallowingFunctionScore,};
+  };
 }
